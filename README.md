@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Build with One · You.com Hackathon page
 
-## Getting Started
+The one-page starting point for builders using One at You.com's **Build with YOU: The Live Web Agent Hackathon** (NYC, September 11, 2026), plus the primary `one-hackathon` skill they install.
 
-First, run the development server:
+Deployed at **https://hackathon.withone.ai**.
+
+## Routes
+
+| Route | What |
+|---|---|
+| `/` | The one-pager: event facts, the free-year-of-Pro coupon, the skill install callout, three ways to use One (remote MCP, CLI, API), partner playbooks (You.com, Daytona, CrewAI), use-case templates, help, links |
+| `/skill` | The skill rendered with a table of contents and a copy button |
+| `/skill.md` | The raw skill as `text/markdown`. This is the URL agents fetch and the install commands curl |
+| `/opengraph-image` | Generated OG card |
+
+## Editing
+
+- **Copy, URLs, coupon, Discord link, event facts:** `src/lib/site.ts`. `DISCORD_URL` is a placeholder until the invite exists.
+- **The skill:** `content/skill.md`. Section anchors used by the page (`youcom-via-one`, `daytona-via-one`, `crewai-with-one`) come from the `##` heading text.
+- **Design tokens:** `src/app/globals.css` (Clockwork dark: carbon neutrals, lime fill-only CTA, spring green accents, Inter / DM Mono / Lora).
+- **Sections:** `src/components/sections/*`. Primitives in `src/components/ui/*`.
+- **Logos:** `public/logo` (One), `public/agents` (AI clients), `public/partners` (You.com, Daytona, CrewAI, Discord, Founders Bay, Clean Data Alliance), `public/platforms` (connector marks from `assets.withone.ai/connectors/<slug>.svg`).
+
+Platform and tool counts are fetched at build time from `api.withone.ai/open/count/*` with fallbacks in `site.ts`; the page revalidates hourly.
+
+## Develop
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm run lint
+npm run build && npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS v4. No database, no env vars.
