@@ -4,7 +4,7 @@
  */
 export function SignalLine({ className }: { className?: string }) {
   const path =
-    "M0 40 H260 C300 40 320 40 340 70 C360 100 380 110 420 110 H700 C740 110 760 100 780 70 C800 40 820 40 860 40 H1200";
+    "M0 40 H260 C275 40 285 70 305 88 C325 106 350 110 400 110 H720 C770 110 795 106 815 88 C835 70 845 40 860 40 H1200";
   const stops = [
     { x: 0, y: 40, label: "doors" },
     { x: 130, y: 40, label: "keynote" },
@@ -30,8 +30,8 @@ export function SignalLine({ className }: { className?: string }) {
         <path d={path} stroke="var(--carbon-border-strong)" strokeWidth="1.5" />
         <path d={path} className="dash-line" stroke="var(--spring)" strokeOpacity="0.55" strokeWidth="1.5" />
         {/* the run that faulted: continues straight from WORKSHOPS to the fault, then fades */}
-        <path d="M260 40 H514" stroke="var(--alert)" strokeOpacity="0.6" strokeWidth="1.5" />
-        <path d="M526 40 H700" stroke="var(--alert)" strokeOpacity="0.28" strokeWidth="1.5" strokeDasharray="3 7" />
+        <path d="M264 40 H514" stroke="var(--alert)" strokeOpacity="0.55" strokeWidth="1.25" />
+        <path d="M526 40 H790" stroke="var(--alert)" strokeOpacity="0.3" strokeWidth="1.25" strokeDasharray="4 6" />
         <circle cx="520" cy="40" r="6" fill="var(--carbon-0)" stroke="var(--alert)" strokeOpacity="0.85" strokeWidth="1.5" />
         <path d="M517 37 L523 43 M523 37 L517 43" stroke="var(--alert)" strokeOpacity="0.85" strokeWidth="1.5" />
         <text x="520" y="26" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" letterSpacing="2" fill="var(--alert)" fillOpacity="0.85">
