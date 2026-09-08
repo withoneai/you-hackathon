@@ -154,23 +154,6 @@
   }
 }
 
-@keyframes travel {
-  0% {
-    offset-distance: 0%;
-    opacity: 0;
-  }
-  8% {
-    opacity: 1;
-  }
-  92% {
-    opacity: 1;
-  }
-  100% {
-    offset-distance: 100%;
-    opacity: 0;
-  }
-}
-
 /* ------------------------------------------------------------------ */
 
 html {
@@ -268,13 +251,7 @@ h3 {
   animation: var(--animate-halo);
 }
 
-/* Signal line pulse rides the path via offset-path (set inline). */
-.signal-pulse {
-  animation: travel 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-.signal-pulse.delay {
-  animation-delay: 4.5s;
-}
+/* Signal line pulses are SMIL circles inside the SVG; hidden under reduced motion. */
 
 .dash-line {
   stroke-dasharray: 6 10;
