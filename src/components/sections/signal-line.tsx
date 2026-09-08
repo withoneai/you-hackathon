@@ -29,10 +29,14 @@ export function SignalLine({ className }: { className?: string }) {
         {/* the run */}
         <path d={path} stroke="var(--carbon-border-strong)" strokeWidth="1.5" />
         <path d={path} className="dash-line" stroke="var(--spring)" strokeOpacity="0.55" strokeWidth="1.5" />
-        {/* fault marker on the top rail, like the graphic */}
-        <path d="M340 40 H520" stroke="var(--alert)" strokeOpacity="0.5" strokeWidth="1.5" strokeDasharray="4 6" />
-        <circle cx="520" cy="40" r="6" stroke="var(--alert)" strokeOpacity="0.8" strokeWidth="1.5" />
-        <path d="M517 37 L523 43 M523 37 L517 43" stroke="var(--alert)" strokeOpacity="0.8" strokeWidth="1.5" />
+        {/* the run that faulted: continues straight from WORKSHOPS to the fault, then fades */}
+        <path d="M260 40 H514" stroke="var(--alert)" strokeOpacity="0.6" strokeWidth="1.5" />
+        <path d="M526 40 H700" stroke="var(--alert)" strokeOpacity="0.28" strokeWidth="1.5" strokeDasharray="3 7" />
+        <circle cx="520" cy="40" r="6" fill="var(--carbon-0)" stroke="var(--alert)" strokeOpacity="0.85" strokeWidth="1.5" />
+        <path d="M517 37 L523 43 M523 37 L517 43" stroke="var(--alert)" strokeOpacity="0.85" strokeWidth="1.5" />
+        <text x="520" y="26" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" letterSpacing="2" fill="var(--alert)" fillOpacity="0.85">
+          FAULT
+        </text>
         {stops.map((s) => (
           <g key={s.label}>
             <circle cx={s.x} cy={s.y} r="3.5" fill="var(--carbon-0)" stroke="var(--ink-secondary)" strokeWidth="1.5" />
