@@ -35,7 +35,7 @@ export function Hero({ platformLabel }: { platformLabel: string }) {
           className="animate-fade-up mt-6 max-w-[16ch] font-serif text-[40px] leading-[1.04] tracking-display text-foreground sm:text-[56px] lg:text-[68px]"
           style={{ animationDelay: "80ms" }}
         >
-          Build with <span className="text-spring">One</span> at the Live Web Agent Hackathon.
+          Build with One at the Live Web Agent Hackathon.
         </h1>
         <p
           className="animate-fade-up mt-6 max-w-[60ch] text-15 text-secondary sm:text-[17px]"
