@@ -38,7 +38,7 @@ The CLI (`one list`, `one actions search`, `one actions knowledge`, `one actions
 | API keys (`sk_live_…` / `sk_test_…`) | https://app.withone.ai/settings/api-keys |
 | Every call your agent made, request and response | https://app.withone.ai/logs |
 | Billing (redeem the hackathon coupon) | https://app.withone.ai/settings/billing |
-| Hackathon perk: **a free month of One Pro for every builder** | code `1U-PRO`, entered at checkout on the Pro plan. The winning team gets a free year (second place six months, third place three) |
+| Hackathon perk: **a free month of One Pro for every builder** | code `YOU-NYC-PRO`, entered at checkout on the Pro plan. The winning team gets a free year (second place six months, third place three) |
 | Remote MCP server (Streamable HTTP, OAuth) | `https://mcp.withone.ai/mcp` |
 | Docs | https://www.withone.ai/docs/welcome · CLI https://www.withone.ai/docs/cli · MCP https://www.withone.ai/docs/mcp · Install guides https://www.withone.ai/docs/install · Relay https://www.withone.ai/docs/relay |
 | Every platform and action, searchable | https://www.withone.ai/knowledge |

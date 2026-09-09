@@ -43,7 +43,7 @@ export default function OpenGraphImage() {
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <div style={{ display: "flex", width: 64, height: 10, background: "#CCFF00", borderRadius: 999 }} />
           <div style={{ display: "flex", fontSize: 20, letterSpacing: 3, color: "#7C8C86" }}>
-            {`FREE MONTH OF ONE PRO · CODE 1U-PRO · HACKATHON.WITHONE.AI`}
+            {`FREE MONTH OF ONE PRO · CODE YOU-NYC-PRO · HACKATHON.WITHONE.AI`}
           </div>
         </div>
       </div>

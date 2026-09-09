@@ -8,7 +8,7 @@ export const SKILL_RAW_URL = `${SITE_URL}/skill.md`;
 export const SKILL_PAGE_URL = `${SITE_URL}/skill`;
 export const SKILL_NAME = "one-hackathon";
 
-export const COUPON_CODE = "1U-PRO";
+export const COUPON_CODE = "YOU-NYC-PRO";
 export const REDEEM_URL = "https://app.withone.ai/settings/billing";
 
 // TODO: replace with the real invite before launch.
