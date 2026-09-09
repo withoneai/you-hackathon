@@ -7,6 +7,7 @@ type FrameProps = {
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
+  id?: string;
 };
 
 /** The "one · zsh" window chrome from the dashboard install page. */
@@ -16,9 +17,11 @@ export function TerminalFrame({
   children,
   className,
   bodyClassName,
+  id,
 }: FrameProps) {
   return (
     <div
+      id={id}
       className={cn(
         "overflow-hidden rounded-card border border-border bg-surface shadow-lift",
         className,

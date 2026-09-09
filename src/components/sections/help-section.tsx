@@ -5,8 +5,8 @@ import { Reveal } from "@/components/ui/reveal";
 import { LINKS } from "@/lib/site";
 
 const OTHER = [
-  { label: "Docs", body: "Welcome, CLI, MCP, install guides, API reference.", href: LINKS.docs },
-  { label: "Every call you made", body: "Request and response logs for debugging.", href: LINKS.logs },
+  { label: "Docs", body: "CLI, MCP, install guides, API reference.", href: LINKS.docs },
+  { label: "Logs", body: "Every call your agent made, request and response.", href: LINKS.logs },
   { label: "Email", body: "support@withone.ai for account or billing questions.", href: LINKS.support },
 ];
 
@@ -21,10 +21,9 @@ export function HelpSection() {
               <h2 className="mt-4 font-serif text-[32px] leading-[1.1] tracking-display text-foreground sm:text-[40px]">
                 Stuck? The One team is in the Discord all day.
               </h2>
-              <p className="mt-4 max-w-[52ch] text-15 text-secondary">
-                Engineers from One answer setup, connection and action questions in real time
-                during the hackathon. Bring the exact command or tool call and the error, and
-                you will be unblocked fast. Jacob Rissman, Head of GTM at One, is on site too.
+              <p className="mt-4 max-w-[48ch] text-15 text-secondary">
+                One engineers answer setup and action questions in real time. Bring the exact
+                command and the error.
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-3">
                 <Button href={LINKS.discord} variant="lime" size="lg">

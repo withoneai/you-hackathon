@@ -1,9 +1,10 @@
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/ui/copy-button";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { EVENT, LINKS } from "@/lib/site";
-import { LogoWall } from "./logo-wall";
 import { SignalLine } from "./signal-line";
+import { PASTE_PROMPT, SkillInstaller } from "./skill-installer";
 
 const facts = [
   { label: "Date", value: EVENT.date },
@@ -14,64 +15,61 @@ const facts = [
 
 export function Hero({ platformLabel }: { platformLabel: string }) {
   return (
-    <section className="relative overflow-hidden border-b border-border">
-      <LogoWall />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-[520px]"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 20% 0%, rgb(63 227 165 / 0.07) 0%, transparent 60%)",
-        }}
-      />
+    <section className="relative border-b border-border">
+      <div className="mx-auto max-w-[1180px] px-5 pb-8 pt-14 sm:px-8 md:pt-20">
+        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
+          <div>
+            <div className="animate-fade-up">
+              <Eyebrow dot="lime">
+                {EVENT.host} × One · {EVENT.edition} · {EVENT.dateShort}
+              </Eyebrow>
+            </div>
+            <h1
+              className="animate-fade-up mt-6 max-w-[16ch] font-serif text-[40px] leading-[1.04] tracking-display text-foreground sm:text-[52px] lg:text-[60px]"
+              style={{ animationDelay: "80ms" }}
+            >
+              Build with One at the Live Web Agent Hackathon.
+            </h1>
+            <p
+              className="animate-fade-up mt-5 max-w-[46ch] text-15 text-secondary sm:text-[17px]"
+              style={{ animationDelay: "160ms" }}
+            >
+              Managed auth and {platformLabel} apps behind four tools. Install the skill, connect
+              your apps, and spend the day on the agent.
+            </p>
+            <div
+              className="animate-fade-up mt-8 flex flex-wrap items-center gap-3"
+              style={{ animationDelay: "240ms" }}
+            >
+              <CopyButton
+                variant="lime"
+                text={PASTE_PROMPT}
+                label="Install the skill"
+                copiedLabel="Prompt copied. Paste it into your agent."
+              />
+              <Button href={LINKS.dashboard} variant="outline" size="md">
+                Open the dashboard <ArrowUpRight />
+              </Button>
+            </div>
+            <p className="animate-fade-up mt-3 text-13 text-muted" style={{ animationDelay: "300ms" }}>
+              Copies the one-line install prompt. Or pick your client{" "}
+              <span className="lg:hidden">below</span>
+              <span className="hidden lg:inline">on the right</span>.
+            </p>
+          </div>
 
-      <div className="relative mx-auto max-w-[1180px] px-5 pb-8 pt-16 sm:px-8 md:pt-24">
-        <div className="animate-fade-up">
-          <Eyebrow dot="lime">
-            {EVENT.host} × One · {EVENT.edition} · {EVENT.dateShort}
-          </Eyebrow>
-        </div>
-        <h1
-          className="animate-fade-up mt-6 max-w-[16ch] font-serif text-[40px] leading-[1.04] tracking-display text-foreground sm:text-[56px] lg:text-[68px]"
-          style={{ animationDelay: "80ms" }}
-        >
-          Build with One at the Live Web Agent Hackathon.
-        </h1>
-        <p
-          className="animate-fade-up mt-6 max-w-[60ch] text-15 text-secondary sm:text-[17px]"
-          style={{ animationDelay: "160ms" }}
-        >
-          One gives your agent managed auth and {platformLabel} apps behind four tools. Install
-          the skill, connect You.com, Daytona and the apps your idea needs, and spend the day on
-          the agent instead of the plumbing.
-        </p>
-
-        <div
-          className="animate-fade-up relative mt-9 flex flex-wrap items-center gap-3"
-          style={{ animationDelay: "240ms" }}
-        >
-          <span aria-hidden className="halo absolute -left-16 -top-14 -z-10 h-[190px] w-[340px]" />
-          <Button href="#skill" variant="lime" size="lg">
-            Install the skill
-          </Button>
-          <Button href={LINKS.dashboard} variant="outline" size="lg">
-            Open the dashboard <ArrowUpRight />
-          </Button>
-          <a
-            href="#setup"
-            className="ml-1 text-13 text-secondary underline decoration-border-strong underline-offset-4 transition-colors hover:text-foreground hover:decoration-spring"
-          >
-            or see the three ways to use One
-          </a>
+          <div className="animate-fade-up min-w-0" style={{ animationDelay: "200ms" }}>
+            <SkillInstaller id="install" />
+          </div>
         </div>
       </div>
 
-      <div className="relative mx-auto hidden max-w-[1180px] px-5 sm:px-8 md:block">
+      <div className="mx-auto hidden max-w-[1180px] px-5 sm:px-8 md:block">
         <SignalLine className="relative" />
       </div>
 
-      <div className="relative mx-auto max-w-[1180px] px-5 pb-10 pt-6 sm:px-8 md:pt-2">
-        <dl className="grid grid-cols-2 overflow-hidden rounded-card border border-border bg-surface/70 backdrop-blur-sm md:grid-cols-4">
+      <div className="mx-auto max-w-[1180px] px-5 pb-10 pt-6 sm:px-8 md:pt-2">
+        <dl className="grid grid-cols-2 overflow-hidden rounded-card border border-border bg-surface md:grid-cols-4">
           {facts.map((f, i) => (
             <div
               key={f.label}
@@ -94,10 +92,10 @@ export function Hero({ platformLabel }: { platformLabel: string }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-secondary transition-colors hover:text-foreground"
           >
-            Event page and registration on Luma <ArrowUpRight size={12} />
+            Event page on Luma <ArrowUpRight size={12} />
           </a>
           <span className="hidden sm:inline">·</span>
-          <span>Hosted by {EVENT.host}. In partnership with One, Daytona, CrewAI, Founders Bay and Clean Data Alliance.</span>
+          <span>Hosted by {EVENT.host} with One, Daytona, CrewAI, Founders Bay and Clean Data Alliance.</span>
         </p>
       </div>
     </section>

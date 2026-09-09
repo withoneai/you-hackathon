@@ -13,26 +13,26 @@ type Template = {
 const TEMPLATES: Template[] = [
   {
     title: "Self-repairing research agent",
-    body: "Search the live web with You.com, write the analysis script, run it in a Daytona sandbox, retry from the error when it fails, and email the result.",
+    body: "Search with You.com, run the analysis in a Daytona sandbox, retry on failure, email the result.",
     prompt: "Research the top three self-repairing agent papers this month, chart their citation counts in a sandbox, and email me the PNG.",
     platforms: ["you", "daytona", "gmail"],
   },
   {
     title: "Support triage crew",
-    body: "A CrewAI crew reads the inbox, reproduces the bug in a sandbox, files it in Linear and posts a one-line summary to Slack.",
+    body: "A crew reads the inbox, reproduces the bug in a sandbox, files it in Linear, posts to Slack.",
     prompt: "Triage every unread support email, file real bugs in Linear with repro steps, and post the list to #support.",
     platforms: ["gmail", "daytona", "linear", "slack"],
     framework: "CrewAI",
   },
   {
     title: "Market watch",
-    body: "You.com Finance Research on a watchlist every morning, with the sourced answer written into Notion and a digest in Slack.",
+    body: "Finance Research on a watchlist every morning, written to Notion, digested in Slack.",
     prompt: "Every morning at 8, research what moved for my watchlist, save the sourced brief to Notion, and ping #markets.",
     platforms: ["you", "notion", "slack"],
   },
   {
     title: "An agent that learns",
-    body: "Each run stores what worked in One memory; a GitHub relay wakes the agent when a PR lands so the next attempt starts from the last lesson.",
+    body: "Each run stores what worked in One memory; a GitHub relay wakes it when a PR lands.",
     prompt: "When a PR is opened, review it using what you learned from the last five reviews, and remember the outcome.",
     platforms: ["github", "slack"],
   },
@@ -62,7 +62,7 @@ export function UseCaseTemplates() {
           <SectionIntro
             eyebrow="Use-case templates"
             title="Starting points for the theme: agents that repair and learn."
-            lede="Cloneable templates for these land here before doors open. Until then, the prompts are yours to steal."
+            lede="Templates land here before doors open. The prompts are yours to steal."
           />
         </Reveal>
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -84,7 +84,7 @@ export function UseCaseTemplates() {
                   {t.framework && <span className="ml-2 font-mono text-11 text-muted">via {t.framework}</span>}
                 </h3>
                 <p className="mt-2 text-13 leading-relaxed text-secondary">{t.body}</p>
-                <blockquote className="mt-4 rounded-panel border-l-2 border-spring-deep bg-spring-tint/60 px-4 py-3 font-mono text-[12px] leading-relaxed text-secondary">
+                <blockquote className="mt-4 rounded-panel border border-border bg-surface px-4 py-3 font-mono text-[12px] leading-relaxed text-secondary">
                   “{t.prompt}”
                 </blockquote>
               </article>

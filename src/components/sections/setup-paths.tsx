@@ -14,17 +14,17 @@ import { LoopDemo } from "./loop-demo";
 const STEPPER = [
   {
     title: "Create your workspace",
-    body: "Free at app.withone.ai. Your API key lives under Settings → API keys.",
+    body: "Free at app.withone.ai.",
     href: LINKS.dashboard,
   },
   {
     title: "Connect your apps",
-    body: "You.com, Daytona, Gmail, Slack, Notion… `one add <platform>` or the Connect page.",
+    body: "`one add <platform>` or the Connect page.",
     href: LINKS.dashboard,
   },
   {
     title: "Pick a path",
-    body: "Remote MCP for editors and chat agents, the CLI for terminals and scripts, the API for app code.",
+    body: "MCP for editors, the CLI for terminals, the API for app code.",
   },
 ];
 
@@ -193,9 +193,8 @@ function McpPanel() {
           </span>
         </div>
         <p className="mt-2 text-15 text-secondary">
-          Point any MCP client at One&apos;s hosted server. You sign in with OAuth in the browser,
-          so there is nothing to install and no API key to manage. Four tools, about 3K tokens of
-          context no matter how many apps you connect.
+          Point any MCP client at One&apos;s hosted server and sign in with OAuth. Nothing to
+          install, no API key.
         </p>
         <div className="mt-5">
           <Eyebrow>Server URL</Eyebrow>
@@ -206,12 +205,11 @@ function McpPanel() {
         <div className="mt-5">
           <Eyebrow>On the consent screen</Eyebrow>
           <ul className="mt-2 space-y-1.5 text-13 text-secondary">
-            <li>Pick your space and environment (sandbox or production).</li>
-            <li>Choose exactly which connections this client may use.</li>
-            <li>Per connection: read only, read-write, or a specific set of actions.</li>
+            <li>Choose which connections this client may use.</li>
+            <li>Per connection: read only, read-write, or specific actions.</li>
             <li>
-              <span className="text-foreground">Knowledge-only mode</span> removes execute
-              entirely: the agent reads real API schemas and writes code, never a live call.
+              <span className="text-foreground">Knowledge-only mode</span> removes execute, for code
+              generation.
             </li>
           </ul>
         </div>
@@ -265,10 +263,8 @@ function CliPanel() {
       <div className="min-w-0">
         <h3 className="text-[19px] font-medium text-foreground">The CLI</h3>
         <p className="mt-2 text-15 text-secondary">
-          One binary, four commands, JSON output with <code className="font-mono text-foreground">--agent</code>.
-          It is also how you connect platforms (<code className="font-mono text-foreground">one add</code>) and
-          the runtime behind <code className="font-mono text-foreground">npx @withone/mcp</code> for
-          frameworks like CrewAI.
+          Four commands, JSON output with <code className="font-mono text-foreground">--agent</code>.
+          Also how you connect platforms.
         </p>
         <TerminalFrame className="mt-5" title="setup · zsh">
           <Step n={1} title="Install the CLI" help="Node 18+.">
@@ -276,12 +272,12 @@ function CliPanel() {
               npm i -g @withone/cli
             </CommandRow>
           </Step>
-          <Step n={2} title="Sign in without prompts" help="Opens a browser window, saves your key, installs the base One skill.">
+          <Step n={2} title="Sign in" help="Opens a browser window and saves your key.">
             <CommandRow action={<CopyButton text="one init --auth browser" size="sm" />}>
               one init --auth browser
             </CommandRow>
           </Step>
-          <Step n={3} title="Connect the hackathon platforms" help="Paste the API keys from api.you.com and app.daytona.io when asked.">
+          <Step n={3} title="Connect the hackathon platforms" help="Paste the keys from api.you.com and app.daytona.io.">
             <CommandRow action={<CopyButton text="one add you" size="sm" />}>one add you</CommandRow>
             <CommandRow action={<CopyButton text="one add daytona" size="sm" />}>one add daytona</CommandRow>
           </Step>
@@ -301,10 +297,7 @@ function CliPanel() {
         </a>
       </div>
       <div className="min-w-0">
-        <p className="mb-3 text-13 text-secondary">
-          Every call follows the same loop, whether it comes from the CLI or the MCP tools. Watch it
-          run against You.com:
-        </p>
+        <p className="mb-3 text-13 text-secondary">The same loop, from the CLI or the MCP tools:</p>
         <LoopDemo />
       </div>
     </div>
@@ -317,9 +310,8 @@ function ApiPanel() {
       <div className="min-w-0">
         <h3 className="text-[19px] font-medium text-foreground">API and SDK</h3>
         <p className="mt-2 text-15 text-secondary">
-          For app code. Every request goes through One&apos;s passthrough proxy with three
-          headers: your secret key, the connection key of the account to act on, and the id of
-          the action. One resolves the platform&apos;s credentials server-side.
+          For app code. Three headers on every request; One resolves the platform&apos;s
+          credentials server-side.
         </p>
         <ul className="mt-5 space-y-2 text-13 text-secondary">
           <li>
@@ -356,9 +348,8 @@ function ApiPanel() {
             Building a product your users connect their own apps to?
           </p>
           <p className="mt-1 text-13 text-secondary">
-            Use One Connect: a drop-in OAuth flow where each user grants your app scoped,
-            revocable access to their own tools. One button, two backend routes, and the
-            same bearer works on the MCP server.
+            One Connect: each user grants your app scoped, revocable access to their own tools.
+            One button, two backend routes.
           </p>
           <CommandRow className="mt-3" action={<CopyButton text="npx skills add withoneai/connect" size="sm" />}>
             npx skills add withoneai/connect
@@ -402,8 +393,8 @@ export function SetupPaths() {
         <Reveal>
           <SectionIntro
             eyebrow="Get started"
-            title="Three ways to use One. Pick the one your stack wants."
-            lede="Same account, same connections, same four tools underneath. Choose by where your agent lives."
+            title="Three ways to use One."
+            lede="Same account, same four tools. Choose by where your agent lives."
           />
         </Reveal>
 

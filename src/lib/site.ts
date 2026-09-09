@@ -79,8 +79,7 @@ export const PARTNERS: Partner[] = [
     name: "You.com",
     logo: "/partners/you.svg",
     tagline: "Live web search, research, and page reading.",
-    onOne:
-      "Connect it once as the `you` platform. Your agent gets Search, Research, Finance Research, and Get Web Page Contents through the same four One tools it uses for every other app.",
+    onOne: "The `you` platform: Search, Research, Finance Research and Get Web Page Contents through the same four tools.",
     command: "one add you",
     keyLabel: "Get a You.com API key",
     keyUrl: "https://api.you.com",
@@ -92,8 +91,7 @@ export const PARTNERS: Partner[] = [
     name: "Daytona",
     logo: "/partners/daytona.svg",
     tagline: "Throwaway Linux sandboxes your agent can fail safely in.",
-    onOne:
-      "One exposes Daytona's full API as the `daytona` platform: create a sandbox, run a command or a script, move files, use git, and delete it, all without a Daytona SDK in your code.",
+    onOne: "The `daytona` platform: create a sandbox, run commands, move files, delete it. No Daytona SDK in your code.",
     command: "one add daytona",
     keyLabel: "Get a Daytona API key",
     keyUrl: "https://app.daytona.io/dashboard/keys",
@@ -105,8 +103,7 @@ export const PARTNERS: Partner[] = [
     name: "CrewAI",
     logo: "/partners/crewai.svg",
     tagline: "Orchestrate a crew of agents that act on real apps.",
-    onOne:
-      "Hand a crew One's four MCP tools through MCPServerAdapter and `npx -y @withone/mcp`. Two small helpers make the calls reliable, and a connection allowlist limits what the crew can see.",
+    onOne: "Hand a crew One's four tools through MCPServerAdapter and `npx -y @withone/mcp`. Two small helpers make the calls reliable.",
     command: "npx -y @withone/mcp --help",
     keyLabel: "CrewAI docs",
     keyUrl: "https://docs.crewai.com",
@@ -125,7 +122,7 @@ export const CO_PARTNERS = [
 ] as const;
 
 /** Platform marks bundled under /public/platforms (from assets.withone.ai/connectors). */
-export const MARQUEE_PLATFORMS = [
+export const PLATFORM_SLUGS = [
   "gmail",
   "slack",
   "notion",

@@ -54,8 +54,7 @@ export function Footer() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo/logo-full-dark.svg" alt="One" className="h-7 w-auto" />
             <p className="mt-4 max-w-[30ch] text-13 text-secondary">
-              The trust layer for AI agents. Managed auth, access control and audit for every app
-              your agent touches.
+              The trust layer for AI agents.
             </p>
             <a
               href={LINKS.home}

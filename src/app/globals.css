@@ -90,21 +90,10 @@
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --animate-marquee: marquee 48s linear infinite;
   --animate-fade-up: fade-up 0.6s var(--ease-out-quint) both;
   --animate-blink: blink 1.1s steps(2, start) infinite;
-  --animate-halo: halo-pulse 7s ease-in-out infinite;
   --animate-dash: dash-flow 14s linear infinite;
   --animate-pulse-dot: pulse-dot 2.4s ease-in-out infinite;
-}
-
-@keyframes marquee {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
 }
 
 @keyframes fade-up {
@@ -121,18 +110,6 @@
 @keyframes blink {
   to {
     visibility: hidden;
-  }
-}
-
-@keyframes halo-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: scale(0.96);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.04);
   }
 }
 
@@ -219,36 +196,6 @@ h3 {
 .reveal.is-visible {
   opacity: 1;
   transform: none;
-}
-
-/* Marquee: duplicate the child list twice, mask the edges. */
-.marquee {
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 10%,
-    black 90%,
-    transparent 100%
-  );
-}
-.marquee-track {
-  animation: var(--animate-marquee);
-  will-change: transform;
-  backface-visibility: hidden;
-}
-.marquee:hover .marquee-track {
-  animation-play-state: paused;
-}
-
-/* Lime halo behind the one lime control in the hero. */
-.halo {
-  background: radial-gradient(
-    circle at center,
-    rgb(204 255 0 / 0.16) 0%,
-    rgb(204 255 0 / 0.07) 32%,
-    transparent 64%
-  );
-  animation: var(--animate-halo);
 }
 
 /* Signal line pulses are SMIL circles inside the SVG; hidden under reduced motion. */
@@ -455,9 +402,6 @@ h3 {
   .reveal {
     opacity: 1;
     transform: none;
-  }
-  .marquee-track {
-    animation: none;
   }
   .signal-pulse {
     display: none;

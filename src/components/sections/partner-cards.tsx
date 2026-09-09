@@ -8,7 +8,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { SectionIntro } from "@/components/ui/section-intro";
 import { CommandRow } from "@/components/ui/terminal";
 import { AGENT_CLIENTS, CO_PARTNERS, PARTNERS } from "@/lib/site";
-import { PlatformMarquee } from "./platform-marquee";
+import { PlatformGrid } from "./platform-grid";
 
 export function PartnerCards({ platformLabel }: { platformLabel: string }) {
   return (
@@ -18,7 +18,7 @@ export function PartnerCards({ platformLabel }: { platformLabel: string }) {
           <SectionIntro
             eyebrow="Build with the sponsors"
             title="Everyone here builds on the same stack. One wires it together."
-            lede="You.com and Daytona are platforms on One, so your agent reaches them through the same four tools it uses for Gmail or Slack. CrewAI runs those tools as a local MCP server."
+            lede="You.com and Daytona are platforms on One. CrewAI runs One's four tools as a local MCP server."
           />
         </Reveal>
 
@@ -87,7 +87,7 @@ export function PartnerCards({ platformLabel }: { platformLabel: string }) {
 
         <Reveal delay={160} className="mt-14">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-            <Eyebrow>…and {platformLabel} more apps through the same four tools</Eyebrow>
+            <Eyebrow>…and {platformLabel} more apps</Eyebrow>
             <a
               href="https://www.withone.ai/knowledge"
               target="_blank"
@@ -97,11 +97,11 @@ export function PartnerCards({ platformLabel }: { platformLabel: string }) {
               Browse every platform <ArrowUpRight size={12} />
             </a>
           </div>
-          <PlatformMarquee />
+          <PlatformGrid />
         </Reveal>
 
         <Reveal delay={200} className="mt-14">
-          <Eyebrow dot="muted">Works in the agents you already use</Eyebrow>
+          <Eyebrow dot="muted">Works in</Eyebrow>
           <ul className="mt-4 flex flex-wrap gap-2">
             {AGENT_CLIENTS.map((a) => (
               <li
