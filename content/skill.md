@@ -1,23 +1,24 @@
 ---
 name: one-hackathon
 description: |
-  Build with One at You.com's "Build with YOU: The Live Web Agent Hackathon" (New York, September 11, 2026). One is the trust layer between AI agents and the apps they act on: 780+ platforms (Gmail, Slack, Notion, GitHub, Linear, Stripe, You.com, Daytona and more) behind four tools, with managed auth, access control and an audit log. This skill covers setup (remote MCP server, CLI, local MCP server, API), the list → search → knowledge → execute loop every call follows, scoping, and playbooks for You.com, Daytona and CrewAI through One.
-
-  TRIGGER when the user wants to:
-  - Set up One, install the One CLI, or connect an agent (Claude Code, Cursor, Codex, ChatGPT, Claude, OpenClaw, Hermes, Kiro, Gemini CLI, CrewAI) to One's MCP server
-  - Take ANY action in a third-party app: send an email, post to Slack, create a Linear issue, read a calendar, look up a customer, run code somewhere safe
-  - Search the web, research a topic or company, or read a page with You.com through One
-  - Create, run commands in, upload files to, or tear down a Daytona sandbox through One
-  - Build a CrewAI crew whose agents act on real apps through One, or fix "expected boolean, received null" and empty-data errors from One tools inside CrewAI
-  - Let the users of a product connect their own apps to it (One Connect: an OAuth app, `@withone/connect`, two backend routes)
-  - Redeem the hackathon coupon, or find the One dashboard, docs, logs or Discord
-
-  DO NOT TRIGGER for:
-  - Calling the You.com or Daytona APIs directly with their own SDKs and keys, with no One involved
-  - CrewAI questions that have nothing to do with tools or integrations
+  Build with One at You.com's "Build with YOU: The Live Web Agent Hackathon" (New York, September 11, 2026). One connects an AI agent to 780+ apps (Gmail, Slack, Notion, GitHub, Linear, Stripe, You.com, Daytona and more) through four tools with managed auth, access control and an audit log. Use this skill to set One up (remote MCP server, CLI, local MCP server, passthrough API or SDK), to take any action in a third-party app through the list → search → knowledge → execute loop, to use You.com, Daytona or CrewAI through One, to let the users of a product connect their own apps with One Connect, or to find the One dashboard, docs, logs, coupon or Discord.
 ---
 
 # Build with One (hackathon edition)
+
+## When to use this skill
+
+Use it when the user wants to:
+
+- Set up One, install the One CLI, or connect an agent (Claude Code, Cursor, Codex, ChatGPT, Claude, OpenClaw, Hermes, Kiro, Gemini CLI, CrewAI) to One's MCP server
+- Take ANY action in a third-party app: send an email, post to Slack, create a Linear issue, read a calendar, look up a customer, run code somewhere safe
+- Search the web, research a topic or company, or read a page with You.com through One
+- Create, run commands in, upload files to, or tear down a Daytona sandbox through One
+- Build a CrewAI crew whose agents act on real apps through One, or fix "expected boolean, received null" and empty-data errors from One tools inside CrewAI
+- Let the users of a product connect their own apps to it (One Connect: an OAuth app, `@withone/connect`, two backend routes)
+- Redeem the hackathon coupon, or find the One dashboard, docs, logs or Discord
+
+Do not use it for calling the You.com or Daytona APIs directly with their own SDKs and keys with no One involved, or for CrewAI questions that have nothing to do with tools or integrations.
 
 One connects an AI agent to every app a builder needs through **four tools**. No matter how many platforms you connect, it stays four tools, so *search* is how the agent finds things, not a giant tool list. One holds the OAuth tokens and API keys server-side, proxies every call, enforces the access you granted, and logs each request so you can see exactly what your agent did.
 
@@ -46,7 +47,7 @@ The CLI (`one list`, `one actions search`, `one actions knowledge`, `one actions
 | Hackathon page and Discord | https://hackathon.withone.ai (the Discord link is in the header and the Help section) |
 | Event page | https://luma.com/agentic-hackathon-ny |
 
-Platform slugs are lowercase kebab-case: `gmail`, `slack`, `google-calendar`, `hub-spot`, `you`, `daytona`. Run `one platforms` or browse the knowledge base to find one.
+Platform slugs are lowercase kebab-case: `gmail`, `slack`, `google-calendar`, `hubspot`, `you`, `daytona`. Run `one platforms` or browse the knowledge base to find one.
 
 ## Pick your path
 
@@ -55,7 +56,7 @@ Platform slugs are lowercase kebab-case: `gmail`, `slack`, `google-calendar`, `h
 | An editor or chat client (Claude Code, Cursor, Codex, ChatGPT, Claude, OpenClaw, Hermes, Kiro, Gemini CLI) | **A. Remote MCP server** | Nothing to install, OAuth sign-in in the browser, scope exactly what the client may touch on the consent screen |
 | A terminal, a shell script, a cron job, or you need to connect platforms | **B. The CLI** | `one add <platform>` lives here; `--agent` gives JSON for anything that can run a command |
 | A Python or Node framework such as CrewAI, LangChain, Mastra, the Vercel AI SDK | **C. Local MCP server** (`npx -y @withone/mcp` + `ONE_SECRET`) | Frameworks cannot complete a browser OAuth flow; the local server takes a key from the environment |
-| Application code you are shipping | **D. Passthrough API or `@withone/sdk`** | Two headers, no per-platform tokens or refresh logic in your code |
+| Application code you are shipping | **D. Passthrough API or `@withone/sdk`** | Three headers, no per-platform tokens or refresh logic in your code |
 | A product whose **users** should connect **their own** apps to it | **E. One Connect** (`@withone/connect` + two backend routes) | Each user grants your app a scoped, revocable token to their own One connections; One enforces the grant on every call. See [Embed One in your product](#embed-one-in-your-product-one-connect) |
 
 You can mix them. They share the same account, the same connections and the same access rules.
@@ -150,7 +151,15 @@ The hosted server at `https://mcp.withone.ai/mcp` needs a browser sign-in, so a 
 
 ### D. Passthrough API and SDK
 
-Every action is also a plain HTTP call through One's proxy. Base URL `https://api.withone.ai`. Headers: `x-one-secret` (your key) and `x-one-connection-key` (the connection to act on). The path after `/v1/passthrough/` is the action's own path, which you get from its knowledge.
+Every action is also a plain HTTP call through One's proxy. Base URL `https://api.withone.ai`. Three headers, all required:
+
+| Header | Value | Where it comes from |
+|---|---|---|
+| `x-one-secret` | your key | https://app.withone.ai/settings/api-keys (`sk_live_…` / `sk_test_…`) |
+| `x-one-connection-key` | the connection to act on | `one --agent list` (`live::you::default::…`) |
+| `x-one-action-id` | the action's id | `one --agent actions search <platform> "<query>"` |
+
+Without `x-one-action-id` the proxy answers 400. The path after `/v1/passthrough/` is the action's own path, which you get from its knowledge.
 
 ```ts
 const res = await fetch(
@@ -159,15 +168,17 @@ const res = await fetch(
     headers: {
       "x-one-secret": process.env.ONE_SECRET!,
       "x-one-connection-key": process.env.ONE_YOU_CONNECTION_KEY!,
+      "x-one-action-id": process.env.ONE_YOU_SEARCH_ACTION_ID!, // the GET /v1/search action
     },
   },
 );
 ```
 
-Typed Node SDK (`npm i @withone/sdk`, Node 18+):
+Typed Node SDK (`npm i @withone/sdk`, Node 18+). The root of the package exports the client (`One`, `Action`, `OneError`, …); each platform's typed actions are a **subpath** module, so import them from `@withone/sdk/<platform>`:
 
 ```ts
-import { One, gmail } from "@withone/sdk";
+import { One } from "@withone/sdk";
+import * as gmail from "@withone/sdk/gmail";
 
 const one = new One(process.env.ONE_SECRET!); // or One.fromEnv()
 const res = await one
@@ -175,7 +186,19 @@ const res = await one
   .run(gmail.createUsersDraft({ path: { userId: "me" }, body: { message: { raw: base64Email } } }));
 ```
 
-Keys belong in the environment, never in source. Add the variable names to `.env.example`. Browser bundles cannot hold a One secret; route through a server.
+Typed modules exist for 34 platforms in 0.4.0 (gmail, slack, github, linear, notion, hubspot, stripe, googleCalendar, googleSheets, discord, openai, anthropic and more). **There is no typed `you` or `daytona` module yet.** Reach those with `runRaw`, the escape hatch that still handles auth, the base URL, retries and parsing. `systemId` is the same id `one actions search` returns as `actionId` (`conn_mod_def::…`); `method` and `path` come from the same result:
+
+```ts
+const search = await one.connection(process.env.ONE_YOU_CONNECTION_KEY!).runRaw({
+  systemId: "<actionId from one actions search, e.g. conn_mod_def::…>",
+  method: "GET",
+  path: "/v1/search",
+  query: { query: "self-repairing agents", count: 5 },
+});
+console.log(search.status, search.data);
+```
+
+`runRaw` takes `systemId`, `method`, `path`, optional `pathParams`, `query`, `body` and `headers`. Keys belong in the environment, never in source. Add the variable names to `.env.example`. Browser bundles cannot hold a One secret; route through a server.
 
 ## Connect platforms
 
@@ -278,19 +301,24 @@ Every call, request and response, is at https://app.withone.ai/logs.
 
 ## Scoping and environment variables
 
-Local server and CLI read these from the environment, a `.onerc` in the working directory, the project config (`~/.one/projects/<slug>/config.json`) or the global config (`~/.one/config.json`), in that order. The remote server takes the same choices from the consent screen and enforces them server-side.
+The two runtimes read their scoping from different places. Getting this wrong is silent: the setting is simply ignored.
 
-| Variable | Values | Effect |
+| Setting | Local MCP server (`@withone/mcp`) | CLI (`one`) |
 |---|---|---|
-| `ONE_SECRET` | `sk_live_…` / `sk_test_…` | The only credential. Redacted from every response |
-| `ONE_CONNECTION_KEYS` | comma-separated keys | Allowlist: the agent can only see and use these connections. **Set it for any crew or script**; a confused agent cannot reach anything else, and `list_one_integrations` stays fast on big accounts |
-| `ONE_PERMISSIONS` | `read` / `write` / `admin` (default) | `read` = GET only; `write` = GET/POST/PUT/PATCH; `admin` = everything |
-| `ONE_ACTION_IDS` | comma-separated ids | Only these actions are visible and executable |
-| `ONE_KNOWLEDGE_AGENT` | `true` | Removes `execute_one_action` entirely (code generation mode) |
-| `ONE_BASE_URL` | URL | Read by `@withone/mcp` **only**; the CLI ignores it and uses `apiBase` from its config. Leave it unset unless you are on a non-default One environment, and never set it to an empty string |
-| `ONE_CACHE_TTL` | seconds | Knowledge/search cache TTL (default 1 hour). Execution is never cached |
+| `ONE_SECRET` | environment | environment, then `.onerc`, then `~/.one/projects/<slug>/config.json`, then `~/.one/config.json` |
+| `ONE_CONNECTION_KEYS` (allowlist of connections the agent may see and use) | environment | **not read from the environment.** Put it in `.onerc` in the working directory, or run `one config` |
+| `ONE_PERMISSIONS` (`read` = GET only; `write` = GET/POST/PUT/PATCH; `admin` = everything, the default) | environment | `.onerc` or `one config` only |
+| `ONE_ACTION_IDS` (only these actions are visible and executable) | environment | `.onerc` or `one config` only |
+| `ONE_KNOWLEDGE_AGENT=true` (removes `execute_one_action`; code-generation mode) | environment | `.onerc` or `one config` only |
+| `ONE_BASE_URL` | environment (only here; never set it to an empty string) | ignored; the CLI uses `apiBase` from its config |
+| `ONE_CACHE_TTL` (knowledge/search cache, default 1 hour; execution is never cached) | ignored | environment |
+| `.onerc` file (KEY=VALUE, working directory only) | ignored | read |
 
-Add `.onerc` to `.gitignore`. `one config` writes the same scoping into every installed agent config at once; `one config path` shows which config is active.
+So for a crew or a script that starts `npx -y @withone/mcp`, export the variables. For the CLI, write a `.onerc` next to your project (add it to `.gitignore`) or run `one config`, which writes the same scoping into every installed agent config at once; `one config path` shows which config is active. The remote server takes the same choices from the consent screen and enforces them server-side.
+
+> **Known issues in `@withone/mcp` 1.2.4 (verified 2026-09-09; re-check for a newer release).**
+> 1. `execute_one_action` builds the outgoing request as `{ ...serverHeaders, "x-one-connection-key": connectionKey, "x-one-action-id": id, ...headers }`, so the caller's `headers` argument is applied **after** the `ONE_CONNECTION_KEYS`, `ONE_ACTION_IDS` and `ONE_PERMISSIONS` checks and can override `x-one-connection-key`, `x-one-action-id` or `x-one-secret`. An agent that puts a non-allowlisted connection key in `headers` reaches it. Treat the allowlist as a guardrail against an agent's mistakes, not as a security boundary, keep the crew's task descriptions away from the `headers` parameter, and use the CrewAI wrapper below, which strips any `x-one-*` header. The remote server enforces the consent grant server-side and is not affected by this.
+> 2. When a passthrough call fails (4xx/5xx), the local server logs the whole error object, including the plaintext `x-one-secret`, to **stderr**. The tool result is redacted; the log line is not. Do not ship the server's stderr to shared logs.
 
 ## You.com via One
 
@@ -349,7 +377,7 @@ Gotchas:
 
 ## Daytona via One
 
-One exposes Daytona as the platform `daytona`: the sandbox management side (create, start, stop, delete, snapshots, volumes) and the inside-the-sandbox side (run a command, run code, files, git, terminal sessions, computer use). A sandbox sits in the same connection list and activity log as every other app, and `ONE_CONNECTION_KEYS` limits which Daytona account an agent can touch. Get a key at https://app.daytona.io/dashboard/keys, then `one add daytona` and `one --agent list --search daytona`.
+One exposes Daytona as the platform `daytona`: the sandbox management side (create, start, stop, delete, snapshots, volumes) and the inside-the-sandbox side (run a command, run code, files, git, terminal sessions, computer use). A sandbox sits in the same connection list and activity log as every other app, and `ONE_CONNECTION_KEYS` limits which Daytona account an agent sees. Get a key at https://app.daytona.io/dashboard/keys, then `one add daytona` and `one --agent list --search daytona`.
 
 | Family | What it covers | Path variable |
 |---|---|---|
@@ -476,7 +504,7 @@ mcpadapt>=0.1.9,<0.2
 python-dotenv
 ```
 
-`.env`. `ONE_SECRET` is the same key the `one` CLI uses. `ONE_CONNECTION_KEYS` is an allowlist: the crew can only touch the connections you name here.
+`.env`. `ONE_SECRET` is the same key the `one` CLI uses. `ONE_CONNECTION_KEYS` is an allowlist: the crew only sees the connections you name here (see the known-issue note under Scoping for its limits). The local MCP server reads both from the environment, which `load_dotenv()` fills.
 
 ```text
 ANTHROPIC_API_KEY=<anthropicKey>
@@ -489,7 +517,7 @@ python3 -m venv .venv && source .venv/bin/activate && pip install -r requirement
 npx -y @withone/mcp --help   # downloads the MCP server once so the first crew run is not slow
 ```
 
-**Wiring.** Three functions. `one_mcp_params` starts the MCP server. `dropping_nulls` fixes one problem: CrewAI sends unset optional fields as `null`, and One's server rejects `null`. `harden_execute` fixes another: JSON-object arguments sometimes arrive as `{}` through CrewAI, so it takes them as JSON strings and parses them right before the call. Apply both before building agents.
+**Wiring.** Three functions. `one_mcp_params` starts the MCP server. `dropping_nulls` fixes one problem: CrewAI sends unset optional fields as `null`, and One's server rejects `null`. `harden_execute` fixes another: JSON-object arguments sometimes arrive as `{}` through CrewAI, so it takes them as JSON strings and parses them right before the call. It passes every execute parameter through (`headers`, `isFormData`, `isFormUrlEncoded` included) and strips any `x-one-*` header, which closes the header-override hole described under Scoping. Apply both before building agents.
 
 ```python
 import base64, json, os
@@ -514,17 +542,24 @@ def dropping_nulls(tools):
 def harden_execute(tools):
     mcp_execute = next(t for t in tools if t.name == "execute_one_action")
     @tool("execute_one_action")
-    def execute_one_action(platform: str, actionId: str, connectionKey: str, dataJson: str = "", pathVariablesJson: str = "", queryParamsJson: str = "") -> str:
+    def execute_one_action(platform: str, actionId: str, connectionKey: str, dataJson: str = "", pathVariablesJson: str = "",
+                           queryParamsJson: str = "", headersJson: str = "", isFormData: bool = False, isFormUrlEncoded: bool = False) -> str:
         """Execute an API action on a connected platform via One. Pass request parts as JSON-encoded STRINGS. Omit or pass "" for parts the action does not need."""
         kwargs = {"platform": platform, "actionId": actionId, "connectionKey": connectionKey}
-        for key, raw in (("data", dataJson), ("pathVariables", pathVariablesJson), ("queryParams", queryParamsJson)):
+        for key, raw in (("data", dataJson), ("pathVariables", pathVariablesJson), ("queryParams", queryParamsJson), ("headers", headersJson)):
             if raw and raw.strip() and raw.strip() != "{}":
                 kwargs[key] = json.loads(raw)
+        if "headers" in kwargs:  # never let the model override One's own headers (connection key, action id, secret)
+            kwargs["headers"] = {k: v for k, v in kwargs["headers"].items() if not k.lower().startswith("x-one-")}
+        if isFormData:
+            kwargs["isFormData"] = True
+        if isFormUrlEncoded:
+            kwargs["isFormUrlEncoded"] = True
         return mcp_execute._run(**kwargs)
     return [t for t in tools if t.name != "execute_one_action"] + [execute_one_action]
 ```
 
-After `harden_execute`, the agent-facing `execute_one_action` takes `dataJson`, `pathVariablesJson`, and `queryParamsJson`. Write task descriptions against those names.
+After `harden_execute`, the agent-facing `execute_one_action` takes `dataJson`, `pathVariablesJson`, `queryParamsJson`, `headersJson`, `isFormData` and `isFormUrlEncoded`. Write task descriptions against those names.
 
 **Example: research a topic, then email the summary.** Two agents. The Researcher searches the web through One's `you` platform. The Sender emails the result through One's `gmail` platform. Both get the same four tools; the task descriptions tell each which platform to use. Anything that must be exact down to the last character (Gmail's base64 `raw` field, a date format) belongs in a plain `@tool` function, not in the LLM. `build_gmail_raw` is that function here.
 

@@ -152,19 +152,21 @@ openclaw mcp login one`,
 ];
 
 const FETCH_EXAMPLE = `// Any action, through One's passthrough proxy. One injects the platform's
-// credentials; your code never sees an OAuth token.
+// credentials; your code never sees an OAuth token. All three headers are required.
 const res = await fetch(
   "https://api.withone.ai/v1/passthrough/v1/search?query=self-repairing+agents&count=5",
   {
     headers: {
       "x-one-secret": process.env.ONE_SECRET!,
       "x-one-connection-key": process.env.ONE_YOU_CONNECTION_KEY!,
+      "x-one-action-id": process.env.ONE_YOU_SEARCH_ACTION_ID!, // from \`one actions search\`
     },
   },
 );
 const { results } = await res.json();`;
 
-const SDK_EXAMPLE = `import { One, gmail } from "@withone/sdk";
+const SDK_EXAMPLE = `import { One } from "@withone/sdk";
+import * as gmail from "@withone/sdk/gmail"; // typed actions live on per-platform subpaths
 
 const one = new One(process.env.ONE_SECRET!);
 
@@ -315,9 +317,9 @@ function ApiPanel() {
       <div className="min-w-0">
         <h3 className="text-[19px] font-medium text-foreground">API and SDK</h3>
         <p className="mt-2 text-15 text-secondary">
-          For app code. Every request goes through One&apos;s passthrough proxy with two headers:
-          your secret key and the connection key of the account to act on. One resolves the
-          platform&apos;s credentials server-side.
+          For app code. Every request goes through One&apos;s passthrough proxy with three
+          headers: your secret key, the connection key of the account to act on, and the id of
+          the action. One resolves the platform&apos;s credentials server-side.
         </p>
         <ul className="mt-5 space-y-2 text-13 text-secondary">
           <li>
@@ -330,6 +332,10 @@ function ApiPanel() {
           <li>
             <code className="font-mono text-foreground">x-one-connection-key</code> from{" "}
             <code className="font-mono">one --agent list</code> (<code className="font-mono">live::gmail::default::…</code>)
+          </li>
+          <li>
+            <code className="font-mono text-foreground">x-one-action-id</code> from{" "}
+            <code className="font-mono">one --agent actions search</code>. The proxy answers 400 without it.
           </li>
           <li>
             The path after <code className="font-mono">/v1/passthrough/</code> is the action&apos;s own

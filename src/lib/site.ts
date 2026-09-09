@@ -106,7 +106,7 @@ export const PARTNERS: Partner[] = [
     logo: "/partners/crewai.svg",
     tagline: "Orchestrate a crew of agents that act on real apps.",
     onOne:
-      "Hand a crew One's four MCP tools through MCPServerAdapter and `npx -y @withone/mcp`. Two small helpers make the calls reliable, and a connection allowlist keeps a confused agent in bounds.",
+      "Hand a crew One's four MCP tools through MCPServerAdapter and `npx -y @withone/mcp`. Two small helpers make the calls reliable, and a connection allowlist limits what the crew can see.",
     command: "npx -y @withone/mcp --help",
     keyLabel: "CrewAI docs",
     keyUrl: "https://docs.crewai.com",
