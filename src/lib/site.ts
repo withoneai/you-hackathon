@@ -15,6 +15,14 @@ export const REDEEM_URL = "https://app.withone.ai/settings/billing";
 export const DISCORD_URL = "https://discord.gg/REPLACE_ME";
 
 export const MCP_URL = "https://mcp.withone.ai/mcp";
+
+/**
+ * The use-case templates live in this repo under templates/. Flip TEMPLATES_PUBLIC to true
+ * once the repository is public; until then the cards say "coming soon" and link nowhere,
+ * because a link into a private repo is a 404 for every builder.
+ */
+export const TEMPLATES_PUBLIC = false;
+export const TEMPLATES_URL = "https://github.com/withoneai/you-hackathon/tree/main/templates";
 export const LUMA_URL = "https://luma.com/agentic-hackathon-ny";
 
 /** Fallback when the live count endpoint is unreachable (measured 2026-09-08). */
@@ -58,6 +66,7 @@ export const LINKS = {
   npmMcp: "https://www.npmjs.com/package/@withone/mcp",
   discord: DISCORD_URL,
   luma: LUMA_URL,
+  templates: TEMPLATES_URL,
 } as const;
 
 export type Partner = {

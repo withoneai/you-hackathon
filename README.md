@@ -13,6 +13,21 @@ Deployed at **https://hackathon.withone.ai**.
 | `/skill.md` | The raw skill as `text/markdown`. This is the URL agents fetch and the install commands curl |
 | `/opengraph-image` | Generated OG card |
 
+## Templates
+
+`templates/` holds four working examples for the hackathon theme (agents that repair and learn). Each folder runs on its own: Python 3.10 to 3.13, the One CLI, a `.env`, and `./setup.sh`.
+
+| Folder | What it does | Improves how |
+|---|---|---|
+| `self-repairing-research` | You.com research, chart in a Daytona sandbox, PNG by Gmail | Repairs the script from the error; remembers the rule so the next run passes first time |
+| `support-triage-crew` (CrewAI) | Reads support mail, reproduces each bug in a sandbox through One's MCP tools, files in Linear, posts to Slack | Remembers what it filed and skips duplicates; learns from cancelled issues |
+| `market-watch` | Finance Research to a Notion page and a Slack digest | Applies preferences you give as feedback; says what changed since the previous brief |
+| `pr-reviewer-that-learns` | Reviews a GitHub pull request | Turns `one-learn:` replies into rules it applies on the next review |
+
+Every template resolves action ids at run time, reads the knowledge before executing, keeps `ONE_SECRET` in `.env`, scopes the CLI with a `.onerc` allowlist it writes itself, and prints `Recalled:` and `Learned:` lines so the improvement is visible. Verified 2026-09-10 on `openai/gpt-4o`.
+
+The cards on the page link here only when `TEMPLATES_PUBLIC` in `src/lib/site.ts` is true. Flip it when the repository is public. `templates/check.sh` compares the vendored helpers, compiles every script, and fails on any committed key or action id.
+
 ## Editing
 
 - **Copy, URLs, coupon, Discord link, event facts:** `src/lib/site.ts`. `DISCORD_URL` is a placeholder until the invite exists.
