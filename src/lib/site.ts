@@ -21,7 +21,7 @@ export const MCP_URL = "https://mcp.withone.ai/mcp";
  * once the repository is public; until then the cards say "coming soon" and link nowhere,
  * because a link into a private repo is a 404 for every builder.
  */
-export const TEMPLATES_PUBLIC = false;
+export const TEMPLATES_PUBLIC = true;
 export const TEMPLATES_URL = "https://github.com/withoneai/you-hackathon/tree/main/templates";
 export const LUMA_URL = "https://luma.com/agentic-hackathon-ny";
 
