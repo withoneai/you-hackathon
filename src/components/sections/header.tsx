@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowUpRight, DiscordLogo } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
 import { LINKS } from "@/lib/site";
@@ -15,7 +14,13 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1180px] items-center gap-6 px-5 sm:px-8">
-        <Link href="/" className="flex items-center gap-3" aria-label="One">
+        <a
+          href={LINKS.home}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3"
+          aria-label="One home page"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo/logo-full-dark.svg"
@@ -27,7 +32,7 @@ export function Header() {
           <span className="hidden font-mono text-10 uppercase tracking-label text-muted sm:inline">
             × You.com Hackathon
           </span>
-        </Link>
+        </a>
 
         <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Sections">
           {nav.map((item) => (
