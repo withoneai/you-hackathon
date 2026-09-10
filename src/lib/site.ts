@@ -1,6 +1,8 @@
 /**
  * Single source of truth for every URL, code, and event fact on the page.
- * Swap DISCORD_URL once the invite exists.
+ * DISCORD_URL points at the hackathon channel. A channels/ link only opens for
+ * people already in the server, so swap it for a discord.gg invite if the page
+ * is shared with anyone who has not joined yet.
  */
 
 export const SITE_URL = "https://hackathon.withone.ai";
@@ -11,8 +13,8 @@ export const SKILL_NAME = "one-hackathon";
 export const COUPON_CODE = "YOU-NYC-PRO";
 export const REDEEM_URL = "https://app.withone.ai/settings/billing";
 
-// TODO: replace with the real invite before launch.
-export const DISCORD_URL = "https://discord.gg/REPLACE_ME";
+export const DISCORD_URL =
+  "https://discord.com/channels/958041025539080202/1428311454712598539";
 
 export const MCP_URL = "https://mcp.withone.ai/mcp";
 

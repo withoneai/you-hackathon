@@ -30,7 +30,7 @@ The cards on the page link here only when `TEMPLATES_PUBLIC` in `src/lib/site.ts
 
 ## Editing
 
-- **Copy, URLs, coupon, Discord link, event facts:** `src/lib/site.ts`. `DISCORD_URL` is a placeholder until the invite exists.
+- **Copy, URLs, coupon, Discord link, event facts:** `src/lib/site.ts`. `DISCORD_URL` is the hackathon channel; a `channels/` link only opens for people already in the server, so swap it for a `discord.gg` invite if the page reaches anyone who has not joined.
 - **The skill:** `content/skill.md`. Section anchors used by the page (`youcom-via-one`, `daytona-via-one`, `crewai-with-one`) come from the `##` heading text.
 - **Design tokens:** `src/app/globals.css` (Clockwork dark: carbon neutrals, lime fill-only CTA, spring green accents, Inter / DM Mono / Lora).
 - **Sections:** `src/components/sections/*`. Primitives in `src/components/ui/*`.
