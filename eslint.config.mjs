@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Python templates for builders; not part of the site.
+    "templates/**",
   ]),
 ]);
 

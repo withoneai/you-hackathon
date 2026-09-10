@@ -42,3 +42,11 @@ next-env.d.ts
 
 # gstack session state
 .gstack/
+
+# templates
+!templates/**/.env.example
+templates/**/.onerc
+templates/**/.venv/
+templates/**/__pycache__/
+templates/**/out/
+templates/**/mcp-stderr.log

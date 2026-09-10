@@ -135,7 +135,9 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 88px;
+  /* One mechanism only. This clears the 65px sticky header; adding scroll-margin-top
+     to the sections as well would double the offset and leave a gap above them. */
+  scroll-padding-top: 96px;
 }
 
 body {

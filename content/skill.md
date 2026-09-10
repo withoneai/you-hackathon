@@ -272,14 +272,14 @@ Two more fields appear only when relevant: `"knowledgeOnly": true` (execute is d
 - Platform names are lowercase kebab-case.
 - Omit optional parameters you do not need. Never send `null` for them.
 - Before the first **write** in a task (send, create, update, delete, pay), state the platform, the action and the target in one line and let the user stop you. Reads need no confirmation. Never write to a platform the user did not ask you to touch.
-- Never retry a write more than once. The first attempt may have succeeded. If a call fails twice with the same error, change the request based on the error instead of repeating it.
+- Do not retry a write blindly. A timeout or a gateway error can hide a write that went through. Read first (fetch the record, list the last few messages) and send the write again only when it is missing. For reads, if a call fails twice with the same error, change the request based on the error instead of repeating it.
 - List actions are paginated. Fetch a bounded page (`limit`, `cursor`, `page`, `pageToken`, whichever the knowledge names), summarize it, and say it was a page.
 - Chain reads before writes across platforms: pull from every source, reconcile, then write once per target.
 - Report the created record's id or link, the count read, or the platform's response, so the user can verify.
 
 ### When a call fails
 
-The error comes from the platform, not from One. Read it.
+Most errors are the platform's own response passed through unchanged, so read the body. One's own errors look different and mean a setup problem: a `secret_middleware_error` 400 (a missing `x-one-action-id` on passthrough, or a key from the other environment), a 401 (bad or revoked key), a validation message from the CLI (a value in the wrong place), or a "not allowed" message from the local MCP server (outside `ONE_CONNECTION_KEYS`, `ONE_ACTION_IDS` or `ONE_PERMISSIONS`). Those do not go away by retrying.
 
 | Status | Meaning | Do |
 |---|---|---|
@@ -464,13 +464,17 @@ with MCPServerAdapter(StdioServerParameters(command="npx", args=["-y", "@withone
 
 Set them at create time; they are visible on the returned sandbox object. A sandbox with `networkBlockAll: true` still runs code and returns `exitCode` and `result`, it just cannot phone home.
 
-**The other direction: One inside Daytona.** Run the agent itself inside the sandbox and let it reach Gmail, HubSpot, Slack and the rest through One from in there; then the whole crew is disposable. Pass One's credentials through the create action's `env` field, never as an uploaded file, and use `npx -y @withone/mcp` (crew) or `npm i -g @withone/cli` (scripts) inside, since Node is on the default image.
+**The other direction: One inside Daytona.** Running the agent itself inside the sandbox, so the whole crew is disposable, is the shape you want, and the pattern below is how you would wire it: One's credentials and the model key go through the create action's `env` field, never as an uploaded file, and Node is on the default image, so `npx -y @withone/mcp` (crew) or `npm i -g @withone/cli` (scripts) works inside.
+
+**It does not work today.** The sandbox egress note below blocks `*.withone.ai`, so an agent inside the sandbox cannot reach One at all: the CLI reports `fetch failed`. Keep the agent outside the sandbox and drive Daytona through One (examples 1 to 3) until that allowlist changes. The code is here so it is ready when it does.
 
 ```python
 sandbox_id = call(execute, platform="daytona", actionId=CREATE, connectionKey=KEY,
                   data={"name": "crew-box", "ttlMinutes": 30,
                         "env": {"ONE_SECRET": os.environ["ONE_SECRET"],
-                                "ONE_CONNECTION_KEYS": os.environ["ONE_CONNECTION_KEYS"]}})["id"]
+                                "ONE_CONNECTION_KEYS": os.environ["ONE_CONNECTION_KEYS"],
+                                # the crew's model key has to travel too, or the agents cannot think
+                                "ANTHROPIC_API_KEY": os.environ["ANTHROPIC_API_KEY"]}})["id"]
 
 call(execute, platform="daytona", actionId=EXEC, connectionKey=KEY,
      pathVariables={"sandboxId": sandbox_id},
@@ -609,7 +613,7 @@ Run `python main.py` and watch the log: the Researcher finds the search action, 
 
 Two habits from this example worth keeping. One task, one outcome: a single "create the contact and send the email" task ran out of steps in practice, and splitting it fixed that. And the `RULES` string in every backstory is what stops agents from guessing parameters or retrying the same failing call.
 
-A crew built this way runs unchanged inside a Daytona sandbox (see above): upload `main.py` and `requirements.txt`, install with `uv`, and start it with an execute call. Its `MCPServerAdapter` launches `npx -y @withone/mcp` in the sandbox and picks up `ONE_SECRET` from the environment you injected.
+Running this crew inside a Daytona sandbox is not possible today: the sandbox egress allowlist blocks `*.withone.ai`, so `@withone/mcp` cannot reach One from in there (see the note under Daytona via One). Run the crew on your machine and let it drive the sandbox through One instead.
 
 ## Embed One in your product (One Connect)
 
@@ -623,7 +627,7 @@ What you build is one button and two backend routes. Everything sensitive (state
 2. **The button.** `npm i @withone/connect`, then `<ConnectButton authorizeUrl="/api/one/authorize" platforms={[{ name: "Stripe" }]} onSuccess={…} />` from `@withone/connect/react` (Vue, Svelte and a plain `<one-connect-button>` custom element exist too), or the headless `useOneConnect({ authorize: { url }, onSuccess })` hook on your own element. Platform logos derive from `https://assets.withone.ai/connectors/<slug>.svg`.
 3. **`GET /api/one/authorize`** mints `state` and a PKCE verifier, stores the verifier in an httpOnly cookie named per flow (`one_tx_<state>`, `path: "/"`, 10-minute expiry), and 302s to `https://api.withone.ai/oauth/authorize` with `client_id`, `redirect_uri`, `response_type=code`, all six tenancy scopes (`user:` / `org:` / `project:` `connections:read` and `:write`), `state`, `code_challenge`, `code_challenge_method=S256`, optional `permission_set` and `login_hint`.
 4. **`GET /api/one/callback`** verifies that the returned `state` has its cookie (no cookie means forged or stale, so never exchange the code), then POSTs `grant_type=authorization_code` to `https://api.withone.ai/oauth/token` with **HTTP Basic** client auth (`client_secret_post` is not supported), stores `access_token`, `refresh_token` and `expiresAt` encrypted and keyed by your own user id, and redirects to any same-origin URL with `?one_connect=success` (or `?one_connect=error&one_connect_message=…`).
-5. **Refresh before every call.** Access tokens live for the lifetime you chose; refresh tokens live 30 days and **rotate on every use**, so always store both new tokens. Reusing an old refresh token revokes the whole family. Serialize refreshes per user.
+5. **Check before every call; refresh near expiry, and on a schedule.** Before each call compare `expiresAt` against now and refresh only when it is close, rather than refreshing every time. Access tokens live for the lifetime you chose; refresh tokens live 30 days from their last use and **rotate on every use**, so always store both new tokens. With a 90-day or 1-year access token the refresh token can expire long before the access token does, and the user then has to reconnect, so also refresh on a schedule (a fortnightly cron job is enough) rather than only when the access token is near expiry. Reusing an old refresh token revokes the whole family. Serialize refreshes per user.
 6. **Use the grant** with `Authorization: Bearer <token>` on One's normal API: `GET /v1/connections/reachable` lists only what the user granted, each row with its `key` and `access` policy; `GET /v1/knowledge?connectionPlatform=<platform>&limit=100&page=N` lists actions; `{method} /v1/passthrough{path}` with `x-one-connection-key` and `x-one-action-id` executes. The same bearer authenticates the remote MCP server at `https://mcp.withone.ai/mcp` with the same four tools and the same grant. The One CLI does **not** accept grant tokens; use HTTP or MCP for a user's grant.
 
 Two status codes carry the whole security model: **401** means the token is expired, revoked or invalid, so clear the stored tokens and show "Reconnect"; **403** means the call is outside what the user granted, so do not retry. The user chose that.
@@ -662,5 +666,7 @@ The challenge is **self-improving and learning agents**. Three One features map 
 - **Repair loop.** Generate the code, run it in a Daytona sandbox through One, read `exitCode` and `result`, fix from the error, run again. Nothing on the laptop breaks, and `ttlMinutes` cleans up.
 - **Memory.** After each run, `one mem add` what worked and what did not (`--tags`, `--weight`); `one mem search` before the next attempt so the agent starts from its last lesson. Sync a platform (`one sync run gmail`) so the agent can search real history, not just its own notes.
 - **Triggers.** A relay wakes the agent on a real event (a PR opened, a customer created, a calendar invite) instead of polling, so the improvement loop runs on its own.
+
+Four worked examples for this theme are what the templates section of https://hackathon.withone.ai is built around: a self-repairing research agent, a support triage crew on CrewAI, a market watch that learns your preferences, and a pull-request reviewer that learns from feedback. Each one resolves action ids at run time and prints `Recalled:` and `Learned:` lines, so the second run visibly uses what the first one learned. Build yours the same way.
 
 Keep `ONE_CONNECTION_KEYS` tight, confirm before writes, and read the knowledge every time. That is the difference between an agent that demos and an agent that ships. Ask in the Discord when stuck; the One engineers are there all day.
