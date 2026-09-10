@@ -62,7 +62,7 @@ export const LINKS = {
   knowledge: "https://www.withone.ai/knowledge",
   pricing: "https://www.withone.ai/pricing",
   github: "https://github.com/withoneai",
-  x: "https://x.com/withoneai",
+  x: "https://x.com/onedotnew",
   support: "mailto:support@withone.ai",
   npmCli: "https://www.npmjs.com/package/@withone/cli",
   npmMcp: "https://www.npmjs.com/package/@withone/mcp",

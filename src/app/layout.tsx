@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@withoneai",
+    site: "@onedotnew",
     title: "Build with One · You.com Hackathon",
     description,
   },
