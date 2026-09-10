@@ -1,8 +1,8 @@
 /**
  * Single source of truth for every URL, code, and event fact on the page.
- * DISCORD_URL points at the hackathon channel. A channels/ link only opens for
- * people already in the server, so swap it for a discord.gg invite if the page
- * is shared with anyone who has not joined yet.
+ * DISCORD_URL is an invite to the #agentic-hackathon channel in You.com's
+ * Discord. The invite expires 2026-10-10; replace it with a non-expiring one
+ * if the page outlives the event.
  */
 
 export const SITE_URL = "https://hackathon.withone.ai";
@@ -13,8 +13,7 @@ export const SKILL_NAME = "one-hackathon";
 export const COUPON_CODE = "YOU-NYC-PRO";
 export const REDEEM_URL = "https://app.withone.ai/settings/billing";
 
-export const DISCORD_URL =
-  "https://discord.com/channels/958041025539080202/1428311454712598539";
+export const DISCORD_URL = "https://discord.gg/pn8QmHQ4p";
 
 export const MCP_URL = "https://mcp.withone.ai/mcp";
 
