@@ -8,9 +8,9 @@ import { SkillInstaller } from "./skill-installer";
 const TEACHES = [
   "Setup for the remote MCP server, the CLI, the local MCP server and the API",
   "The four-tool loop: list, search, read the knowledge, execute",
-  "Playbooks for You.com, Daytona and CrewAI through One",
+  "Playbooks for You.com, CrewAI and Parasail with One",
+  "Starter patterns for both tracks: The Exorcism Protocol and The Haunted Dashboard",
   "Scoping, error codes and one troubleshooting table",
-  "When to use One Connect so your users can connect their own apps",
 ];
 
 export function SkillCallout() {

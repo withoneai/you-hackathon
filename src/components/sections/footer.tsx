@@ -93,7 +93,7 @@ export function Footer() {
         </div>
         <div className="mt-12 flex flex-col gap-2 border-t border-border pt-6 text-11 text-muted sm:flex-row sm:items-center sm:justify-between">
           <span>© 2026 One Systems, Inc.</span>
-          <span className="font-mono uppercase tracking-label">Build with YOU · Hosted by You.com · NYC</span>
+          <span className="font-mono uppercase tracking-label">Hack With YOU · Halloween Edition · San Francisco</span>
         </div>
       </div>
     </footer>

@@ -12,7 +12,7 @@ import { SKILL_PAGE_URL, SKILL_RAW_URL } from "@/lib/site";
 export const metadata: Metadata = {
   title: "The one-hackathon skill",
   description:
-    "The primary skill for building with One at the You.com hackathon: setup, the four-tool loop, and playbooks for You.com, Daytona and CrewAI.",
+    "The primary skill for building with One at Hack With YOU: Halloween Edition: setup, the four-tool loop, playbooks for You.com, CrewAI and Parasail, and both track playbooks.",
   alternates: { canonical: SKILL_PAGE_URL },
 };
 

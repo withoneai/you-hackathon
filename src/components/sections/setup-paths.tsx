@@ -277,9 +277,9 @@ function CliPanel() {
               one init --auth browser
             </CommandRow>
           </Step>
-          <Step n={3} title="Connect the hackathon platforms" help="Paste the keys from api.you.com and app.daytona.io.">
+          <Step n={3} title="Connect the hackathon platforms" help="Paste the key from api.you.com. Slack opens the browser.">
             <CommandRow action={<CopyButton text="one add you" size="sm" />}>one add you</CommandRow>
-            <CommandRow action={<CopyButton text="one add daytona" size="sm" />}>one add daytona</CommandRow>
+            <CommandRow action={<CopyButton text="one add slack" size="sm" />}>one add slack</CommandRow>
           </Step>
           <Step n={4} title="Hand it to your agent" help="Tell Claude, Codex or Cursor:" last>
             <CommandRow prompt={false} action={<CopyButton text={onboard} size="sm" />}>

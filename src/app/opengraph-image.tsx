@@ -1,9 +1,9 @@
 import { ImageResponse } from "next/og";
 import fs from "node:fs";
 import path from "node:path";
-import { EVENT } from "@/lib/site";
+import { COUPON_CODE, EVENT, SITE_URL } from "@/lib/site";
 
-export const alt = "Build with One · You.com Hackathon";
+export const alt = "Build with One · Hack With YOU Halloween";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -29,21 +29,22 @@ export default function OpenGraphImage() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <img src={logo} alt="One" width={172} height={54} />
           <div style={{ display: "flex", fontSize: 18, letterSpacing: 4, color: "#7C8C86" }}>
-            {`${EVENT.host.toUpperCase()}  ×  ONE   /   NYC   /   ${EVENT.dateShort.toUpperCase()}`}
+            {`${EVENT.host.toUpperCase()}  ×  ONE   /   SF   /   ${EVENT.dateShort.toUpperCase()}`}
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
           <div style={{ display: "flex", fontSize: 72, lineHeight: 1.05, letterSpacing: -1.5, maxWidth: 980 }}>
-            Build with One at the Live Web Agent Hackathon.
+            Build with One at Hack With YOU: Halloween Edition.
           </div>
           <div style={{ display: "flex", fontSize: 28, color: "#9CACA6", maxWidth: 900 }}>
-            Install the skill, connect You.com, Daytona and your apps, and spend the day on the agent.
+            Install the skill, connect your apps, and build with You.com, CrewAI and Parasail.
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div style={{ display: "flex", width: 64, height: 10, background: "#CCFF00", borderRadius: 999 }} />
+          <div style={{ display: "flex", width: 64, height: 10, background: "#FF8A2A", borderRadius: 999 }} />
+          <div style={{ display: "flex", width: 24, height: 10, background: "#A98BFF", borderRadius: 999 }} />
           <div style={{ display: "flex", fontSize: 20, letterSpacing: 3, color: "#7C8C86" }}>
-            {`FREE MONTH OF ONE PRO · CODE YOU-NYC-PRO · HACKATHON.WITHONE.AI`}
+            {`FREE MONTH OF ONE PRO · CODE ${COUPON_CODE} · ${SITE_URL.replace("https://", "").toUpperCase()}`}
           </div>
         </div>
       </div>

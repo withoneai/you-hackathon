@@ -1,42 +1,42 @@
-# Build with One · You.com Hackathon page
+# Build with One · Hack With YOU Halloween page
 
-The one-page starting point for builders using One at You.com's **Build with YOU: The Live Web Agent Hackathon** (NYC, September 11, 2026), plus the primary `one-hackathon` skill they install.
+The one-page starting point for builders using One at You.com's **Hack With YOU @ AWS Builder Loft, Halloween Edition** (San Francisco, October 28, 2026), plus the primary `one-hackathon` skill they install. Every team builds with You.com, One, CrewAI and Parasail.
 
-Deployed at **https://hackathon.withone.ai**.
+To be deployed at **https://halloween.withone.ai**. The NYC edition (https://hackathon.withone.ai) is the `main` branch before this one and stays a separate deploy.
 
 ## Routes
 
 | Route | What |
 |---|---|
-| `/` | The one-pager: event facts, the free-year-of-Pro coupon, the skill install callout, three ways to use One (remote MCP, CLI, API), partner playbooks (You.com, Daytona, CrewAI), use-case templates, help, links |
+| `/` | The one-pager: event facts and both tracks, the free-month-of-Pro coupon, the skill install callout, three ways to use One (remote MCP, CLI, API), sponsor playbooks (You.com, CrewAI, Parasail), track templates, help, links |
 | `/skill` | The skill rendered with a table of contents and a copy button |
 | `/skill.md` | The raw skill as `text/markdown`. This is the URL agents fetch and the install commands curl |
 | `/opengraph-image` | Generated OG card |
 
 ## Templates
 
-`templates/` holds four working examples for the hackathon theme (agents that repair and learn). Each folder runs on its own: Python 3.10 to 3.13, the One CLI, a `.env`, and `./setup.sh`.
+`templates/` holds working examples. Each folder runs on its own: Python 3.10 to 3.13, the One CLI, a `.env`, and `./setup.sh`.
 
-| Folder | What it does | Improves how |
+The page shows the two Halloween track templates:
+
+| Folder | Track | What it does |
 |---|---|---|
-| `self-repairing-research` | You.com research, chart in a Daytona sandbox, PNG by Gmail | Repairs the script from the error; remembers the rule so the next run passes first time |
-| `support-triage-crew` (CrewAI) | Reads support mail, reproduces each bug in a sandbox through One's MCP tools, files in Linear, posts to Slack | Remembers what it filed and skips duplicates; learns from cancelled issues |
-| `market-watch` | Finance Research to a Notion page and a Slack digest | Applies preferences you give as feedback; says what changed since the previous brief |
-| `pr-reviewer-that-learns` | Reviews a GitHub pull request | Turns `one-learn:` replies into rules it applies on the next review |
+| `exorcism-swarm` | 1: The Exorcism Protocol | A hierarchical CrewAI swarm (Sentinel, Analyst, Dispatcher) on a Parasail model. Checks reports with You.com, posts to Slack, files containments in Linear, scores each run |
+| `haunted-command-station` | 2: The Haunted Dashboard | Incident logs through a CrewAI crew to a Parasail-generated JSON UI spec, streamed to the browser over WebSockets. Alerts to Slack and Linear |
 
-Every template resolves action ids at run time, reads the knowledge before executing, keeps `ONE_SECRET` in `.env`, scopes the CLI with a `.onerc` allowlist it writes itself, and prints `Recalled:` and `Learned:` lines so the improvement is visible. Verified 2026-09-10 on `openai/gpt-4o`.
+The four NYC templates (`self-repairing-research`, `support-triage-crew`, `market-watch`, `pr-reviewer-that-learns`) stay in the repo but are no longer on the page.
 
-The cards on the page link here only when `TEMPLATES_PUBLIC` in `src/lib/site.ts` is true. Flip it when the repository is public. `templates/check.sh` compares the vendored helpers, compiles every script, and fails on any committed key or action id.
+The cards link to `TEMPLATES_URL` on GitHub (`main`), so they resolve only once the templates are on `main` of `withoneai/you-hackathon`. They link at all only when `TEMPLATES_PUBLIC` in `src/lib/site.ts` is true. `templates/check.sh` compares the vendored helpers, compiles every script, and fails on any committed key or action id.
 
 ## Editing
 
-- **Copy, URLs, coupon, Discord link, event facts:** `src/lib/site.ts`. `DISCORD_URL` invites people to `#agentic-hackathon` in You.com's Discord and expires 2026-10-10.
-- **The skill:** `content/skill.md`. Section anchors used by the page (`youcom-via-one`, `daytona-via-one`, `crewai-with-one`) come from the `##` heading text.
-- **Design tokens:** `src/app/globals.css` (Clockwork dark: carbon neutrals, lime fill-only CTA, spring green accents, Inter / DM Mono / Lora).
+- **Copy, URLs, coupon, Discord link, event facts, tracks, partners:** `src/lib/site.ts`. `DISCORD_URL` is the NYC invite, which Discord reports expired on 2026-10-10. Replace it before launch. `STARTER_REPO_URL` is empty until You.com shares the starter repo.
+- **The skill:** `content/skill.md`. Section anchors used by the page (`youcom-via-one`, `parasail-with-one`, `crewai-with-one`) come from the `##` heading text. The skill repeats the site URL, coupon and Discord link as literal text, so change them there too.
+- **Design tokens:** `src/app/globals.css` (Clockwork dark: carbon neutrals, lime fill-only CTA, spring green accents, Inter / DM Mono / Lora). The Halloween edition adds `pumpkin` and `hex` (purple) as a light accent, plus one piece of hero art (`src/components/sections/hero-art.tsx`).
 - **Sections:** `src/components/sections/*`. Primitives in `src/components/ui/*`.
-- **Logos:** `public/logo` (One), `public/agents` (AI clients), `public/partners` (You.com, Daytona, CrewAI, Discord, Founders Bay, Clean Data Alliance), `public/platforms` (connector marks from `assets.withone.ai/connectors/<slug>.svg`).
+- **Logos:** `public/logo` (One), `public/agents` (AI clients), `public/partners` (You.com, CrewAI, Parasail, AWS, UpScaleX, Founders Bay, Discord), `public/platforms` (connector marks from `assets.withone.ai/connectors/<slug>.svg`).
 
-Platform and tool counts are fetched at build time from `api.withone.ai/open/count/*` with fallbacks in `site.ts`; the page revalidates hourly.
+The app count is a fixed label, `APP_COUNT_LABEL` in `site.ts` ("1,000+"), so the page, the skill and the event copy agree.
 
 ## Develop
 

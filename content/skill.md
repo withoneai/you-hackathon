@@ -1,7 +1,7 @@
 ---
 name: one-hackathon
 description: |
-  Build with One at You.com's "Build with YOU: The Live Web Agent Hackathon" (New York, September 11, 2026). One connects an AI agent to 780+ apps (Gmail, Slack, Notion, GitHub, Linear, Stripe, You.com, Daytona and more) through four tools with managed auth, access control and an audit log. Use this skill to set One up (remote MCP server, CLI, local MCP server, passthrough API or SDK), to take any action in a third-party app through the list → search → knowledge → execute loop, to use You.com, Daytona or CrewAI through One, to let the users of a product connect their own apps with One Connect, or to find the One dashboard, docs, logs, coupon or Discord.
+  Build with One at You.com's "Hack With YOU: Halloween Edition" (San Francisco, October 28, 2026). Every team builds with You.com, One, CrewAI and Parasail. One connects an AI agent to 1,000+ apps (Gmail, Slack, Notion, GitHub, Linear, You.com and more) through four tools with managed auth, access control and an audit log. Use this skill to set One up (remote MCP server, CLI, local MCP server, passthrough API or SDK), to take any action in a third-party app through the list → search → knowledge → execute loop, to use You.com through One, to run a CrewAI crew on One's tools with a Parasail model, to build for The Exorcism Protocol or The Haunted Dashboard tracks, or to find the One dashboard, docs, logs, coupon or Discord.
 ---
 
 # Build with One (hackathon edition)
@@ -11,14 +11,15 @@ description: |
 Use it when the user wants to:
 
 - Set up One, install the One CLI, or connect an agent (Claude Code, Cursor, Codex, ChatGPT, Claude, OpenClaw, Hermes, Kiro, Gemini CLI, CrewAI) to One's MCP server
-- Take ANY action in a third-party app: send an email, post to Slack, create a Linear issue, read a calendar, look up a customer, run code somewhere safe
-- Search the web, research a topic or company, or read a page with You.com through One
-- Create, run commands in, upload files to, or tear down a Daytona sandbox through One
+- Take ANY action in a third-party app: send an email, post to Slack, create a Linear issue, read a calendar, look up a customer
+- Search the web, research a topic, or read a page with You.com through One
 - Build a CrewAI crew whose agents act on real apps through One, or fix "expected boolean, received null" and empty-data errors from One tools inside CrewAI
-- Let the users of a product connect their own apps to it (One Connect: an OAuth app, `@withone/connect`, two backend routes)
+- Run a crew's agents, or a generated UI, on a Parasail model
+- Build a swarm for The Exorcism Protocol track or a generative UI pipeline for The Haunted Dashboard track
+- Let the users of a product connect their own apps to it (One Connect)
 - Redeem the hackathon coupon, or find the One dashboard, docs, logs or Discord
 
-Do not use it for calling the You.com or Daytona APIs directly with their own SDKs and keys with no One involved, or for CrewAI questions that have nothing to do with tools or integrations.
+Do not use it for calling the You.com API directly with its own SDK and key with no One involved, or for CrewAI or Parasail questions that have nothing to do with tools, integrations or this hackathon.
 
 One connects an AI agent to every app a builder needs through **four tools**. No matter how many platforms you connect, it stays four tools, so *search* is how the agent finds things, not a giant tool list. One holds the OAuth tokens and API keys server-side, proxies every call, enforces the access you granted, and logs each request so you can see exactly what your agent did.
 
@@ -38,16 +39,21 @@ The CLI (`one list`, `one actions search`, `one actions knowledge`, `one actions
 | API keys (`sk_live_…` / `sk_test_…`) | https://app.withone.ai/settings/api-keys |
 | Every call your agent made, request and response | https://app.withone.ai/logs |
 | Billing (redeem the hackathon coupon) | https://app.withone.ai/settings/billing |
-| Hackathon perk: **a free month of One Pro for every builder** | code `YOU-NYC-PRO`, entered at checkout on the Pro plan. The winning team gets a free year (second place six months, third place three) |
+| Hackathon perk: **a free month of One Pro for every builder** | code `YOU-SF-PRO`, entered at checkout on the Pro plan. The winning team gets a free year (second place six months, third place three) |
 | Remote MCP server (Streamable HTTP, OAuth) | `https://mcp.withone.ai/mcp` |
 | Docs | https://www.withone.ai/docs/welcome · CLI https://www.withone.ai/docs/cli · MCP https://www.withone.ai/docs/mcp · Install guides https://www.withone.ai/docs/install · Relay https://www.withone.ai/docs/relay |
 | Every platform and action, searchable | https://www.withone.ai/knowledge |
+| You.com API key | https://api.you.com |
+| Parasail API key and docs | https://www.saas.parasail.io/keys · https://docs.parasail.io |
+| CrewAI docs | https://docs.crewai.com |
+| Starter repo (CrewAI starter and the facility simulation) | Not public yet. Ask in the Discord |
+| Track templates | https://github.com/withoneai/you-hackathon/tree/main/templates |
 | One Connect (let your users connect their own apps) | https://github.com/withoneai/connect · skill: `npx skills add withoneai/connect` |
-| This skill (latest version) | https://hackathon.withone.ai/skill.md · rendered at https://hackathon.withone.ai/skill |
-| Hackathon page and Discord | https://hackathon.withone.ai (the Discord link is in the header and the Help section) |
-| Event page | https://luma.com/agentic-hackathon-ny |
+| This skill (latest version) | https://halloween.withone.ai/skill.md · rendered at https://halloween.withone.ai/skill |
+| Hackathon page and Discord | https://halloween.withone.ai · https://discord.gg/pn8QmHQ4p |
+| Event page | https://luma.com/you-halloween |
 
-Platform slugs are lowercase kebab-case: `gmail`, `slack`, `google-calendar`, `hubspot`, `you`, `daytona`. Run `one platforms` or browse the knowledge base to find one.
+Platform slugs are lowercase kebab-case: `gmail`, `slack`, `google-calendar`, `hubspot`, `you`, `linear`. Run `one platforms` or browse the knowledge base to find one.
 
 ## Pick your path
 
@@ -163,7 +169,7 @@ Without `x-one-action-id` the proxy answers 400. The path after `/v1/passthrough
 
 ```ts
 const res = await fetch(
-  "https://api.withone.ai/v1/passthrough/v1/search?query=self-repairing+agents&count=5",
+  "https://api.withone.ai/v1/passthrough/v1/search?query=haunted+house+sightings&count=5",
   {
     headers: {
       "x-one-secret": process.env.ONE_SECRET!,
@@ -186,14 +192,14 @@ const res = await one
   .run(gmail.createUsersDraft({ path: { userId: "me" }, body: { message: { raw: base64Email } } }));
 ```
 
-Typed modules exist for 34 platforms in 0.4.0 (gmail, slack, github, linear, notion, hubspot, stripe, googleCalendar, googleSheets, discord, openai, anthropic and more). **There is no typed `you` or `daytona` module yet.** Reach those with `runRaw`, the escape hatch that still handles auth, the base URL, retries and parsing. `systemId` is the same id `one actions search` returns as `actionId` (`conn_mod_def::…`); `method` and `path` come from the same result:
+Typed modules exist for 34 platforms in 0.4.0 (gmail, slack, github, linear, notion, hubspot, stripe, googleCalendar, googleSheets, discord, openai, anthropic and more). **There is no typed `you` module yet.** Reach it with `runRaw`, the escape hatch that still handles auth, the base URL, retries and parsing. `systemId` is the same id `one actions search` returns as `actionId` (`conn_mod_def::…`); `method` and `path` come from the same result:
 
 ```ts
 const search = await one.connection(process.env.ONE_YOU_CONNECTION_KEY!).runRaw({
   systemId: "<actionId from one actions search, e.g. conn_mod_def::…>",
   method: "GET",
   path: "/v1/search",
-  query: { query: "self-repairing agents", count: 5 },
+  query: { query: "haunted house sightings", count: 5 },
 });
 console.log(search.status, search.data);
 ```
@@ -206,7 +212,6 @@ Connections are made once, then shared by every path above.
 
 ```bash
 one add you            # You.com: paste the key from https://api.you.com
-one add daytona        # Daytona: paste the key from https://app.daytona.io/dashboard/keys
 one add gmail          # OAuth platforms open the browser
 one add slack --tag work   # tag when you will have several accounts on one platform
 ```
@@ -233,7 +238,7 @@ Remove a connection with `one --agent connection delete <connectionKey>`.
 Follow it in order. Skipping a step is where calls fail.
 
 1. **List first.** Confirm the platform is connected and grab its key. Only use keys returned here; never invent one. If the platform is missing, say so and point the user at `one add <platform>` or https://app.withone.ai. Do not fall back to a raw HTTP request, a scraped page, or a different platform that happens to be connected.
-2. **Search by outcome.** `query` describes what you want to happen ("send an email", "create a sandbox", "search web and news"), not an endpoint name. Pass `agent_type: "execute"` when the user wants something done, `"knowledge"` when they want code or documentation. If nothing fits, broaden the query. When several actions share a title, pick by `method` and `path`.
+2. **Search by outcome.** `query` describes what you want to happen ("send an email", "create an issue", "search web and news"), not an endpoint name. Pass `agent_type: "execute"` when the user wants something done, `"knowledge"` when they want code or documentation. If nothing fits, broaden the query. When several actions share a title, pick by `method` and `path`.
 3. **Read the knowledge. Always.** It is the schema. A field name that looks obvious and is not in the knowledge is invented, and produces a 400, or worse, a 200 that wrote the wrong thing. Never hardcode an action ID across sessions; resolve it at build time.
 4. **Execute with values where the knowledge says they go.** Path variables in the path-variables argument, query params in query params, body fields in the body. Do not hand-build URLs or stuff path values into the body.
 
@@ -384,122 +389,65 @@ Gotchas:
 - On Search, do not combine `include_domains` with `exclude_domains` or `boost_domains`. You.com returns 422.
 - Research and Finance Research take domain lists as arrays inside `source_control`; Search takes one comma-separated string.
 
-## Daytona via One
+## Parasail with One
 
-One exposes Daytona as the platform `daytona`: the sandbox management side (create, start, stop, delete, snapshots, volumes) and the inside-the-sandbox side (run a command, run code, files, git, terminal sessions, computer use). A sandbox sits in the same connection list and activity log as every other app, and `ONE_CONNECTION_KEYS` limits which Daytona account an agent sees. Get a key at https://app.daytona.io/dashboard/keys, then `one add daytona` and `one --agent list --search daytona`.
+Parasail is not a platform on One. It is where the model runs. Parasail serves open models behind an OpenAI-compatible API, so your agents think on Parasail and act through One's four tools. Nothing to connect with `one add`.
 
-| Family | What it covers | Path variable |
-|---|---|---|
-| Sandboxes | Create, start or resume, stop, delete, fork, SSH access, secrets | `sandboxIdOrName` |
-| Snapshots, volumes | The images a sandbox boots from; shared storage to mount | |
-| Process | Execute a shell command, run a code snippet, interpreter contexts, shell sessions, PTY | `sandboxId` |
-| Files | Upload, download, list, search, find text | `sandboxId` |
-| Git | Clone, init, add, branch, checkout, remotes | `sandboxId` |
-| Computer use | Screenshots, mouse, keyboard, recordings | `sandboxId` |
-| Organizations, API keys, regions, runners | Account and infrastructure management | |
+**Setup.** Get a key at https://www.saas.parasail.io/keys and add it to `.env`:
 
-Sandbox actions take the id as `sandboxIdOrName`; every inside-the-sandbox action takes it as `sandboxId`. Same value, two names. Resolve the three ids you need instead of pasting them:
+```text
+PARASAIL_API_KEY=<parasailKey>
+```
+
+- Base URL: `https://api.parasail.io/v1`
+- Auth: `Authorization: Bearer $PARASAIL_API_KEY`
+- Any OpenAI SDK works: set `base_url` to the Parasail URL and `api_key` to your key.
+
+**Pick a model that calls tools.** Agents on One need a model that supports tool (function) calling. Model ids change, so list them at build time instead of hardcoding one:
 
 ```bash
-CREATE=$(one --agent actions search daytona "create sandbox" -t execute | jq -r '.actions[0].actionId')
-EXEC=$(one --agent actions search daytona "execute command in sandbox" -t execute | jq -r '.actions[0].actionId')
-DELETE=$(one --agent actions search daytona "delete sandbox" -t execute | jq -r '.actions[0].actionId')
+curl -s https://api.parasail.io/v1/models -H "Authorization: Bearer $PARASAIL_API_KEY" | jq -r '.data[].id'
 ```
 
-Check `.actions[]` first when several match; `actions[0]` is not always the one you want.
+Check https://docs.parasail.io/parasail-docs/guides/tool-function-calling.md for which ones support tools (at the time of writing it lists `parasail-kimi-k26`, `parasail-deepseek-v4-flash`, `parasail-qwen3p6-35b-a3b` and `parasail-glm-52`, among others) and https://docs.parasail.io/parasail-docs/products/overview/models.md for context windows and prices. Try your pick with one tool call before wiring a whole crew.
 
-**Example 1: create, run, delete from the CLI.** Handy for checking the connection before wiring an agent.
-
-```bash
-KEY=<connectionKey>
-
-SANDBOX_ID=$(one --agent actions execute daytona "$CREATE" "$KEY" \
-  --skip-validation -d '{"name":"hack-box","ttlMinutes":30}' | jq -r .response.id)
-
-one --agent actions execute daytona "$EXEC" "$KEY" \
-  --path-vars "{\"sandboxId\":\"$SANDBOX_ID\"}" \
-  -d '{"command":"python3 --version && echo hello-from-one","timeout":30}'
-
-one --agent actions execute daytona "$DELETE" "$KEY" \
-  --path-vars "{\"sandboxIdOrName\":\"$SANDBOX_ID\"}"
-```
-
-Every Create field is optional; always set `ttlMinutes` so a forgotten sandbox destroys itself. The default sandbox has Debian, Python 3.14, Node, npm, git, and internet.
-
-**Example 2: spin up a box, run a script, tear it down from Python.** Three One actions and nothing else, with the delete in a `finally` so it runs even if the script fails. Needs `pip install 'crewai-tools[mcp]'`, Python 3.10 to 3.13, and `ONE_SECRET` in the environment.
+**Example 1: a CrewAI crew on Parasail.** Swap the `LLM` in the CrewAI example below. Everything else (One's tools, `dropping_nulls`, `harden_execute`, the `RULES` string) stays the same.
 
 ```python
-import json, os
-from crewai_tools import MCPServerAdapter
-from mcp import StdioServerParameters
+import os
+from crewai import LLM
 
-CREATE = "<actionId of POST /api/sandbox>"
-EXEC   = "<actionId of POST /toolbox/{sandboxId}/process/execute>"
-DELETE = "<actionId of DELETE /api/sandbox/{sandboxIdOrName}>"
-KEY = "<connectionKey>"
-
-def call(execute, **kw):
-    return json.loads(str(execute._run(**kw)))["responseData"]
-
-with MCPServerAdapter(StdioServerParameters(command="npx", args=["-y", "@withone/mcp"], env={**os.environ}), connect_timeout=120) as tools:
-    execute = next(t for t in tools if t.name == "execute_one_action")
-
-    sandbox_id = call(execute, platform="daytona", actionId=CREATE, connectionKey=KEY,
-                      data={"name": "hack-box", "ttlMinutes": 30})["id"]
-    try:
-        run = call(execute, platform="daytona", actionId=EXEC, connectionKey=KEY,
-                   pathVariables={"sandboxId": sandbox_id},
-                   data={"command": "python3 -c 'print(2 + 2)'", "cwd": "/home/daytona", "timeout": 60})
-        print(run["exitCode"], run["result"])
-    finally:
-        call(execute, platform="daytona", actionId=DELETE, connectionKey=KEY,
-             pathVariables={"sandboxIdOrName": sandbox_id})
+llm = LLM(
+    model="<parasail-model-id>",           # the bare id, e.g. parasail-kimi-k26
+    provider="openai",                     # CrewAI's native OpenAI-compatible client
+    base_url="https://api.parasail.io/v1",
+    api_key=os.environ["PARASAIL_API_KEY"],
+)
 ```
 
-**Example 3: let an agent try generated code somewhere safe.** A crew writes a small script and, instead of running it on your laptop, asks for a sandbox. The agent calls create with `{"name":"try-1","ttlMinutes":10}`, writes the script into the box with one execute call (`"command": "cat > /home/daytona/main.py <<'EOF'\n<the script>\nEOF"`), runs it with a second (`"command": "python3 main.py", "cwd": "/home/daytona"`), reads `exitCode` and `result`, and calls delete when it is done. If the script breaks, nothing real is harmed, and the ten-minute TTL cleans up anything the agent forgets. For larger files use the `files/upload-v2` action (multipart, destination in the `path` query param); for a whole project use `git/clone`. This is the self-repair loop for the hackathon theme: run, read the error, fix, run again.
+Write it exactly this way. `model="openai/<id>"` without `provider` raises `ImportError` on plain `crewai` (it falls through to LiteLLM, which is not installed), and `provider="openai"` together with an `openai/` prefix sends the literal `openai/<id>` to Parasail. CrewAI also assumes a window of about 7k tokens for model ids it does not recognise, so long crews get summarised early; the track templates (`parasail.py`) show how to raise it.
 
-**Locking down what the sandbox can reach.** Three optional fields on Create turn a sandbox into a real jail. Worth setting when the code inside was written by a model:
-
-| Field | Type | Effect |
-|---|---|---|
-| `networkBlockAll` | boolean | No outbound network at all |
-| `networkAllowList` | string | Comma-separated CIDRs the sandbox may reach |
-| `domainAllowList` | string | Comma-separated domains, wildcards allowed |
-
-```json
-{"name": "untrusted", "ttlMinutes": 10,
- "domainAllowList": "api.github.com,pypi.org,files.pythonhosted.org"}
-```
-
-Set them at create time; they are visible on the returned sandbox object. A sandbox with `networkBlockAll: true` still runs code and returns `exitCode` and `result`, it just cannot phone home.
-
-**The other direction: One inside Daytona.** Running the agent itself inside the sandbox, so the whole crew is disposable, is the shape you want, and the pattern below is how you would wire it: One's credentials and the model key go through the create action's `env` field, never as an uploaded file, and Node is on the default image, so `npx -y @withone/mcp` (crew) or `npm i -g @withone/cli` (scripts) works inside.
-
-**It does not work today.** The sandbox egress note below blocks `*.withone.ai`, so an agent inside the sandbox cannot reach One at all: the CLI reports `fetch failed`. Keep the agent outside the sandbox and drive Daytona through One (examples 1 to 3) until that allowlist changes. The code is here so it is ready when it does.
+**Example 2: plain Python, one call with a tool.** Useful for a generative UI step where you want structured output, not a crew.
 
 ```python
-sandbox_id = call(execute, platform="daytona", actionId=CREATE, connectionKey=KEY,
-                  data={"name": "crew-box", "ttlMinutes": 30,
-                        "env": {"ONE_SECRET": os.environ["ONE_SECRET"],
-                                "ONE_CONNECTION_KEYS": os.environ["ONE_CONNECTION_KEYS"],
-                                # the crew's model key has to travel too, or the agents cannot think
-                                "ANTHROPIC_API_KEY": os.environ["ANTHROPIC_API_KEY"]}})["id"]
+import os
+from openai import OpenAI
 
-call(execute, platform="daytona", actionId=EXEC, connectionKey=KEY,
-     pathVariables={"sandboxId": sandbox_id},
-     data={"command": "npm i -g @withone/cli && one --agent list", "timeout": 240})
+client = OpenAI(base_url="https://api.parasail.io/v1", api_key=os.environ["PARASAIL_API_KEY"])
+
+response = client.chat.completions.create(
+    model="<parasail-model-id>",
+    messages=[{"role": "user", "content": "Summarize these incident logs as JSON: <logs>"}],
+    response_format={"type": "json_object"},
+)
+print(response.choices[0].message.content)
 ```
-
-> **Known issue, re-verified 2026-09-10 and still present. Re-check on event day.** Daytona's sandbox egress inspects the TLS ClientHello and resets any connection whose SNI is not on a platform-level allowlist. `*.withone.ai` was not on that list, so from inside a sandbox the One CLI reported `fetch failed` and `curl` reported `Connection reset by peer`. Raw TCP to port 443 succeeds and only the TLS handshake is killed; swapping SNI and IP proves the SNI decides. The same reset hit `wikipedia.org`, `anthropic.com` and `daytona.io` itself, so anything that fetches a public page fails the same way. Confirmed still blocked on 2026-09-10: every `*.withone.ai` host, plus `wikipedia.org`, `example.com` and `anthropic.com`. Confirmed reachable: `github.com`, `registry.npmjs.org`, `you.com` and `api.you.com`, plus `openai.com`, `api.openai.com`, `claude.ai`, `vercel.com` and `cloudflare.com`. So a You.com-driven agent works inside a sandbox; a One-driven one does not. If `one --agent list` inside a sandbox fails with a reset, keep the agent outside the sandbox and use Examples 1 to 3, or ask the Daytona engineers on site to confirm `*.withone.ai` is allowlisted.
 
 Gotchas:
 
-- The CLI needs `--skip-validation` on create: One's schema wrongly marks `buildInfo` as required. The MCP tool accepts the minimal body as is.
-- Do not set `ONE_BASE_URL` to an empty string in the create `env`. Leave it out entirely unless you are pointing at a non-default One environment.
-- Do not pass `cpu`, `memory`, or `disk` with the default snapshot. Daytona returns 400 "Cannot specify Sandbox resources when using a snapshot".
-- Execute defaults to a 10 second timeout. Pass `timeout` (seconds) for anything that installs packages or runs longer.
-- The default image ships Python 3.14, which some libraries do not support yet (CrewAI needs below 3.14). If installs fail inside the sandbox, run `curl -LsSf https://astral.sh/uv/install.sh | sh` then `uv python install 3.12 && uv venv --python 3.12 .venv` in an execute call, and use `.venv/bin/python` after that.
-- `list_one_integrations` with no `ONE_CONNECTION_KEYS` set returns every connection on the account and can be slow on large accounts. Set the allowlist.
+- If an agent never calls a tool, the model probably does not support tool calling. Pick another from the models list.
+- On the Responses API (`/v1/responses`), set `store: false` on every request. Parasail does not keep server-side state.
+- Keep model output that must be exact (a Gmail `raw` value, a date format) in a plain Python `@tool`, the same rule as the CrewAI example.
 
 ## CrewAI with One
 
@@ -507,10 +455,10 @@ CrewAI is not a platform on One; it is the program that runs your agents in orde
 
 **Setup.** Python 3.10 to 3.13 (3.14 does not work yet), Node 18+, the `one` CLI signed in, and the platforms you need connected with `one add <platform>`. 3.12 or 3.13 is the smoothest; on 3.10 or 3.11 pip installs a slightly older `mcpadapt` (0.1.19), which works but is one version behind. Check your setup before writing any code: `one --agent list --search <platform>` for each platform the crew will use, and confirm an `operational` row whose `platform` field is exactly the one you want (`--search` matches substrings, so `you` also returns `youtube-data`) with a `live::<platform>::default::<32hex>` key.
 
-`requirements.txt`. These are exact pins, not floors: `crewai[anthropic]>=0.140.0` resolves to 1.15.20 today, which is not the version this was tested on, and `dropping_nulls` below reaches into a pydantic internal that can shift between releases. `crewai` and `crewai-tools` move in lockstep, so keep them equal. `mcp~=1.26.0` is what crewai 1.15.2 itself requires (mcp 2.x breaks the adapter).
+`requirements.txt`. These are exact pins, not floors: `crewai>=0.140.0` resolves to 1.15.20 today, which is not the version this was tested on, and `dropping_nulls` below reaches into a pydantic internal that can shift between releases. `crewai` and `crewai-tools` move in lockstep, so keep them equal. `mcp~=1.26.0` is what crewai 1.15.2 itself requires (mcp 2.x breaks the adapter).
 
 ```text
-crewai[anthropic]==1.15.2
+crewai==1.15.2
 crewai-tools[mcp]==1.15.2
 mcp~=1.26.0
 mcpadapt>=0.1.9,<0.2
@@ -520,7 +468,7 @@ python-dotenv
 `.env`. `ONE_SECRET` is the same key the `one` CLI uses. `ONE_CONNECTION_KEYS` is an allowlist: the crew only sees the connections you name here (see the known-issue note under Scoping for its limits). The local MCP server reads both from the environment, which `load_dotenv()` fills.
 
 ```text
-ANTHROPIC_API_KEY=<anthropicKey>
+PARASAIL_API_KEY=<parasailKey>
 ONE_SECRET=<oneSecret>
 ONE_CONNECTION_KEYS=live::you::default::<32hex>,live::gmail::default::<32hex>
 ```
@@ -593,7 +541,8 @@ RULES = (
 )
 
 def build_crew(one_tools) -> Crew:
-    llm = LLM(model="anthropic/claude-sonnet-5")  # or anthropic/claude-opus-5 for the demo: picking the right action out of 700 platforms is where the stronger model earns its cost
+    llm = LLM(model="<parasail-model-id>", provider="openai", base_url="https://api.parasail.io/v1",
+              api_key=os.environ["PARASAIL_API_KEY"])  # see "Parasail with One"
 
     researcher = Agent(role="Researcher", goal="Find three recent facts about {topic}, each with a source URL",
                        backstory="A careful researcher who only reports facts found in search results. " + RULES,
@@ -622,7 +571,12 @@ Run `python main.py` and watch the log: the Researcher finds the search action, 
 
 Two habits from this example worth keeping. One task, one outcome: a single "create the contact and send the email" task ran out of steps in practice, and splitting it fixed that. And the `RULES` string in every backstory is what stops agents from guessing parameters or retrying the same failing call.
 
-Running this crew inside a Daytona sandbox is not possible today: the sandbox egress allowlist blocks `*.withone.ai`, so `@withone/mcp` cannot reach One from in there (see the note under Daytona via One). Run the crew on your machine and let it drive the sandbox through One instead.
+**Swarm pattern (Exorcism Protocol).** A swarm is a crew where no single agent sees everything. Give each agent only the tools and connections its role needs, and make them share what they learn through one place every agent can read.
+
+- One role, one slice of tools. Build each agent's tool list from the same MCP session, but tell each one in its backstory which platforms it may use. To hard-limit an agent, start a second `MCPServerAdapter` with its own `ONE_CONNECTION_KEYS` in `env` and give that agent only those tools.
+- One shared channel. Pick a Slack channel or a Notion database as the swarm's memory. Every agent posts what it saw and reads the channel before acting.
+- One decider. Use `Process.hierarchical` with a manager agent (the Dispatcher) so actions get coordinated, not duplicated.
+- Score yourself the way the judges do: time to containment, false alarms, civilians saved. Log all three every run.
 
 ## Embed One in your product (One Connect)
 
@@ -662,20 +616,31 @@ Or read it at https://github.com/withoneai/connect/blob/main/skills/one-connect/
 | MCP connect timeout on first run | `npx` is still downloading `@withone/mcp` | Run `npx -y @withone/mcp --help` once, or raise `connect_timeout` |
 | "You are missing the 'mcp' package" | mcp 2.x installed | `pip install "mcp~=1.26.0"` |
 | 422 from You.com search | Extra filters, or `include_domains` combined with `exclude_domains` / `boost_domains` | Send only `query` and `count`; drop the conflicting domain lists |
-| 400 "Cannot specify Sandbox resources when using a snapshot" (Daytona) | `cpu` / `memory` / `disk` passed with the default snapshot | Remove them |
-| Daytona create fails validation from the CLI | Schema wrongly requires `buildInfo` | Add `--skip-validation` |
-| `fetch failed` / `Connection reset by peer` inside a Daytona sandbox | Sandbox egress SNI allowlist (see the dated note above) | Keep the agent outside the sandbox, or confirm `*.withone.ai` is allowlisted |
 | 400 / 422 from any platform | Request does not match the schema | Re-read the knowledge; move values to the right place; retry once |
 | Slow `one` commands | Cold cache | Knowledge and search are cached for an hour under `~/.one/cache/`; `one cache list`, `one cache clear` |
 
-## Hackathon tips: agents that repair and learn
+## Track playbooks
 
-The challenge is **self-improving and learning agents**. Three One features map straight onto it:
+Every team builds with You.com, One, CrewAI and Parasail. Here is how they fit for each track.
 
-- **Repair loop.** Generate the code, run it in a Daytona sandbox through One, read `exitCode` and `result`, fix from the error, run again. Nothing on the laptop breaks, and `ttlMinutes` cleans up.
-- **Memory.** After each run, `one mem add` what worked and what did not (`--tags`, `--weight`); `one mem search` before the next attempt so the agent starts from its last lesson. Sync a platform (`one sync run gmail`) so the agent can search real history, not just its own notes.
-- **Triggers.** A relay wakes the agent on a real event (a PR opened, a customer created, a calendar invite) instead of polling, so the improvement loop runs on its own.
+### The Exorcism Protocol (autonomous agent swarms)
 
-Four worked examples for this theme are what the templates section of https://hackathon.withone.ai is built around: a self-repairing research agent, a support triage crew on CrewAI, a market watch that learns your preferences, and a pull-request reviewer that learns from feedback. Each one resolves action ids at run time and prints `Recalled:` and `Learned:` lines, so the second run visibly uses what the first one learned. Build yours the same way.
+A paranormal outbreak spreads through a live facility simulation. Your swarm must sense, share intel and coordinate containment in real time. Judges score containment speed, false-alarm rate and civilians saved.
 
-Keep `ONE_CONNECTION_KEYS` tight, confirm before writes, and read the knowledge every time. That is the difference between an agent that demos and an agent that ships. Ask in the Discord when stuck; the One engineers are there all day.
+- **CrewAI** runs the swarm: three or more agents with distinct roles (for example Sentinel, Analyst, Dispatcher) and only partial knowledge each. Use the swarm pattern under "CrewAI with One".
+- **Parasail** runs every agent's model. See "Parasail with One".
+- **One** is how agents act and talk: post sightings to Slack, file each containment in Linear, keep shared state in Notion. Scope each agent's connections with `ONE_CONNECTION_KEYS`.
+- **You.com** gives agents outside context when the sim calls for it: search for live reports, read a page, research a threat.
+- Starting point: https://github.com/withoneai/you-hackathon/tree/main/templates/exorcism-swarm. The facility simulation and scoreboard come from You.com's starter repo, which is not public yet (ask in the Discord); the template ships a small local mock feed until then.
+
+### The Haunted Dashboard (generative UI pipelines)
+
+Take real-time, unstructured "Spooky Incident Logs" and build a working Spooky Tactical Command Station on the fly, served over WebSockets.
+
+- **You.com** brings in live data: Search or Get Web Page Contents for the incident feed and any context it needs.
+- **CrewAI** splits the work: one agent structures the logs, one decides what the dashboard should show, one writes the UI.
+- **Parasail** runs the inference, including the step that generates the UI. Ask for JSON (`response_format`) so the server can render it.
+- **One** handles every action the dashboard triggers: alerts to Slack, tickets to Linear, a daily brief by Gmail.
+- Starting point: https://github.com/withoneai/you-hackathon/tree/main/templates/haunted-command-station.
+
+Keep `ONE_CONNECTION_KEYS` tight, confirm before writes, and read the knowledge every time. Ask in the Discord when stuck: https://discord.gg/pn8QmHQ4p. The One engineers are there all day.

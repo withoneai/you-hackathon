@@ -41,7 +41,7 @@ export function PerkCard() {
               <p className="mt-3 flex items-start gap-2.5 text-13 text-secondary">
                 <Trophy size={16} weight="fill" className="mt-0.5 shrink-0 text-amber" />
                 <span>
-                  <span className="font-medium text-foreground">Win, and it is a free year.</span> Second
+                  <span className="font-medium text-foreground">Win, and it&apos;s a free year.</span> Second
                   place gets six months, third gets three.
                 </span>
               </p>
