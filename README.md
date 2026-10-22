@@ -2,7 +2,7 @@
 
 The one-page starting point for builders using One at You.com's **Hack With YOU @ AWS Builder Loft, Halloween Edition** (San Francisco, October 28, 2026), plus the primary `one-hackathon` skill they install. Every team builds with You.com, One, CrewAI and Parasail.
 
-To be deployed at **https://halloween.withone.ai**. The NYC edition (https://hackathon.withone.ai) is the `main` branch before this one and stays a separate deploy.
+Deployed at **https://hackathon.withone.ai**, which served the NYC edition before this one.
 
 ## Routes
 

@@ -49,8 +49,8 @@ The CLI (`one list`, `one actions search`, `one actions knowledge`, `one actions
 | Starter repo (CrewAI starter and the facility simulation) | Not public yet. Ask in the Discord |
 | Track templates | https://github.com/withoneai/you-hackathon/tree/main/templates |
 | One Connect (let your users connect their own apps) | https://github.com/withoneai/connect · skill: `npx skills add withoneai/connect` |
-| This skill (latest version) | https://halloween.withone.ai/skill.md · rendered at https://halloween.withone.ai/skill |
-| Hackathon page and Discord | https://halloween.withone.ai · https://discord.gg/pn8QmHQ4p |
+| This skill (latest version) | https://hackathon.withone.ai/skill.md · rendered at https://hackathon.withone.ai/skill |
+| Hackathon page and Discord | https://hackathon.withone.ai · https://discord.gg/pn8QmHQ4p |
 | Event page | https://luma.com/you-halloween |
 
 Platform slugs are lowercase kebab-case: `gmail`, `slack`, `google-calendar`, `hubspot`, `you`, `linear`. Run `one platforms` or browse the knowledge base to find one.
