@@ -30,7 +30,7 @@ export function Header() {
             className="h-[26px] w-auto"
           />
           <span className="hidden font-mono text-10 uppercase tracking-label text-muted sm:inline">
-            × You.com Hackathon
+            × Hack With YOU
           </span>
         </a>
 

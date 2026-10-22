@@ -29,7 +29,7 @@ export function HelpSection() {
                 <Button href={LINKS.discord} variant="lime" size="lg">
                   <DiscordLogo weight="fill" /> Join the Discord
                 </Button>
-                <span className="text-13 text-muted">Or find the One table at the venue.</span>
+                <span className="text-13 text-muted">Or find the One team at the AWS Builder Loft.</span>
               </div>
             </div>
             <ul className="grid gap-3 self-center">

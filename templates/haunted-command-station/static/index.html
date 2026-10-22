@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haunted Command Station</title>
+<style>
+  /* A tactical display, so dark only. Series colors are a validated categorical set for this surface;
+     status colors (warning/serious/critical) are reserved for threat state and always carry a text label. */
+  :root {
+    --page: #0d0d0d; --surface: #1a1a19; --raised: #222220; --line: #2c2c2a; --axis: #383835;
+    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --accent: #ff7a1a; --accent-2: #8b5cf6;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+    --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
+    --lvl0: #262624; --lvl1: #2f4a2f; --lvl2: #6b5413; --lvl3: #8a4a2c; --lvl4: #8f2626;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 16px 20px;
+           border-bottom: 1px solid var(--line); background: linear-gradient(90deg, rgba(139,92,246,.18), rgba(255,122,26,.12)); }
+  h1 { margin: 0; font-size: 20px; letter-spacing: .02em; }
+  .sub { color: var(--ink-2); font-size: 13px; }
+  .badge { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px;
+           border-radius: 999px; border: 1px solid currentColor; }
+  .lvl-low { color: var(--good); } .lvl-elevated { color: var(--warning); }
+  .lvl-high { color: var(--serious); } .lvl-critical { color: var(--critical); }
+  .conn { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .conn b { color: var(--ink-2); font-weight: 600; }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; padding: 16px 20px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 16px; } header { padding: 16px; } }
+  #panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-content: start; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+           animation: rise .35s ease-out; min-width: 0; }
+  .panel.wide { grid-column: 1 / -1; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .panel h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+  .stat .v { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 12px; color: var(--ink-2); } .stat .n { font-size: 11px; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; }
+  .cell { padding: 10px; min-height: 74px; border-radius: 4px; position: relative; }
+  .cell .z { font-size: 13px; font-weight: 600; } .cell .t { font-size: 11px; color: var(--ink-2); margin-top: 4px; }
+  .cell .k { position: absolute; top: 8px; right: 8px; font-size: 11px; font-weight: 700; color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-2); margin-top: 10px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  svg text { fill: var(--muted); font-size: 11px; }
+  .chart-wrap { position: relative; }
+  .tip { position: absolute; pointer-events: none; background: var(--raised); border: 1px solid var(--axis); border-radius: 6px;
+         padding: 6px 8px; font-size: 12px; color: var(--ink); white-space: nowrap; display: none; z-index: 2; }
+  details { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+  table { border-collapse: collapse; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  td, th { padding: 2px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+  td:first-child, th:first-child { text-align: left; }
+  .alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .alert { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding: 10px; border-radius: 6px; background: var(--raised);
+           border-left: 3px solid var(--sev); }
+  .alert .sev { grid-row: span 2; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--sev); }
+  .alert .h { font-weight: 600; font-size: 14px; } .alert .d { font-size: 12px; color: var(--ink-2); }
+  .feed { list-style: none; margin: 0; padding: 0; font-size: 13px; display: grid; gap: 6px; }
+  .feed a { color: var(--accent); }
+  aside { display: grid; gap: 16px; align-content: start; }
+  #status { font-size: 12px; color: var(--ink-2); display: grid; gap: 4px; max-height: 180px; overflow: auto; }
+  #status div b { color: var(--accent); font-weight: 600; }
+  #logs { font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink-2); max-height: 460px; overflow: auto;
+          display: grid; gap: 3px; }
+  #logs div { animation: rise .3s ease-out; overflow-wrap: anywhere; }
+  .empty { color: var(--muted); font-size: 13px; padding: 30px 0; text-align: center; }
+  footer { padding: 0 20px 20px; font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1 id="title">Spooky Tactical Command Station</h1>
+    <div class="sub" id="subtitle">Waiting for the first spec</div>
+  </div>
+  <span class="badge lvl-low" id="level">standing by</span>
+  <div class="conn" id="conn">connecting...</div>
+</header>
+<main>
+  <section id="panels"><div class="empty panel wide">The crew is reading the logs. Panels appear here as they are built.</div></section>
+  <aside>
+    <div class="panel"><h2>Pipeline</h2><div id="status"></div></div>
+    <div class="panel"><h2>Incident log (raw)</h2><div id="logs"></div></div>
+  </aside>
+</main>
+<footer id="foot">You.com for live data, CrewAI to orchestrate, Parasail for inference, One for Slack and Linear.</footer>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const SVG = "http://www.w3.org/2000/svg";
+const SERIES = ["--s1", "--s2", "--s3", "--s4", "--s5"];
+const KIND_ORDER = ["zombie", "phantom", "poltergeist", "apparition", "unknown"];
+const LEVEL_TEXT = ["quiet", "low", "elevated", "high", "critical"];
+const SEV_VAR = { info: "--muted", warning: "--warning", serious: "--serious", critical: "--critical" };
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+function el(tag, attrs = {}, text) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  if (text !== undefined) n.textContent = String(text);   // model output is always text, never HTML
+  return n;
+}
+function svg(tag, attrs = {}, text) {
+  const n = document.createElementNS(SVG, tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  if (text !== undefined) n.textContent = String(text);
+  return n;
+}
+// Color follows the entity: a series keeps its slot whatever else is on the chart.
+function seriesColor(name, i) {
+  const k = KIND_ORDER.indexOf(String(name).toLowerCase());
+  return css(SERIES[k >= 0 ? k : i % SERIES.length]);
+}
+
+const render = {
+  stats(p) {
+    const box = el("div", { class: "stats" });
+    for (const it of p.items || []) {
+      const s = el("div", { class: "stat" });
+      s.append(el("div", { class: "v" }, it.value), el("div", { class: "l" }, it.label), el("div", { class: "n" }, it.note || ""));
+      box.append(s);
+    }
+    return box;
+  },
+  threat_map(p) {
+    const wrap = el("div");
+    const grid = el("div", { class: "grid", role: "list" });
+    for (const c of p.cells || []) {
+      const lvl = Math.max(0, Math.min(4, c.level | 0));
+      const cell = el("div", { class: "cell", role: "listitem", title: `${c.zone}: ${LEVEL_TEXT[lvl]}. ${c.label || ""}` });
+      cell.style.background = css("--lvl" + lvl);
+      cell.append(el("div", { class: "z" }, c.zone), el("div", { class: "t" }, c.label || ""), el("span", { class: "k" }, LEVEL_TEXT[lvl]));
+      grid.append(cell);
+    }
+    const legend = el("div", { class: "legend" });
+    LEVEL_TEXT.forEach((t, i) => { const s = el("span"); const sw = el("i"); sw.style.background = css("--lvl" + i); s.append(sw, t); legend.append(s); });
+    wrap.append(grid, legend);
+    return wrap;
+  },
+  activity_chart(p) {
+    const W = 640, H = 220, L = 34, R = 70, T = 12, B = 26;
+    const x = p.x || [], series = p.series || [];
+    const n = Math.max(1, x.length);
+    const max = Math.max(1, ...series.flatMap((s) => s.values));
+    const px = (i) => L + (n === 1 ? (W - L - R) / 2 : (i * (W - L - R)) / (n - 1));
+    const py = (v) => T + (H - T - B) * (1 - v / max);
+    const wrap = el("div", { class: "chart-wrap" });
+    const g = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img", "aria-label": p.title || "Activity chart" });
+    const ticks = max <= 4 ? max : 4;
+    for (let t = 0; t <= ticks; t++) {
+      const v = Math.round((max * t) / ticks), y = py(v);
+      g.append(svg("line", { x1: L, x2: W - R, y1: y, y2: y, stroke: css(t === 0 ? "--axis" : "--line"), "stroke-width": 1 }));
+      g.append(svg("text", { x: L - 6, y: y + 4, "text-anchor": "end" }, v));
+    }
+    const every = Math.ceil(n / 6);
+    x.forEach((lab, i) => { if (i % every === 0 || i === n - 1) g.append(svg("text", { x: px(i), y: H - 8, "text-anchor": "middle" }, lab)); });
+    series.forEach((s, si) => {
+      const color = seriesColor(s.name, si);
+      const pts = s.values.map((v, i) => `${px(i)},${py(v)}`).join(" ");
+      g.append(svg("polyline", { points: pts, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+      const last = s.values.length - 1;
+      g.append(svg("circle", { cx: px(last), cy: py(s.values[last]), r: 4, fill: color, stroke: css("--surface"), "stroke-width": 2 }));
+      if (series.length <= 4) g.append(svg("text", { x: px(last) + 8, y: py(s.values[last]) + 4 }, s.name));
+    });
+    // Hover: a crosshair and one tooltip listing every series at that minute.
+    const cross = svg("line", { y1: T, y2: H - B, stroke: css("--axis"), "stroke-width": 1, visibility: "hidden" });
+    g.append(cross);
+    const tip = el("div", { class: "tip" });
+    const hit = svg("rect", { x: L, y: T, width: W - L - R, height: H - T - B, fill: "transparent" });
+    hit.addEventListener("mousemove", (ev) => {
+      const box = g.getBoundingClientRect();
+      const sx = ((ev.clientX - box.left) / box.width) * W;
+      const i = Math.max(0, Math.min(n - 1, Math.round(((sx - L) / (W - L - R)) * (n - 1))));
+      cross.setAttribute("x1", px(i)); cross.setAttribute("x2", px(i)); cross.setAttribute("visibility", "visible");
+      tip.replaceChildren(el("div", {}, x[i] || ""));
+      series.forEach((s, si) => { const row = el("div"); const sw = el("i"); sw.style.cssText = `display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;background:${seriesColor(s.name, si)}`; row.append(sw, `${s.name}: ${s.values[i]}`); tip.append(row); });
+      tip.style.display = "block";
+      tip.style.left = Math.min(box.width - 140, (px(i) / W) * box.width + 10) + "px";
+      tip.style.top = "8px";
+    });
+    hit.addEventListener("mouseleave", () => { cross.setAttribute("visibility", "hidden"); tip.style.display = "none"; });
+    g.append(hit);
+    const legend = el("div", { class: "legend" });
+    series.forEach((s, si) => { const it = el("span"); const sw = el("i"); sw.style.background = seriesColor(s.name, si); it.append(sw, s.name); legend.append(it); });
+    const det = el("details"); det.append(el("summary", {}, "Table view"));
+    const tbl = el("table"); const hr = el("tr"); hr.append(el("th", {}, "minute")); series.forEach((s) => hr.append(el("th", {}, s.name))); tbl.append(hr);
+    x.forEach((lab, i) => { const tr = el("tr"); tr.append(el("td", {}, lab)); series.forEach((s) => tr.append(el("td", {}, s.values[i]))); tbl.append(tr); });
+    det.append(tbl);
+    wrap.append(g, tip, legend, det);
+    return wrap;
+  },
+  alerts(p) {
+    const ul = el("ul", { class: "alerts" });
+    for (const a of p.items || []) {
+      const li = el("li", { class: "alert" });
+      li.style.setProperty("--sev", css(SEV_VAR[a.severity] || "--warning"));
+      li.append(el("span", { class: "sev" }, a.severity), el("span", { class: "h" }, `${a.zone ? a.zone + ": " : ""}${a.headline}`), el("span", { class: "d" }, a.detail || ""));
+      ul.append(li);
+    }
+    return ul;
+  },
+  feed(p) {
+    const ul = el("ul", { class: "feed" });
+    for (const it of p.items || []) {
+      const li = el("li");
+      if (/^https?:\/\//.test(it.url || "")) { const a = el("a", { href: it.url, target: "_blank", rel: "noopener noreferrer" }, it.text); li.append(a); }
+      else li.textContent = it.text;
+      ul.append(li);
+    }
+    return ul;
+  },
+};
+
+function panelNode(p) {
+  const box = el("div", { class: "panel" + (p.type === "activity_chart" || p.type === "stats" ? " wide" : "") });
+  box.append(el("h2", {}, p.title || p.type));
+  const fn = render[p.type];
+  box.append(fn ? fn(p) : el("pre", {}, JSON.stringify(p, null, 2)));
+  return box;
+}
+function header(h) {
+  $("title").textContent = h.title || "Spooky Tactical Command Station";
+  $("subtitle").textContent = h.subtitle || "";
+  const lv = $("level"); lv.textContent = "threat " + (h.threat_level || "low"); lv.className = "badge lvl-" + (h.threat_level || "low");
+}
+function status(stage, detail) {
+  const d = el("div"); d.append(el("b", {}, stage + " "), detail);
+  $("status").prepend(d);
+  while ($("status").childElementCount > 30) $("status").lastChild.remove();
+}
+
+let pending = null;
+function connect() {
+  const ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
+  ws.onopen = () => { $("conn").replaceChildren("live over WebSocket "); };
+  ws.onclose = () => { $("conn").textContent = "disconnected, retrying..."; setTimeout(connect, 2000); };
+  ws.onmessage = (ev) => {
+    const m = JSON.parse(ev.data);
+    if (m.type === "hello") { $("conn").replaceChildren("live over WebSocket ", el("b", {}, m.mode)); }
+    else if (m.type === "log") { const d = el("div", {}, m.line); $("logs").prepend(d); while ($("logs").childElementCount > 80) $("logs").lastChild.remove(); }
+    else if (m.type === "status") status(m.stage, m.detail);
+    else if (m.type === "error") status("Error", m.detail);
+    else if (m.type === "spec_begin") { header(m); pending = el("section", { id: "panels" }); $("panels").replaceWith(pending); }
+    else if (m.type === "panel") { (pending || $("panels")).append(panelNode(m.panel)); }
+    else if (m.type === "spec_end") { pending = null; $("foot").textContent = `Spec built by ${m.built_by} at ${m.at}. You.com for live data, CrewAI to orchestrate, Parasail for inference, One for Slack and Linear.`; }
+    else if (m.type === "spec") {
+      header(m.spec); const sec = el("section", { id: "panels" }); m.spec.panels.forEach((p) => sec.append(panelNode(p))); $("panels").replaceWith(sec);
+      $("foot").textContent = `Spec built by ${m.built_by} at ${m.at}.`;
+    }
+  };
+}
+connect();
+</script>
+</body>
+</html>

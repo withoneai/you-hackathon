@@ -27,7 +27,7 @@ const SCRIPT: Frame[] = [
     cmd: "one --agent list",
     out: [
       "● you       operational   live::you::default::7f3a…",
-      "● daytona   operational   live::daytona::default::c21e…",
+      "● slack     operational   live::slack::default::c21e…",
       "● gmail     operational   live::gmail::default::9b0d…",
     ],
   },
@@ -47,7 +47,7 @@ const SCRIPT: Frame[] = [
     ],
   },
   {
-    cmd: `one --agent actions execute you <actionId> <key> --query-params '{"query":"self-repairing agents","count":5}'`,
+    cmd: `one --agent actions execute you <actionId> <key> --query-params '{"query":"haunted house sightings","count":5}'`,
     out: ["✓ 200   results.web[5]   results.news[3]   412ms"],
   },
 ];

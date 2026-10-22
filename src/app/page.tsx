@@ -7,19 +7,17 @@ import { PerkCard } from "@/components/sections/perk-card";
 import { SetupPaths } from "@/components/sections/setup-paths";
 import { SkillCallout } from "@/components/sections/skill-callout";
 import { UseCaseTemplates } from "@/components/sections/use-case-templates";
-import { getCounts } from "@/lib/counts";
 
-export default async function Page() {
-  const counts = await getCounts();
+export default function Page() {
   return (
     <>
       <Header />
       <main className="flex-1">
-        <Hero platformLabel={counts.platformLabel} />
+        <Hero />
         <PerkCard />
         <SkillCallout />
         <SetupPaths />
-        <PartnerCards platformLabel={counts.platformLabel} />
+        <PartnerCards />
         <UseCaseTemplates />
         <HelpSection />
       </main>

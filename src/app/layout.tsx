@@ -15,12 +15,12 @@ const lora = Lora({
   variable: "--font-lora",
 });
 
-const description = `Everything you need to build with One at ${EVENT.host}'s ${EVENT.name}: install the skill, connect your apps through the remote MCP server or the CLI, and pair One with You.com, Daytona, and CrewAI.`;
+const description = `Everything you need to build with One at ${EVENT.host}'s ${EVENT.name}: ${EVENT.subtitle} (${EVENT.city}, ${EVENT.dateShort}). Install the skill, connect your apps through the remote MCP server or the CLI, and build with You.com, CrewAI and Parasail.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Build with One · You.com Hackathon",
+    default: "Build with One · Hack With YOU Halloween",
     template: "%s · Build with One",
   },
   description,
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
     type: "website",
     url: SITE_URL,
     siteName: "One",
-    title: "Build with One · You.com Hackathon",
+    title: "Build with One · Hack With YOU Halloween",
     description,
   },
   twitter: {
     card: "summary_large_image",
     site: "@onedotnew",
-    title: "Build with One · You.com Hackathon",
+    title: "Build with One · Hack With YOU Halloween",
     description,
   },
   robots: { index: true, follow: true },

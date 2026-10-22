@@ -6,6 +6,7 @@ import { PLATFORM_LABELS, TEMPLATES_PUBLIC, TEMPLATES_URL } from "@/lib/site";
 type Template = {
   slug: string;
   title: string;
+  track: 1 | 2;
   body: string;
   prompt: string;
   platforms: string[];
@@ -14,38 +15,26 @@ type Template = {
 
 const TEMPLATES: Template[] = [
   {
-    slug: "self-repairing-research",
-    title: "Self-repairing research agent",
-    body: "Researches with You.com, charts the result in a Daytona sandbox, repairs the script from the error, emails the PNG, and remembers the fix so the next run passes first time.",
-    prompt: "Research the most cited papers on self-repairing agents, chart their citation counts in a sandbox, and email me the PNG.",
-    platforms: ["you", "daytona", "gmail"],
-  },
-  {
-    slug: "support-triage-crew",
-    title: "Support triage crew",
-    body: "A crew reads the inbox, skips reports it already filed, reproduces each new bug in a sandbox through One's MCP tools, files it in Linear and posts to Slack.",
-    prompt: "Triage every unread support email, file real bugs in Linear with repro steps, and post the list to #support.",
-    platforms: ["gmail", "daytona", "linear", "slack"],
+    slug: "exorcism-swarm",
+    title: "Exorcism swarm",
+    track: 1,
+    body: "A CrewAI crew of three agents (Sentinel, Analyst, Dispatcher) running on a Parasail model, each scoped to different One tools and seeing only part of the facility. They check live reports with You.com, share sightings in Slack, file each containment in Linear, and the Dispatcher decides who moves where.",
+    prompt: "Watch the facility feed, flag any outbreak, agree on a containment plan as a crew, and log every action to #containment.",
+    platforms: ["you", "parasail", "slack", "linear"],
     framework: "CrewAI",
   },
   {
-    slug: "market-watch",
-    title: "Market watch",
-    body: "Finance Research on a watchlist, written to Notion and digested in Slack. Tell it what you prefer and the next brief follows it, with a section on what changed since the last one.",
-    prompt: "Every morning at 8, research what moved for my watchlist, save the sourced brief to Notion, and ping #markets.",
-    platforms: ["you", "notion", "slack"],
-  },
-  {
-    slug: "pr-reviewer-that-learns",
-    title: "An agent that learns",
-    body: "Reviews a pull request, then turns your replies into rules it applies on the next one. Every review lists which learned rules it used.",
-    prompt: "When a PR is opened, review it using the rules you learned from my earlier feedback, and remember the outcome.",
-    platforms: ["github"],
+    slug: "haunted-command-station",
+    title: "Haunted command station",
+    track: 2,
+    body: "A small CrewAI crew pulls live incident data with You.com Search, sends it to a model on Parasail to decide what the dashboard should show, and streams the generated UI to the browser over WebSockets. One sends the alerts it raises to Slack and Linear.",
+    prompt: "Turn the latest incident logs into a live command station with a threat map, an activity chart and the top three alerts.",
+    platforms: ["you", "parasail", "slack", "linear"],
   },
 ];
 
 function Mark({ slug }: { slug: string }) {
-  const src = slug === "you" || slug === "daytona" ? `/partners/${slug}.svg` : `/platforms/${slug}.svg`;
+  const src = slug === "you" || slug === "parasail" ? `/partners/${slug}.svg` : `/platforms/${slug}.svg`;
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -60,11 +49,11 @@ function Mark({ slug }: { slug: string }) {
   );
 }
 
-function Badge({ slug }: { slug: string }) {
+function Badge({ slug, track }: { slug: string; track: number }) {
   const cls =
     "rounded-full border border-border bg-surface px-2.5 py-0.5 font-mono text-10 uppercase tracking-label";
   if (!TEMPLATES_PUBLIC) {
-    return <span className={`${cls} text-muted`}>Template · coming soon</span>;
+    return <span className={`${cls} text-muted`}>Template · coming soon · Track {track}</span>;
   }
   return (
     <a
@@ -73,7 +62,7 @@ function Badge({ slug }: { slug: string }) {
       rel="noopener noreferrer"
       className={`${cls} inline-flex items-center gap-1 text-foreground transition-colors hover:border-border-strong hover:text-spring`}
     >
-      Template · ready <ArrowUpRight size={11} />
+      Template · ready · Track {track} <ArrowUpRight size={11} />
     </a>
   );
 }
@@ -85,11 +74,11 @@ export function UseCaseTemplates() {
         <Reveal>
           <SectionIntro
             eyebrow="Use-case templates"
-            title="Starting points for the theme: agents that repair and learn."
+            title="Starting points for both tracks."
             lede={
               TEMPLATES_PUBLIC
-                ? "Four working templates. Clone one, fill in .env, run it twice and watch the second run use what the first one learned."
-                : "Four working templates are ready. The links go live when the repository is public. Until then the prompts are yours to steal."
+                ? "Clone one, fill in .env, and run it. Each one uses You.com, One, CrewAI and Parasail, and works end to end before you change a line."
+                : "Two working templates are ready. The links go live when the repository is public. Until then the prompts are yours to steal."
             }
           />
         </Reveal>
@@ -103,7 +92,7 @@ export function UseCaseTemplates() {
                       <Mark key={p} slug={p} />
                     ))}
                   </div>
-                  <Badge slug={t.slug} />
+                  <Badge slug={t.slug} track={t.track} />
                 </div>
                 <h3 className="mt-4 text-[17px] font-medium text-foreground">
                   {t.title}

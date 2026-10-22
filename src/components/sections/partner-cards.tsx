@@ -7,10 +7,10 @@ import { Logo } from "@/components/ui/logo";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionIntro } from "@/components/ui/section-intro";
 import { CommandRow } from "@/components/ui/terminal";
-import { AGENT_CLIENTS, CO_PARTNERS, PARTNERS } from "@/lib/site";
+import { AGENT_CLIENTS, APP_COUNT_LABEL, CO_PARTNERS, PARTNERS } from "@/lib/site";
 import { PlatformGrid } from "./platform-grid";
 
-export function PartnerCards({ platformLabel }: { platformLabel: string }) {
+export function PartnerCards() {
   return (
     <section id="partners" className="border-t border-border bg-surface/40">
       <div className="mx-auto max-w-[1180px] px-5 py-20 sm:px-8 md:py-24">
@@ -18,7 +18,7 @@ export function PartnerCards({ platformLabel }: { platformLabel: string }) {
           <SectionIntro
             eyebrow="Build with the sponsors"
             title="Everyone here builds on the same stack. One wires it together."
-            lede="You.com and Daytona are platforms on One. CrewAI runs One's four tools as a local MCP server."
+            lede="Every build uses the same four: You.com for live web data, One for apps and auth, CrewAI to orchestrate the agents, and Parasail for inference."
           />
         </Reveal>
 
@@ -27,7 +27,7 @@ export function PartnerCards({ platformLabel }: { platformLabel: string }) {
             <Reveal key={p.slug} delay={i * 90} className="flex">
               <article className="flex w-full flex-col rounded-card border border-border bg-surface p-6 transition-colors hover:border-border-strong">
                 <div className="flex items-center gap-3">
-                  <Logo src={p.logo} alt={p.name} size={p.slug === "crewai" ? 26 : 40} tile={p.slug === "crewai"} className={p.slug === "crewai" ? "" : "rounded-full"} />
+                  <Logo src={p.logo} alt={p.name} size={p.slug === "you" ? 40 : 26} tile={p.slug !== "you"} className={p.slug === "you" ? "rounded-full" : ""} />
                   <div>
                     <h3 className="text-[17px] font-medium text-foreground">{p.name}</h3>
                     <p className="text-13 text-muted">{p.tagline}</p>
@@ -75,10 +75,7 @@ export function PartnerCards({ platformLabel }: { platformLabel: string }) {
                   className="inline-flex items-center gap-2.5 opacity-80 transition-opacity hover:opacity-100"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.logo} alt={c.name} className="h-8 w-auto" loading="lazy" />
-                  {c.name === "Clean Data Alliance" && (
-                    <span className="text-13 font-medium text-foreground">{c.name}</span>
-                  )}
+                  <img src={c.logo} alt={c.name} className={c.name === "AWS" ? "h-7 w-auto" : "h-8 w-auto"} loading="lazy" />
                 </a>
               ))}
             </div>
@@ -87,7 +84,7 @@ export function PartnerCards({ platformLabel }: { platformLabel: string }) {
 
         <Reveal delay={160} className="mt-14">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-            <Eyebrow>…and {platformLabel} more apps</Eyebrow>
+            <Eyebrow>…and {APP_COUNT_LABEL} more apps</Eyebrow>
             <a
               href="https://www.withone.ai/knowledge"
               target="_blank"

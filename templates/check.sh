@@ -13,6 +13,15 @@ for f in one_cli.py llm.py setup.sh; do
     if ! cmp -s "$ref" "$d/$f"; then bad "$d/$f differs from $ref"; fi
   done
 done
+# The Halloween templates (SF) share one_cli.py with the NYC four, mcp_wrapper.py with the support
+# triage crew, and parasail.py and setup.sh with each other. They have no llm.py: Parasail is the model.
+for d in exorcism-swarm haunted-command-station; do
+  cmp -s self-repairing-research/one_cli.py "$d/one_cli.py" || bad "$d/one_cli.py differs from self-repairing-research/one_cli.py"
+done
+cmp -s support-triage-crew/mcp_wrapper.py exorcism-swarm/mcp_wrapper.py || bad "exorcism-swarm/mcp_wrapper.py differs from support-triage-crew/mcp_wrapper.py"
+for f in parasail.py setup.sh; do
+  cmp -s "exorcism-swarm/$f" "haunted-command-station/$f" || bad "haunted-command-station/$f differs from exorcism-swarm/$f"
+done
 
 echo "every python file compiles"
 for f in */*.py; do python3 -m py_compile "$f" || bad "$f does not compile"; done
@@ -23,6 +32,19 @@ for d in self-repairing-research market-watch pr-reviewer-that-learns support-tr
   for f in README.md .env.example requirements.txt setup.sh one_cli.py llm.py; do
     [ -f "$d/$f" ] || bad "$d/$f missing"
   done
+done
+for f in README.md .env.example requirements.txt setup.sh main.py one_cli.py parasail.py \
+         mcp_wrapper.py tools.py feed.py facility_sim.py; do
+  [ -f "exorcism-swarm/$f" ] || bad "exorcism-swarm/$f missing"
+done
+for f in README.md .env.example requirements.txt setup.sh main.py one_cli.py parasail.py \
+         crew.py spec.py server.py one_actions.py incident_logs.py static/index.html; do
+  [ -f "haunted-command-station/$f" ] || bad "haunted-command-station/$f missing"
+done
+for d in exorcism-swarm haunted-command-station; do
+  [ -x "$d/setup.sh" ] || bad "$d/setup.sh is not executable"
+  grep -q '^crewai==1.15.2$' "$d/requirements.txt" || bad "$d/requirements.txt must pin crewai==1.15.2 (no extras)"
+  grep -q '^PARASAIL_API_KEY=$' "$d/.env.example" || bad "$d/.env.example must have an empty PARASAIL_API_KEY="
 done
 
 echo "no credentials or pasted action ids in tracked files"
@@ -37,6 +59,10 @@ if [ -n "$(scan 'sk-[A-Za-z0-9]{20,}|sk-proj-[A-Za-z0-9_-]{20,}')" ]; then scan 
 
 echo "readme voice"
 if grep -rn -- '—' */README.md README.md 2>/dev/null; then bad "em-dash in a README"; fi
+# The Halloween templates keep the rule everywhere: code, comments, strings, the page.
+if grep -rn --exclude-dir=.venv --exclude-dir=__pycache__ --exclude-dir=out -- '—' exorcism-swarm haunted-command-station; then
+  bad "em-dash in a Halloween template file"
+fi
 
 echo "guard tests"
 python3 test_guards.py > /tmp/one-template-guards.log 2>&1 || { cat /tmp/one-template-guards.log; bad "guard tests failed"; }

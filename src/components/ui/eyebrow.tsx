@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 type Props = {
   children: ReactNode;
   className?: string;
-  /** Leading dot colour. Defaults to spring; use "lime" only inside the hero. */
-  dot?: "spring" | "lime" | "muted" | "none";
+  /** Leading dot colour. Defaults to spring; use "lime" only inside the hero. Pumpkin and hex are the Halloween accents. */
+  dot?: "spring" | "lime" | "muted" | "pumpkin" | "hex" | "none";
   as?: "p" | "span" | "div";
 };
 
@@ -20,6 +20,8 @@ export function Eyebrow({ children, className, dot = "spring", as: Tag = "p" }: 
             dot === "spring" && "bg-spring",
             dot === "lime" && "bg-lime",
             dot === "muted" && "bg-muted",
+            dot === "pumpkin" && "bg-pumpkin",
+            dot === "hex" && "bg-hex",
           )}
         />
       )}

@@ -1,16 +1,16 @@
 /**
  * Single source of truth for every URL, code, and event fact on the page.
- * DISCORD_URL is an invite to the #agentic-hackathon channel in You.com's
- * Discord. The invite expires 2026-10-10; replace it with a non-expiring one
- * if the page outlives the event.
+ * DISCORD_URL is the same invite the NYC edition used (an invite to You.com's
+ * Discord). Discord reports it expired on 2026-10-10, so it must be replaced with
+ * a live, non-expiring invite before launch.
  */
 
-export const SITE_URL = "https://hackathon.withone.ai";
+export const SITE_URL = "https://halloween.withone.ai";
 export const SKILL_RAW_URL = `${SITE_URL}/skill.md`;
 export const SKILL_PAGE_URL = `${SITE_URL}/skill`;
 export const SKILL_NAME = "one-hackathon";
 
-export const COUPON_CODE = "YOU-NYC-PRO";
+export const COUPON_CODE = "YOU-SF-PRO";
 export const REDEEM_URL = "https://app.withone.ai/settings/billing";
 
 export const DISCORD_URL = "https://discord.gg/pn8QmHQ4p";
@@ -24,24 +24,50 @@ export const MCP_URL = "https://mcp.withone.ai/mcp";
  */
 export const TEMPLATES_PUBLIC = true;
 export const TEMPLATES_URL = "https://github.com/withoneai/you-hackathon/tree/main/templates";
-export const LUMA_URL = "https://luma.com/agentic-hackathon-ny";
+export const LUMA_URL = "https://luma.com/you-halloween";
+/** The You.com starter repo (CrewAI starter and the facility simulation). Empty until You.com shares it. */
+export const STARTER_REPO_URL = "";
 
-/** Fallback when the live count endpoint is unreachable (measured 2026-09-08). */
-export const PLATFORM_COUNT_FALLBACK = 786;
-export const TOOL_COUNT_FALLBACK = 102000;
+/** How the page counts One's apps. A fixed label, so it matches the skill and the event copy. */
+export const APP_COUNT_LABEL = "1,000+";
 
 export const EVENT = {
-  name: "Build with YOU",
-  subtitle: "The Live Web Agent Hackathon",
+  name: "Hack With YOU",
+  subtitle: "Halloween Edition",
   host: "You.com",
-  edition: "New York City / Edition 002",
-  date: "Friday, September 11, 2026",
-  dateShort: "Sep 11, 2026",
-  time: "9:30 AM to 6:00 PM EDT",
-  venue: "124 E 14th St, New York",
-  theme: "Self-repairing & learning agents",
-  challenge: "Self-improving and learning agents",
+  city: "San Francisco",
+  edition: "San Francisco / Edition 003",
+  date: "Wednesday, October 28, 2026",
+  dateShort: "Oct 28, 2026",
+  time: "9:00 AM to 8:30 PM PDT",
+  venue: "AWS Builder Loft, 525 Market St, San Francisco",
+  venueShort: "the AWS Builder Loft",
 } as const;
+
+export type Track = {
+  slug: "exorcism-protocol" | "haunted-dashboard";
+  number: 1 | 2;
+  name: string;
+  kind: string;
+  body: string;
+};
+
+export const TRACKS: Track[] = [
+  {
+    slug: "exorcism-protocol",
+    number: 1,
+    name: "The Exorcism Protocol",
+    kind: "Autonomous agent swarms",
+    body: "A paranormal outbreak is spreading through a live facility sim. Build a supervised CrewAI swarm where each agent has its own role, tools and partial knowledge, and they coordinate containment in real time. Scored on containment speed, false alarms and civilians saved.",
+  },
+  {
+    slug: "haunted-dashboard",
+    number: 2,
+    name: "The Haunted Dashboard",
+    kind: "Generative UI pipelines",
+    body: "Take live, messy “Spooky Incident Logs” and turn them into a working tactical command station. Parasail runs the inference, and the UI builds itself on the fly over WebSockets.",
+  },
+];
 
 export const LINKS = {
   dashboard: "https://app.withone.ai",
@@ -71,7 +97,7 @@ export const LINKS = {
 } as const;
 
 export type Partner = {
-  slug: "you" | "daytona" | "crewai";
+  slug: "you" | "crewai" | "parasail";
   name: string;
   logo: string;
   tagline: string;
@@ -97,18 +123,6 @@ export const PARTNERS: Partner[] = [
     playbookAnchor: "youcom-via-one",
   },
   {
-    slug: "daytona",
-    name: "Daytona",
-    logo: "/partners/daytona.svg",
-    tagline: "Throwaway Linux sandboxes your agent can fail safely in.",
-    onOne: "The `daytona` platform: create a sandbox, run commands, move files, delete it. No Daytona SDK in your code.",
-    command: "one add daytona",
-    keyLabel: "Get a Daytona API key",
-    keyUrl: "https://app.daytona.io/dashboard/keys",
-    docsUrl: "https://www.daytona.io/docs",
-    playbookAnchor: "daytona-via-one",
-  },
-  {
     slug: "crewai",
     name: "CrewAI",
     logo: "/partners/crewai.svg",
@@ -120,15 +134,24 @@ export const PARTNERS: Partner[] = [
     docsUrl: "https://docs.crewai.com",
     playbookAnchor: "crewai-with-one",
   },
+  {
+    slug: "parasail",
+    name: "Parasail",
+    logo: "/partners/parasail.svg",
+    tagline: "Fast, low-cost inference on open models.",
+    onOne: "Parasail runs the model, One gives it the apps. Point your crew's LLM at Parasail's OpenAI-compatible API and keep One's four tools for every action.",
+    command: "export PARASAIL_API_KEY=...",
+    keyLabel: "Get a Parasail API key",
+    keyUrl: "https://www.saas.parasail.io/keys",
+    docsUrl: "https://docs.parasail.io",
+    playbookAnchor: "parasail-with-one",
+  },
 ];
 
 export const CO_PARTNERS = [
+  { name: "AWS", logo: "/partners/aws.svg", url: "https://aws.amazon.com" },
+  { name: "UpScaleX", logo: "/partners/upscalex.png", url: "https://www.upscalex.ai" },
   { name: "Founders Bay", logo: "/partners/founders-bay.png", url: "https://www.foundersbay.com" },
-  {
-    name: "Clean Data Alliance",
-    logo: "/partners/clean-data-alliance.png",
-    url: "https://www.cleandataalliance.org",
-  },
 ] as const;
 
 /** Platform marks bundled under /public/platforms (from assets.withone.ai/connectors). */
@@ -179,7 +202,8 @@ export const PLATFORM_LABELS: Record<string, string> = {
   twilio: "Twilio",
   quickbooks: "QuickBooks",
   you: "You.com",
-  daytona: "Daytona",
+  parasail: "Parasail",
+  crewai: "CrewAI",
 };
 
 export type AgentClient = {
