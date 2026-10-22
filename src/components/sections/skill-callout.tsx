@@ -3,17 +3,11 @@ import Link from "next/link";
 import { CopySkillButton } from "@/components/ui/copy-skill-button";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionIntro } from "@/components/ui/section-intro";
+import { eventUrls, type HackathonEvent } from "@/events";
 import { SkillInstaller } from "./skill-installer";
 
-const TEACHES = [
-  "Setup for the remote MCP server, the CLI, the local MCP server and the API",
-  "The four-tool loop: list, search, read the knowledge, execute",
-  "Playbooks for You.com, CrewAI and Parasail with One",
-  "Starter patterns for both tracks: The Exorcism Protocol and The Haunted Dashboard",
-  "Scoping, error codes and one troubleshooting table",
-];
-
-export function SkillCallout() {
+export function SkillCallout({ event }: { event: HackathonEvent }) {
+  const urls = eventUrls(event);
   return (
     <section id="skill" className="relative border-t border-border bg-surface/40">
       <div className="mx-auto max-w-[1180px] px-5 py-20 sm:px-8 md:py-24">
@@ -25,7 +19,7 @@ export function SkillCallout() {
               lede="Works in Claude Code, Cursor, Codex or any agent that reads markdown."
             />
             <ul className="mt-8 space-y-3">
-              {TEACHES.map((item) => (
+              {event.skill.teaches.map((item) => (
                 <li key={item} className="flex items-start gap-3 text-15 text-secondary">
                   <CheckCircle size={20} weight="fill" className="mt-0.5 shrink-0 text-spring" />
                   <span>{item}</span>
@@ -34,23 +28,23 @@ export function SkillCallout() {
             </ul>
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
               <Link
-                href="/skill"
+                href={urls.skillPagePath}
                 className="inline-flex items-center gap-1.5 text-13 font-medium text-foreground transition-colors hover:text-spring"
               >
                 Review the skill <ArrowRight size={14} />
               </Link>
               <a
-                href="/skill.md"
+                href={urls.skillRawPath}
                 className="inline-flex items-center gap-1.5 text-13 text-secondary transition-colors hover:text-foreground"
               >
                 Raw markdown <ArrowUpRight size={13} />
               </a>
-              <CopySkillButton />
+              <CopySkillButton path={urls.skillRawPath} />
             </div>
           </Reveal>
 
           <Reveal delay={120}>
-            <SkillInstaller />
+            <SkillInstaller skillRawUrl={urls.skillRaw} />
           </Reveal>
         </div>
       </div>

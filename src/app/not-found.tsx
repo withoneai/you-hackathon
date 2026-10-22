@@ -8,12 +8,12 @@ export default function NotFound() {
       <Eyebrow dot="muted">404</Eyebrow>
       <h1 className="mt-4 font-serif text-[36px] text-foreground">Nothing at this address.</h1>
       <p className="mt-3 max-w-[40ch] text-15 text-secondary">
-        The hackathon page and the skill are the only two things here.
+        Every event lives at its own address. Start from the list of events.
       </p>
       <div className="mt-8 flex gap-3">
-        <Button href="/" variant="ink">Hackathon page</Button>
+        <Button href="/" variant="ink">All events</Button>
         <Link href="/skill" className="inline-flex h-10 items-center rounded-control border border-border-strong px-4 text-xs font-medium text-foreground hover:bg-surface-2">
-          The skill
+          The current skill
         </Link>
       </div>
     </main>

@@ -1,16 +1,15 @@
 import { ImageResponse } from "next/og";
 import fs from "node:fs";
 import path from "node:path";
-import { COUPON_CODE, EVENT, SITE_URL } from "@/lib/site";
 
-export const alt = "Build with One · Hack With YOU Halloween";
+export const alt = "Build with One · Hackathons";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+/** The hub's card, on Paper. Each event has its own under /[slug]. */
 export default function OpenGraphImage() {
-  const svg = fs.readFileSync(path.join(process.cwd(), "public", "logo", "logo-full-dark.svg"), "utf8");
+  const svg = fs.readFileSync(path.join(process.cwd(), "public", "logo", "logo-full-light.svg"), "utf8");
   const logo = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
-
   return new ImageResponse(
     (
       <div
@@ -21,31 +20,23 @@ export default function OpenGraphImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 72,
-          background: "#0A0C0B",
-          color: "#E9EFEC",
+          background: "#F6F8F6",
+          color: "#0C1A16",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <img src={logo} alt="One" width={172} height={54} />
-          <div style={{ display: "flex", fontSize: 18, letterSpacing: 4, color: "#7C8C86" }}>
-            {`${EVENT.host.toUpperCase()}  ×  ONE   /   SF   /   ${EVENT.dateShort.toUpperCase()}`}
-          </div>
-        </div>
+        <img src={logo} alt="One" width={172} height={54} />
         <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-          <div style={{ display: "flex", fontSize: 72, lineHeight: 1.05, letterSpacing: -1.5, maxWidth: 980 }}>
-            Build with One at Hack With YOU: Halloween Edition.
+          <div style={{ display: "flex", fontSize: 76, lineHeight: 1.05, letterSpacing: -2, maxWidth: 980 }}>
+            Build with One at every hackathon.
           </div>
-          <div style={{ display: "flex", fontSize: 28, color: "#9CACA6", maxWidth: 900 }}>
-            Install the skill, connect your apps, and build with You.com, CrewAI and Parasail.
+          <div style={{ display: "flex", fontSize: 28, color: "#4E5F59", maxWidth: 900 }}>
+            Event pages, skills and templates, upcoming and past.
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div style={{ display: "flex", width: 64, height: 10, background: "#FF8A2A", borderRadius: 999 }} />
-          <div style={{ display: "flex", width: 24, height: 10, background: "#A98BFF", borderRadius: 999 }} />
-          <div style={{ display: "flex", fontSize: 20, letterSpacing: 3, color: "#7C8C86" }}>
-            {`FREE MONTH OF ONE PRO · CODE ${COUPON_CODE} · ${SITE_URL.replace("https://", "").toUpperCase()}`}
-          </div>
+          <div style={{ display: "flex", width: 64, height: 10, background: "#CCFF00", borderRadius: 999 }} />
+          <div style={{ display: "flex", fontSize: 20, letterSpacing: 3, color: "#5F6E68" }}>HACKATHON.WITHONE.AI</div>
         </div>
       </div>
     ),

@@ -7,10 +7,12 @@ type Props = {
   className?: string;
   /** Round tile with a hairline border, like the dashboard connector grid. */
   tile?: boolean;
+  /** A white mark: the paper theme inverts it to ink. */
+  mono?: boolean;
 };
 
 /** Plain <img> for bundled SVG/PNG marks; no optimisation needed for icons. */
-export function Logo({ src, alt, size = 28, className, tile = false }: Props) {
+export function Logo({ src, alt, size = 28, className, tile = false, mono = false }: Props) {
   const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -20,7 +22,7 @@ export function Logo({ src, alt, size = 28, className, tile = false }: Props) {
       height={size}
       loading="lazy"
       decoding="async"
-      className={cn("shrink-0 object-contain", !tile && className)}
+      className={cn("shrink-0 object-contain", mono && "mono-mark", !tile && className)}
       style={{ width: size, height: size }}
     />
   );

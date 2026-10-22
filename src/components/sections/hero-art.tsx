@@ -75,7 +75,7 @@ export function HeroArt({ className }: { className?: string }) {
           ))}
         </g>
         <line x1="470" y1="0" x2="470" y2="96" stroke="var(--ink-muted)" strokeOpacity="0.6" strokeWidth="1" />
-        <g transform="translate(470 104)" fill="var(--carbon-0)" stroke="var(--hex)" strokeWidth="1.5">
+        <g transform="translate(470 104)" fill="var(--bg-0)" stroke="var(--hex)" strokeWidth="1.5">
           <ellipse cx="0" cy="0" rx="6" ry="8" />
           <path d="M-5 -2 L-13 -8 M-5 2 L-14 2 M-5 5 L-12 11 M5 -2 L13 -8 M5 2 L14 2 M5 5 L12 11" strokeLinecap="round" />
         </g>

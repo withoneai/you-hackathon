@@ -1,42 +1,62 @@
-# Build with One · Hack With YOU Halloween page
+# Build with One · Hackathons
 
-The one-page starting point for builders using One at You.com's **Hack With YOU @ AWS Builder Loft, Halloween Edition** (San Francisco, October 28, 2026), plus the primary `one-hackathon` skill they install. Every team builds with You.com, One, CrewAI and Parasail.
-
-Deployed at **https://hackathon.withone.ai**, which served the NYC edition before this one.
+Every hackathon One supports, at **https://hackathon.withone.ai**. The home page lists events as cards, upcoming by default with past events a tab away (`/#past`). Each event keeps its own page, skill and design system at its own slug, so old skills and event details stay reachable.
 
 ## Routes
 
 | Route | What |
 |---|---|
-| `/` | The one-pager: event facts and both tracks, the free-month-of-Pro coupon, the skill install callout, three ways to use One (remote MCP, CLI, API), sponsor playbooks (You.com, CrewAI, Parasail), track templates, help, links |
-| `/skill` | The skill rendered with a table of contents and a copy button |
-| `/skill.md` | The raw skill as `text/markdown`. This is the URL agents fetch and the install commands curl |
-| `/opengraph-image` | Generated OG card |
+| `/` | The events hub: upcoming and past cards (Paper, the light theme) |
+| `/<slug>` | An event's page: facts, coupon, skill install, setup, sponsors, templates, help |
+| `/<slug>/skill` | That event's skill, rendered with a table of contents and a copy button |
+| `/<slug>/skill.md` | That event's raw skill as `text/markdown`. The install prompt and commands fetch this |
+| `/<slug>/opengraph-image` | The event's OG card, in its theme |
+| `/skill.md`, `/skill` | The current event's skill (the next one that has not ended). Kept because install prompts shared before the hub pointed here |
+
+## Events
+
+| Slug | Event | Theme |
+|---|---|---|
+| `sf-halloween-2026` | Hack With YOU: Halloween Edition, San Francisco, Oct 28, 2026 | `paper` with pumpkin and hex accents and hero art |
+| `nyc-2026` | Build with YOU: The Live Web Agent Hackathon, New York, Sep 11, 2026 | `carbon`, archived as it ran |
+
+### Adding an event
+
+1. Copy an event file in `src/events/` (for example `sf-halloween-2026.ts`), give it a new `slug` and fill in its facts, partners, templates and copy. `startsAt` and `endsAt` decide whether it shows as upcoming or past.
+2. Add it to `EVENTS` in `src/events/index.ts`.
+3. Put its skill at `content/events/<slug>/skill.md`. Point the skill's self-links at `https://hackathon.withone.ai/<slug>/skill.md`.
+4. Pick a `theme`: `paper` (light) or `carbon` (dark). To give an event its own design system, add a `.theme-<name>` block in `src/app/globals.css` that sets the same tokens, and add the name to `EventTheme`.
+
+## Design
+
+`src/app/globals.css` holds two Clockwork themes, scoped by class:
+
+- **`theme-paper`** is the light theme from the backoffice (`starter/backoffice/app/globals.css`): Paper ground, Ink text, white cards, Inter for display, tight 0.05em label tracking, small radii. The hub and the Halloween page use it, and it is the `:root` default.
+- **`theme-carbon`** is the dark theme the NYC page shipped with: carbon neutrals, Lora display, wide 0.16em labels, large radii.
+
+Both set the same token names (`--bg-*`, `--line*`, `--ink*`, `--spring`, display font, radii, shadows, code colours), so every section component renders in either theme. Lime is a fill only in both. White monochrome marks take the `mono` flag and invert on paper.
 
 ## Templates
 
 `templates/` holds working examples. Each folder runs on its own: Python 3.10 to 3.13, the One CLI, a `.env`, and `./setup.sh`.
 
-The page shows the two Halloween track templates:
-
-| Folder | Track | What it does |
+| Folder | Event | What it does |
 |---|---|---|
-| `exorcism-swarm` | 1: The Exorcism Protocol | A hierarchical CrewAI swarm (Sentinel, Analyst, Dispatcher) on a Parasail model. Checks reports with You.com, posts to Slack, files containments in Linear, scores each run |
-| `haunted-command-station` | 2: The Haunted Dashboard | Incident logs through a CrewAI crew to a Parasail-generated JSON UI spec, streamed to the browser over WebSockets. Alerts to Slack and Linear |
+| `exorcism-swarm` | SF, track 1 | A hierarchical CrewAI swarm on a Parasail model. Checks reports with You.com, posts to Slack, files containments in Linear, scores each run |
+| `haunted-command-station` | SF, track 2 | Incident logs through a CrewAI crew to a Parasail-generated JSON UI spec, streamed over WebSockets |
+| `self-repairing-research` | NYC | You.com research, chart in a Daytona sandbox, PNG by Gmail |
+| `support-triage-crew` | NYC | Support mail to Linear and Slack, with repros in a sandbox |
+| `market-watch` | NYC | Finance Research to Notion and Slack |
+| `pr-reviewer-that-learns` | NYC | Reviews a GitHub pull request and learns from replies |
 
-The four NYC templates (`self-repairing-research`, `support-triage-crew`, `market-watch`, `pr-reviewer-that-learns`) stay in the repo but are no longer on the page.
-
-The cards link to `TEMPLATES_URL` on GitHub (`main`), so they resolve only once the templates are on `main` of `withoneai/you-hackathon`. They link at all only when `TEMPLATES_PUBLIC` in `src/lib/site.ts` is true. `templates/check.sh` compares the vendored helpers, compiles every script, and fails on any committed key or action id.
+Template cards link to `TEMPLATES_URL` (GitHub, `main`) when `TEMPLATES_PUBLIC` in `src/lib/site.ts` is true. `templates/check.sh` compares the vendored helpers, compiles every script, and fails on any committed key or action id.
 
 ## Editing
 
-- **Copy, URLs, coupon, Discord link, event facts, tracks, partners:** `src/lib/site.ts`. `DISCORD_URL` is the NYC invite, which Discord reports expired on 2026-10-10. Replace it before launch. `STARTER_REPO_URL` is empty until You.com shares the starter repo.
-- **The skill:** `content/skill.md`. Section anchors used by the page (`youcom-via-one`, `parasail-with-one`, `crewai-with-one`) come from the `##` heading text. The skill repeats the site URL, coupon and Discord link as literal text, so change them there too.
-- **Design tokens:** `src/app/globals.css` (Clockwork dark: carbon neutrals, lime fill-only CTA, spring green accents, Inter / DM Mono / Lora). The Halloween edition adds `pumpkin` and `hex` (purple) as a light accent, plus one piece of hero art (`src/components/sections/hero-art.tsx`).
-- **Sections:** `src/components/sections/*`. Primitives in `src/components/ui/*`.
-- **Logos:** `public/logo` (One), `public/agents` (AI clients), `public/partners` (You.com, CrewAI, Parasail, AWS, UpScaleX, Founders Bay, Discord), `public/platforms` (connector marks from `assets.withone.ai/connectors/<slug>.svg`).
-
-The app count is a fixed label, `APP_COUNT_LABEL` in `site.ts` ("1,000+"), so the page, the skill and the event copy agree.
+- **Site-wide links and catalogues** (One's product and docs links, MCP URL, platform and agent logos): `src/lib/site.ts`.
+- **Anything about one event**: `src/events/<slug>.ts`. Its skill repeats some of the same facts (coupon, Discord, URLs) as text, so change them there too.
+- **Sections**: `src/components/sections/*` take an `event` prop. The hub's cards and tabs are in `src/components/hub/*`.
+- **Logos**: `public/logo` (One, `logo-full-dark.svg` for carbon and `logo-full-light.svg` for paper), `public/agents`, `public/partners`, `public/platforms`.
 
 ## Develop
 
@@ -47,4 +67,4 @@ npm run lint
 npm run build && npm run start
 ```
 
-Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS v4. No database, no env vars.
+Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS v4. No database, no env vars. The hub revalidates hourly so events move from upcoming to past on their own.

@@ -8,6 +8,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { SectionIntro } from "@/components/ui/section-intro";
 import { Tabs } from "@/components/ui/tabs";
 import { CommandRow, Step, TerminalFrame } from "@/components/ui/terminal";
+import type { HackathonEvent } from "@/events";
 import { LINKS, MCP_URL } from "@/lib/site";
 import { LoopDemo } from "./loop-demo";
 
@@ -256,7 +257,7 @@ function McpPanel() {
   );
 }
 
-function CliPanel() {
+function CliPanel({ event }: { event: HackathonEvent }) {
   const onboard = 'Please run "one onboard"';
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
@@ -277,9 +278,12 @@ function CliPanel() {
               one init --auth browser
             </CommandRow>
           </Step>
-          <Step n={3} title="Connect the hackathon platforms" help="Paste the key from api.you.com. Slack opens the browser.">
-            <CommandRow action={<CopyButton text="one add you" size="sm" />}>one add you</CommandRow>
-            <CommandRow action={<CopyButton text="one add slack" size="sm" />}>one add slack</CommandRow>
+          <Step n={3} title="Connect the hackathon platforms" help={event.setup.connectHelp}>
+            {event.setup.connectCommands.map((cmd) => (
+              <CommandRow key={cmd} action={<CopyButton text={cmd} size="sm" />}>
+                {cmd}
+              </CommandRow>
+            ))}
           </Step>
           <Step n={4} title="Hand it to your agent" help="Tell Claude, Codex or Cursor:" last>
             <CommandRow prompt={false} action={<CopyButton text={onboard} size="sm" />}>
@@ -298,7 +302,7 @@ function CliPanel() {
       </div>
       <div className="min-w-0">
         <p className="mb-3 text-13 text-secondary">The same loop, from the CLI or the MCP tools:</p>
-        <LoopDemo />
+        <LoopDemo secondConnection={event.loopDemo.secondConnection} query={event.loopDemo.query} />
       </div>
     </div>
   );
@@ -386,7 +390,7 @@ function ApiPanel() {
   );
 }
 
-export function SetupPaths() {
+export function SetupPaths({ event }: { event: HackathonEvent }) {
   return (
     <section id="setup" className="border-t border-border">
       <div className="mx-auto max-w-[1180px] px-5 py-20 sm:px-8 md:py-24">
@@ -428,7 +432,7 @@ export function SetupPaths() {
             listClassName="mb-2"
             items={[
               { id: "mcp", label: "Remote MCP", content: <div className="rounded-card border border-border bg-surface/60 p-6 sm:p-8"><McpPanel /></div> },
-              { id: "cli", label: "CLI", content: <div className="rounded-card border border-border bg-surface/60 p-6 sm:p-8"><CliPanel /></div> },
+              { id: "cli", label: "CLI", content: <div className="rounded-card border border-border bg-surface/60 p-6 sm:p-8"><CliPanel event={event} /></div> },
               { id: "api", label: "API / SDK", content: <div className="rounded-card border border-border bg-surface/60 p-6 sm:p-8"><ApiPanel /></div> },
             ]}
           />

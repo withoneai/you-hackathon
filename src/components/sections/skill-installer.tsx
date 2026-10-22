@@ -1,12 +1,12 @@
 import { CopyButton } from "@/components/ui/copy-button";
 import { Tabs } from "@/components/ui/tabs";
 import { CommandRow, TerminalFrame } from "@/components/ui/terminal";
-import { SKILL_NAME, SKILL_RAW_URL } from "@/lib/site";
+import { SKILL_NAME } from "@/lib/site";
 
-export const PASTE_PROMPT = `Read ${SKILL_RAW_URL} and follow it to set me up with One, then tell me what I'm connected to.`;
-const CLAUDE_CODE = `mkdir -p ~/.claude/skills/${SKILL_NAME} && curl -fsSL ${SKILL_RAW_URL} -o ~/.claude/skills/${SKILL_NAME}/SKILL.md`;
-const CURSOR = `mkdir -p .cursor/rules && curl -fsSL ${SKILL_RAW_URL} -o .cursor/rules/${SKILL_NAME}.mdc`;
-const AGENTS_DIR = `mkdir -p ~/.agents/skills/${SKILL_NAME} && curl -fsSL ${SKILL_RAW_URL} -o ~/.agents/skills/${SKILL_NAME}/SKILL.md`;
+export function pastePrompt(skillRawUrl: string) {
+  return `Read ${skillRawUrl} and follow it to set me up with One, then tell me what I'm connected to.`;
+}
+
 const AGENTS_MD = `echo "Before touching any third-party app, read ~/.agents/skills/${SKILL_NAME}/SKILL.md" >> AGENTS.md`;
 
 function Help({ children }: { children: React.ReactNode }) {
@@ -14,7 +14,11 @@ function Help({ children }: { children: React.ReactNode }) {
 }
 
 /** The install card: one tab per way of getting the skill into an agent. */
-export function SkillInstaller({ id }: { id?: string }) {
+export function SkillInstaller({ id, skillRawUrl }: { id?: string; skillRawUrl: string }) {
+  const PASTE_PROMPT = pastePrompt(skillRawUrl);
+  const CLAUDE_CODE = `mkdir -p ~/.claude/skills/${SKILL_NAME} && curl -fsSL ${skillRawUrl} -o ~/.claude/skills/${SKILL_NAME}/SKILL.md`;
+  const CURSOR = `mkdir -p .cursor/rules && curl -fsSL ${skillRawUrl} -o .cursor/rules/${SKILL_NAME}.mdc`;
+  const AGENTS_DIR = `mkdir -p ~/.agents/skills/${SKILL_NAME} && curl -fsSL ${skillRawUrl} -o ~/.agents/skills/${SKILL_NAME}/SKILL.md`;
   return (
     <TerminalFrame title={`install · ${SKILL_NAME}`} id={id}>
       <Tabs

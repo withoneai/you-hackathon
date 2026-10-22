@@ -2,9 +2,10 @@
  * Decorative "signal line" telling the day's story as one run:
  * doors → keynote → workshops on the top rail, down to the build rail,
  * build → submit, then back up for demos and awards. Off the build rail a
- * side loop shows the Halloween edition's swarm at work: the pumpkin branch
- * leaves the rail at an OUTBREAK and comes back purple, CONTAINED, to rejoin
- * the run. One pulse rides straight through; the other takes the detour.
+ * side loop is each event's story: the branch leaves the rail at a trouble
+ * point (NYC: a FAULT, Halloween: an OUTBREAK) and comes back in a second
+ * colour to rejoin the run (RETRY, CONTAINED). Labels and colours come from
+ * the event. One pulse rides straight through; the other takes the detour.
  * Pure SVG + SMIL, no JS.
  */
 const TOP = 40;
@@ -20,7 +21,7 @@ const ROUTE = `M0 ${TOP} H260 ${DOWN} H745 ${UP} H1200`;
 const DETOUR_ARC = `C570 72 615 72 640 ${LOW}`;
 const ROUTE_WITH_DETOUR = `M0 ${TOP} H260 ${DOWN} H545 ${DETOUR_ARC} H745 ${UP} H1200`;
 
-// The detour split at its apex (de Casteljau at t = 0.5): pumpkin out, purple back.
+// The detour split at its apex (de Casteljau at t = 0.5): trouble out, recovery back.
 const APEX = { x: 592.5, y: 81.5 };
 const FAULT_OUT = `M545 ${LOW} C557.5 91 575 81.5 ${APEX.x} ${APEX.y}`;
 const REPAIR_BACK = `M${APEX.x} ${APEX.y} C610 81.5 627.5 91 640 ${LOW}`;
@@ -57,28 +58,30 @@ function Pulse({ color, begin, path }: { color: string; begin: string; path: str
   );
 }
 
-export function SignalLine({ className }: { className?: string }) {
+type Signal = { out: string; back: string; outColor: string; backColor: string; pulseColor: string };
+
+export function SignalLine({ className, signal }: { className?: string; signal: Signal }) {
   return (
     <div className={className} aria-hidden>
       <svg viewBox="-14 0 1228 150" preserveAspectRatio="none" className="h-[150px] w-full overflow-visible" fill="none">
         {/* faint rails */}
-        <path d="M-14 10 H1214" stroke="var(--carbon-border)" strokeWidth="1" />
-        <path d="M-14 140 H1214" stroke="var(--carbon-border)" strokeWidth="1" />
+        <path d="M-14 10 H1214" stroke="var(--line)" strokeWidth="1" />
+        <path d="M-14 140 H1214" stroke="var(--line)" strokeWidth="1" />
 
         {/* the track, then the run flowing along it */}
-        <path d={ROUTE} stroke="var(--carbon-border-strong)" strokeWidth="1.5" />
+        <path d={ROUTE} stroke="var(--line-strong)" strokeWidth="1.5" />
         <path d={ROUTE} className="dash-line" stroke="var(--spring)" strokeOpacity="0.55" strokeWidth="1.5" />
 
-        {/* the side loop: an outbreak the swarm contained */}
-        <path d={`M545 ${LOW} ${DETOUR_ARC}`} stroke="var(--carbon-border-strong)" strokeWidth="1.5" />
-        <path d={FAULT_OUT} stroke="var(--pumpkin)" strokeOpacity="0.8" strokeWidth="1.5" />
-        <path d={REPAIR_BACK} className="dash-line" stroke="var(--hex)" strokeOpacity="0.8" strokeWidth="1.5" />
+        {/* the side loop: the trouble, and the recovery */}
+        <path d={`M545 ${LOW} ${DETOUR_ARC}`} stroke="var(--line-strong)" strokeWidth="1.5" />
+        <path d={FAULT_OUT} stroke={signal.outColor} strokeOpacity="0.8" strokeWidth="1.5" />
+        <path d={REPAIR_BACK} className="dash-line" stroke={signal.backColor} strokeOpacity="0.8" strokeWidth="1.5" />
         <circle cx="545" cy={LOW} r="2.5" fill="var(--ink-secondary)" />
 
         {/* ordinary stops */}
         {stops.map((s) => (
           <g key={s.label}>
-            <circle cx={s.x} cy={s.y} r="3.5" fill="var(--carbon-0)" stroke="var(--ink-secondary)" strokeWidth="1.5" />
+            <circle cx={s.x} cy={s.y} r="3.5" fill="var(--bg-0)" stroke="var(--ink-secondary)" strokeWidth="1.5" />
             <text
               x={s.x}
               y={s.y + (s.y === LOW ? 26 : -14)}
@@ -91,31 +94,31 @@ export function SignalLine({ className }: { className?: string }) {
           </g>
         ))}
 
-        {/* OUTBREAK: at the top of the loop, off the main line */}
-        <circle cx={APEX.x} cy={APEX.y} r="6" fill="var(--carbon-0)" stroke="var(--pumpkin)" strokeOpacity="0.9" strokeWidth="1.5" />
+        {/* the trouble: at the top of the loop, off the main line */}
+        <circle cx={APEX.x} cy={APEX.y} r="6" fill="var(--bg-0)" stroke={signal.outColor} strokeOpacity="0.9" strokeWidth="1.5" />
         <path
           d={`M${APEX.x - 3} ${APEX.y - 3} L${APEX.x + 3} ${APEX.y + 3} M${APEX.x + 3} ${APEX.y - 3} L${APEX.x - 3} ${APEX.y + 3}`}
-          stroke="var(--pumpkin)"
+          stroke={signal.outColor}
           strokeOpacity="0.9"
           strokeWidth="1.5"
         />
-        <text x={APEX.x} y={APEX.y - 13} textAnchor="middle" fill="var(--pumpkin)" fillOpacity="0.9" {...mono}>
-          OUTBREAK
+        <text x={APEX.x} y={APEX.y - 13} textAnchor="middle" fill={signal.outColor} fillOpacity="0.9" {...mono}>
+          {signal.out}
         </text>
 
-        {/* CONTAINED: where the run rejoins the main line */}
-        <circle cx="640" cy={LOW} r="13" fill="var(--carbon-0)" />
-        <path d={`M640 ${LOW - 9} A9 9 0 1 1 631 ${LOW}`} stroke="var(--hex)" strokeWidth="1.5" strokeLinecap="round" />
-        <path d={`M631 ${LOW} L627.5 ${LOW + 4} M631 ${LOW} L634.5 ${LOW + 4}`} stroke="var(--hex)" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="640" cy={LOW} r="2" fill="var(--hex)" />
-        <text x="640" y={LOW + 26} textAnchor="middle" fill="var(--hex)" fillOpacity="0.9" {...mono}>
-          CONTAINED
+        {/* the recovery: where the run rejoins the main line */}
+        <circle cx="640" cy={LOW} r="13" fill="var(--bg-0)" />
+        <path d={`M640 ${LOW - 9} A9 9 0 1 1 631 ${LOW}`} stroke={signal.backColor} strokeWidth="1.5" strokeLinecap="round" />
+        <path d={`M631 ${LOW} L627.5 ${LOW + 4} M631 ${LOW} L634.5 ${LOW + 4}`} stroke={signal.backColor} strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="640" cy={LOW} r="2" fill={signal.backColor} />
+        <text x="640" y={LOW + 26} textAnchor="middle" fill={signal.backColor} fillOpacity="0.9" {...mono}>
+          {signal.back}
         </text>
 
         {/* travelling pulses: one straight through, one taking the detour */}
         <g className="signal-pulse">
           <Pulse color="var(--spring)" begin="0s" path={ROUTE} />
-          <Pulse color="var(--pumpkin)" begin="4.5s" path={ROUTE_WITH_DETOUR} />
+          <Pulse color={signal.pulseColor} begin="4.5s" path={ROUTE_WITH_DETOUR} />
         </g>
       </svg>
     </div>
