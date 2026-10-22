@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
 
@@ -22,12 +22,13 @@ import { TerminalFrame } from "@/components/ui/terminal";
 
 type Frame = { cmd: string; out: string[] };
 
-const SCRIPT: Frame[] = [
+function script(secondConnection: string, query: string): Frame[] {
+  return [
   {
     cmd: "one --agent list",
     out: [
       "● you       operational   live::you::default::7f3a…",
-      "● slack     operational   live::slack::default::c21e…",
+      `● ${secondConnection.padEnd(9)} operational   live::${secondConnection}::default::c21e…`,
       "● gmail     operational   live::gmail::default::9b0d…",
     ],
   },
@@ -47,13 +48,16 @@ const SCRIPT: Frame[] = [
     ],
   },
   {
-    cmd: `one --agent actions execute you <actionId> <key> --query-params '{"query":"haunted house sightings","count":5}'`,
+    cmd: `one --agent actions execute you <actionId> <key> --query-params '{"query":"${query}","count":5}'`,
     out: ["✓ 200   results.web[5]   results.news[3]   412ms"],
   },
-];
+  ];
+}
 
-export function LoopDemo() {
+/** The four-tool loop typed out. The second connection and the search query are the event's. */
+export function LoopDemo({ secondConnection, query }: { secondConnection: string; query: string }) {
   const reduced = useReducedMotion();
+  const SCRIPT = useMemo(() => script(secondConnection, query), [secondConnection, query]);
   const [step, setStep] = useState(0);
   const [typed, setTyped] = useState(0);
   const [outCount, setOutCount] = useState(0);
@@ -74,7 +78,7 @@ export function LoopDemo() {
       }, 2800);
     }
     return () => window.clearTimeout(t);
-  }, [reduced, step, typed, outCount]);
+  }, [reduced, step, typed, outCount, SCRIPT]);
 
   const frames = reduced
     ? SCRIPT.map((f) => ({ ...f, typed: f.cmd.length, shown: f.out.length, live: false }))

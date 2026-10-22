@@ -2,6 +2,7 @@ import { ArrowUpRight, DiscordLogo } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Reveal } from "@/components/ui/reveal";
+import type { HackathonEvent } from "@/events";
 import { LINKS } from "@/lib/site";
 
 const OTHER = [
@@ -10,7 +11,7 @@ const OTHER = [
   { label: "Email", body: "support@withone.ai for account or billing questions.", href: LINKS.support },
 ];
 
-export function HelpSection() {
+export function HelpSection({ event }: { event: HackathonEvent }) {
   return (
     <section id="help" className="border-t border-border bg-surface/40">
       <div className="mx-auto max-w-[1180px] px-5 py-20 sm:px-8 md:py-24">
@@ -26,10 +27,10 @@ export function HelpSection() {
                 command and the error.
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Button href={LINKS.discord} variant="lime" size="lg">
+                <Button href={event.discordUrl} variant="lime" size="lg">
                   <DiscordLogo weight="fill" /> Join the Discord
                 </Button>
-                <span className="text-13 text-muted">Or find the One team at the AWS Builder Loft.</span>
+                <span className="text-13 text-muted">{event.helpVenueLine}</span>
               </div>
             </div>
             <ul className="grid gap-3 self-center">

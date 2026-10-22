@@ -1,29 +1,87 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------
-   Clockwork tokens (dark / "Carbon"). Source: core-ui styles/globals.css
-   and landing/public/clockwork/index.html. Lime is FILL ONLY: never text,
-   never a border, at most one lime control per viewport.
-   Halloween edition: pumpkin and hex (purple) are a light seasonal accent for
-   eyebrow dots, track cards and the hero art. They never replace lime on a CTA.
+   Two Clockwork themes, scoped by class so each event page can pick its own
+   design system. Source: core-ui styles/globals.css and the backoffice's
+   app/globals.css (by hex).
+   - theme-paper: the light theme (Paper ground, Ink text, white cards, Inter
+     only). The default: the events hub and newer event pages use it.
+   - theme-carbon: the dark theme the NYC edition shipped with (Lora display).
+   Lime is FILL ONLY in both: never text, never a border, at most one lime
+   control per viewport. Pumpkin and hex (purple) are the Halloween edition's
+   seasonal accents; they never replace lime on a CTA.
 ------------------------------------------------------------------- */
-:root {
-  color-scheme: dark;
+:root,
+.theme-paper {
+  color-scheme: light;
 
-  --carbon-0: #0a0c0b;
-  --carbon-1: #101513;
-  --carbon-2: #161d1a;
-  --carbon-3: #1c2521;
-  --carbon-border: #232b28;
-  --carbon-border-strong: #2e3a35;
+  --bg-0: #f6f8f6; /* Paper */
+  --bg-1: #ffffff; /* raised card */
+  --bg-2: #edf1ee; /* neutral hover */
+  --bg-3: #e8ede9;
+  --line: #dce3de;
+  --line-strong: #c2ccc6;
 
-  --ink: #e9efec;
-  --ink-secondary: #9caca6;
-  --ink-muted: #7c8c86;
+  --ink: #0c1a16;
+  --ink-secondary: #4e5f59;
+  --ink-muted: #5f6e68;
 
   --lime: #ccff00;
   --lime-hover: #d9ff4d;
   --on-lime: #14200a;
+
+  /* Spring drops to spring-deep on paper. */
+  --spring: #0d6e52;
+  --spring-dim: #0d6e52;
+  --spring-deep: #0d6e52;
+  --spring-tint: #e4f7ef;
+
+  --amber: #8a5e09;
+  --amber-tint: #fbf1dc;
+  --alert: #b4331f;
+  --alert-tint: #fbeae6;
+
+  --paper: #f6f8f6;
+
+  --pumpkin: #c2540a;
+  --pumpkin-tint: #fdf0e6;
+  --hex: #4c1d95;
+  --hex-tint: #ede9fe;
+
+  --display-font: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --display-weight: 600;
+  --display-tracking: -0.02em;
+  --label-tracking: 0.05em;
+  --r-control: 6px;
+  --r-panel: 8px;
+  --r-card: 12px;
+  --r-surface: 16px;
+  --sh-lift: 0 1px 2px rgba(12, 26, 22, 0.05), 0 8px 24px -16px rgba(12, 26, 22, 0.18);
+  --sh-lift-lg: 0 1px 2px rgba(12, 26, 22, 0.05), 0 16px 40px -24px rgba(12, 26, 22, 0.22);
+  --mono-mark-filter: invert(1);
+
+  /* sugar-high on paper: the backoffice's light Prism inks. */
+  --code-class: #4c1d95;
+  --code-property: #8a5e09;
+  --code-entity: #0d6e52;
+  --code-jsx: #4c1d95;
+  --code-string: #8a5e09;
+  --code-keyword: #0d6e52;
+}
+
+.theme-carbon {
+  color-scheme: dark;
+
+  --bg-0: #0a0c0b;
+  --bg-1: #101513;
+  --bg-2: #161d1a;
+  --bg-3: #1c2521;
+  --line: #232b28;
+  --line-strong: #2e3a35;
+
+  --ink: #e9efec;
+  --ink-secondary: #9caca6;
+  --ink-muted: #7c8c86;
 
   --spring: #3fe3a5;
   --spring-dim: #2bb484;
@@ -35,21 +93,45 @@
   --alert: #ff8a6b;
   --alert-tint: #2a100c;
 
-  --paper: #f6f8f6;
-
   --pumpkin: #ff8a2a;
   --pumpkin-tint: #2a1608;
   --hex: #a98bff;
   --hex-tint: #1b1530;
+
+  --display-font: var(--font-lora), "Lora", Georgia, serif;
+  --display-weight: 500;
+  --display-tracking: -0.01em;
+  --label-tracking: 0.16em;
+  --r-control: 10px;
+  --r-panel: 12px;
+  --r-card: 20px;
+  --r-surface: 28px;
+  --sh-lift: 0 24px 60px -36px rgba(0, 0, 0, 0.55);
+  --sh-lift-lg: 0 40px 90px -45px rgba(0, 0, 0, 0.65);
+  --mono-mark-filter: none;
+
+  --code-class: #62a9f1;
+  --code-property: #f0be5a;
+  --code-entity: #4ec9b0;
+  --code-jsx: #9a8afb;
+  --code-string: #ce9178;
+  --code-keyword: #c792ea;
+}
+
+/* An event page fills the viewport in its own ground and ink. */
+.theme-paper,
+.theme-carbon {
+  background: var(--bg-0);
+  color: var(--ink);
 }
 
 @theme inline {
-  --color-background: var(--carbon-0);
-  --color-surface: var(--carbon-1);
-  --color-surface-2: var(--carbon-2);
-  --color-surface-3: var(--carbon-3);
-  --color-border: var(--carbon-border);
-  --color-border-strong: var(--carbon-border-strong);
+  --color-background: var(--bg-0);
+  --color-surface: var(--bg-1);
+  --color-surface-2: var(--bg-2);
+  --color-surface-3: var(--bg-3);
+  --color-border: var(--line);
+  --color-border-strong: var(--line-strong);
 
   --color-foreground: var(--ink);
   --color-secondary: var(--ink-secondary);
@@ -76,7 +158,7 @@
 
   --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-dm-mono), "DM Mono", ui-monospace, "SF Mono", monospace;
-  --font-serif: var(--font-lora), "Lora", Georgia, serif;
+  --font-serif: var(--display-font);
 
   --text-10: 0.625rem;
   --text-10--line-height: 1.4;
@@ -87,17 +169,17 @@
   --text-15: 0.9375rem;
   --text-15--line-height: 1.6;
 
-  --tracking-label: 0.16em;
+  --tracking-label: var(--label-tracking);
   --tracking-display: -0.01em;
 
-  --radius-control: 10px;
-  --radius-panel: 12px;
-  --radius-card: 20px;
-  --radius-surface: 28px;
+  --radius-control: var(--r-control);
+  --radius-panel: var(--r-panel);
+  --radius-card: var(--r-card);
+  --radius-surface: var(--r-surface);
 
-  --shadow-lift: 0 24px 60px -36px rgba(0, 0, 0, 0.55);
-  --shadow-lift-lg: 0 40px 90px -45px rgba(0, 0, 0, 0.65);
-  --shadow-hairline: 0 0 0 1px var(--carbon-border);
+  --shadow-lift: var(--sh-lift);
+  --shadow-lift-lg: var(--sh-lift-lg);
+  --shadow-hairline: 0 0 0 1px var(--line);
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -163,7 +245,7 @@ html {
 }
 
 body {
-  background: var(--carbon-0);
+  background: var(--bg-0);
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 0.9375rem;
@@ -182,7 +264,7 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--carbon-3);
+  background: var(--bg-3);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-track {
@@ -196,13 +278,24 @@ h3 {
   letter-spacing: var(--tracking-display);
 }
 
+/* Display headings take the theme's display face (Lora on carbon, Inter on paper). */
+.font-serif {
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+}
+
+/* White monochrome marks (agent clients, CrewAI) flip to ink on paper. */
+.mono-mark {
+  filter: var(--mono-mark-filter);
+}
+
 /* Eyebrow: DM Mono, uppercase, wide tracking. The most recognisable
    Clockwork typographic move. */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: var(--label-tracking);
   text-transform: uppercase;
   color: var(--ink-muted);
 }
@@ -241,7 +334,7 @@ h3 {
   display: block;
 }
 .sh__token--class {
-  color: #62a9f1;
+  color: var(--code-class);
 }
 .sh__token--identifier {
   color: var(--ink);
@@ -250,19 +343,19 @@ h3 {
   color: var(--ink-secondary);
 }
 .sh__token--property {
-  color: var(--amber);
+  color: var(--code-property);
 }
 .sh__token--entity {
-  color: #4ec9b0;
+  color: var(--code-entity);
 }
 .sh__token--jsxliterals {
-  color: #9a8afb;
+  color: var(--code-jsx);
 }
 .sh__token--string {
-  color: #ce9178;
+  color: var(--code-string);
 }
 .sh__token--keyword {
-  color: #c792ea;
+  color: var(--code-keyword);
 }
 .sh__token--comment {
   color: var(--ink-muted);
@@ -294,7 +387,7 @@ h3 {
   color: var(--ink);
   margin: 3rem 0 1rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--carbon-border);
+  border-top: 1px solid var(--line);
   scroll-margin-top: 96px;
 }
 .prose-skill h3 {
@@ -316,7 +409,7 @@ h3 {
 .prose-skill a {
   color: var(--ink);
   text-decoration: underline;
-  text-decoration-color: var(--carbon-border-strong);
+  text-decoration-color: var(--line-strong);
   text-underline-offset: 3px;
 }
 .prose-skill a:hover {
@@ -346,11 +439,16 @@ h3 {
 .prose-skill code {
   font-family: var(--font-mono);
   font-size: 0.8125em;
-  background: var(--carbon-2);
-  border: 1px solid var(--carbon-border);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
   border-radius: 6px;
   padding: 0.1em 0.4em;
   color: var(--ink);
+}
+/* Long inline commands and bare URLs wrap instead of pushing the page sideways on a phone. */
+.prose-skill :not(pre) > code,
+.prose-skill a {
+  overflow-wrap: anywhere;
 }
 .prose-skill pre {
   margin: 0 0 1.25rem;
@@ -381,7 +479,7 @@ h3 {
 }
 .prose-skill .table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--carbon-border);
+  border: 1px solid var(--line);
   border-radius: 12px;
   margin: 0 0 1.25rem;
 }
@@ -392,17 +490,17 @@ h3 {
   text-align: left;
   font-family: var(--font-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--label-tracking);
   text-transform: uppercase;
   font-weight: 500;
   color: var(--ink-muted);
-  background: var(--carbon-1);
+  background: var(--bg-1);
   padding: 0.6rem 0.85rem;
-  border-bottom: 1px solid var(--carbon-border);
+  border-bottom: 1px solid var(--line);
 }
 .prose-skill td {
   padding: 0.6rem 0.85rem;
-  border-bottom: 1px solid var(--carbon-border);
+  border-bottom: 1px solid var(--line);
   vertical-align: top;
 }
 .prose-skill tr:last-child td {
@@ -410,7 +508,7 @@ h3 {
 }
 .prose-skill hr {
   border: 0;
-  border-top: 1px solid var(--carbon-border);
+  border-top: 1px solid var(--line);
   margin: 2.5rem 0;
 }
 

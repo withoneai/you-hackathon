@@ -28,8 +28,9 @@ function extractHeadings(md: string): Heading[] {
   return out;
 }
 
-export function getSkill(): Skill {
-  const file = path.join(process.cwd(), "content", "skill.md");
+/** The skill an event ships, from content/events/<slug>/skill.md. */
+export function getSkill(slug: string): Skill {
+  const file = path.join(process.cwd(), "content", "events", slug, "skill.md");
   const raw = fs.readFileSync(file, "utf8");
   const { data, content } = matter(raw);
   return {
@@ -39,4 +40,16 @@ export function getSkill(): Skill {
     description: String(data.description ?? ""),
     headings: extractHeadings(content),
   };
+}
+
+/** The raw skill as `text/markdown`, the response every skill.md route sends. */
+export function skillResponse(slug: string) {
+  const { raw } = getSkill(slug);
+  return new Response(raw, {
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      "Cache-Control": "public, max-age=300, s-maxage=300",
+      "X-Skill-Name": "one-hackathon",
+    },
+  });
 }

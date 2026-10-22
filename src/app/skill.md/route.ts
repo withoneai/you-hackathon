@@ -1,14 +1,9 @@
-import { getSkill } from "@/lib/skill";
+import { currentEvent } from "@/events";
+import { skillResponse } from "@/lib/skill";
 
-export const dynamic = "force-static";
+/** Install prompts shared before the events hub point here, so it serves the current event's skill. */
+export const revalidate = 3600;
 
 export function GET() {
-  const { raw } = getSkill();
-  return new Response(raw, {
-    headers: {
-      "Content-Type": "text/markdown; charset=utf-8",
-      "Cache-Control": "public, max-age=300, s-maxage=300",
-      "X-Skill-Name": "one-hackathon",
-    },
-  });
+  return skillResponse(currentEvent().slug);
 }

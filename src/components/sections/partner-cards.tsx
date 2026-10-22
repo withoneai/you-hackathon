@@ -7,10 +7,12 @@ import { Logo } from "@/components/ui/logo";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionIntro } from "@/components/ui/section-intro";
 import { CommandRow } from "@/components/ui/terminal";
-import { AGENT_CLIENTS, APP_COUNT_LABEL, CO_PARTNERS, PARTNERS } from "@/lib/site";
+import type { HackathonEvent } from "@/events";
+import { AGENT_CLIENTS, LINKS } from "@/lib/site";
 import { PlatformGrid } from "./platform-grid";
 
-export function PartnerCards() {
+export function PartnerCards({ event }: { event: HackathonEvent }) {
+  const { cards, co, lede } = event.partners;
   return (
     <section id="partners" className="border-t border-border bg-surface/40">
       <div className="mx-auto max-w-[1180px] px-5 py-20 sm:px-8 md:py-24">
@@ -18,16 +20,16 @@ export function PartnerCards() {
           <SectionIntro
             eyebrow="Build with the sponsors"
             title="Everyone here builds on the same stack. One wires it together."
-            lede="Every build uses the same four: You.com for live web data, One for apps and auth, CrewAI to orchestrate the agents, and Parasail for inference."
+            lede={lede}
           />
         </Reveal>
 
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
-          {PARTNERS.map((p, i) => (
+          {cards.map((p, i) => (
             <Reveal key={p.slug} delay={i * 90} className="flex">
               <article className="flex w-full flex-col rounded-card border border-border bg-surface p-6 transition-colors hover:border-border-strong">
                 <div className="flex items-center gap-3">
-                  <Logo src={p.logo} alt={p.name} size={p.slug === "you" ? 40 : 26} tile={p.slug !== "you"} className={p.slug === "you" ? "rounded-full" : ""} />
+                  <Logo src={p.logo} alt={p.name} size={p.logoStyle === "round" ? 40 : 26} tile={p.logoStyle === "tile"} mono={p.mono} className={p.logoStyle === "round" ? "rounded-full" : ""} />
                   <div>
                     <h3 className="text-[17px] font-medium text-foreground">{p.name}</h3>
                     <p className="text-13 text-muted">{p.tagline}</p>
@@ -50,7 +52,7 @@ export function PartnerCards() {
                       {p.keyLabel} <ArrowUpRight size={12} />
                     </a>
                     <Link
-                      href={`/skill#${p.playbookAnchor}`}
+                      href={`/${event.slug}/skill#${p.playbookAnchor}`}
                       className="inline-flex items-center gap-1 text-13 font-medium text-foreground transition-colors hover:text-spring"
                     >
                       Playbook <ArrowRight size={13} />
@@ -66,7 +68,7 @@ export function PartnerCards() {
           <div className="flex flex-col gap-4 rounded-card border border-border bg-surface/60 p-5 sm:flex-row sm:items-center sm:justify-between">
             <Eyebrow dot="muted">Also in partnership with</Eyebrow>
             <div className="flex flex-wrap items-center gap-6">
-              {CO_PARTNERS.map((c) => (
+              {co.map((c) => (
                 <a
                   key={c.name}
                   href={c.url}
@@ -75,7 +77,8 @@ export function PartnerCards() {
                   className="inline-flex items-center gap-2.5 opacity-80 transition-opacity hover:opacity-100"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.logo} alt={c.name} className={c.name === "AWS" ? "h-7 w-auto" : "h-8 w-auto"} loading="lazy" />
+                  <img src={c.logo} alt={c.name} className="w-auto" style={{ height: c.height ?? 32 }} loading="lazy" />
+                  {c.showName && <span className="text-13 font-medium text-foreground">{c.name}</span>}
                 </a>
               ))}
             </div>
@@ -84,9 +87,9 @@ export function PartnerCards() {
 
         <Reveal delay={160} className="mt-14">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-            <Eyebrow>…and {APP_COUNT_LABEL} more apps</Eyebrow>
+            <Eyebrow>…and {event.appCountLabel} more apps</Eyebrow>
             <a
-              href="https://www.withone.ai/knowledge"
+              href={LINKS.knowledge}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-13 text-secondary transition-colors hover:text-foreground"
@@ -105,7 +108,7 @@ export function PartnerCards() {
                 key={a.id}
                 className="flex items-center gap-2 rounded-full border border-border bg-surface py-1.5 pl-2 pr-3.5 text-13 text-secondary"
               >
-                <Logo src={a.logo} alt="" size={18} />
+                <Logo src={a.logo} alt="" size={18} mono={a.mono} />
                 {a.name}
               </li>
             ))}

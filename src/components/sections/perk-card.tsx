@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { CouponCode } from "@/components/ui/coupon-code";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Reveal } from "@/components/ui/reveal";
-import { COUPON_CODE, LINKS, REDEEM_URL } from "@/lib/site";
+import type { HackathonEvent } from "@/events";
+import { LINKS, REDEEM_URL } from "@/lib/site";
 
 const PRO_FEATURES = [
   "1M API calls, 1,000 requests/min",
@@ -18,7 +19,7 @@ const STEPS = [
   { title: "Enter the code at checkout", body: "Your first month is $0." },
 ];
 
-export function PerkCard() {
+export function PerkCard({ event }: { event: HackathonEvent }) {
   return (
     <section className="relative mx-auto max-w-[1180px] px-5 py-16 sm:px-8 md:py-20" id="perk">
       <Reveal>
@@ -41,15 +42,15 @@ export function PerkCard() {
               <p className="mt-3 flex items-start gap-2.5 text-13 text-secondary">
                 <Trophy size={16} weight="fill" className="mt-0.5 shrink-0 text-amber" />
                 <span>
-                  <span className="font-medium text-foreground">Win, and it&apos;s a free year.</span> Second
-                  place gets six months, third gets three.
+                  <span className="font-medium text-foreground">{event.perk.prizeLine}</span>{" "}
+                  {event.perk.prizeRest}
                 </span>
               </p>
 
               <div className="mt-7">
                 <Eyebrow dot="lime">Your coupon code</Eyebrow>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <CouponCode code={COUPON_CODE} />
+                  <CouponCode code={event.couponCode} />
                   <Button href={REDEEM_URL} variant="outline" size="lg">
                     Redeem <ArrowUpRight />
                   </Button>
