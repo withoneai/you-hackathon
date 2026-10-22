@@ -5,7 +5,7 @@
  * a live, non-expiring invite before launch.
  */
 
-export const SITE_URL = "https://halloween.withone.ai";
+export const SITE_URL = "https://hackathon.withone.ai";
 export const SKILL_RAW_URL = `${SITE_URL}/skill.md`;
 export const SKILL_PAGE_URL = `${SITE_URL}/skill`;
 export const SKILL_NAME = "one-hackathon";
