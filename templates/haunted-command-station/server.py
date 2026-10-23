@@ -16,7 +16,10 @@ Messages on /ws, all JSON with a `type`:
     error       {detail}
 
 The pipeline runs in a worker thread and calls `publish`, which hands each
-message to the event loop safely.
+message to the event loop safely. The replay state (recent logs, the spec being
+streamed, the latest spec) only changes on the event loop, in the same step that
+broadcasts, and a new client gets its replay and joins the broadcast set in one
+step with no await in between, so it sees each message exactly once.
 """
 from __future__ import annotations
 
@@ -45,6 +48,7 @@ class Station:
         self.mode = mode
         self.clients: set = set()
         self.latest: dict | None = None
+        self.building: list[dict] | None = None  # spec_begin and the panels sent so far, while a spec streams
         self.logs: list[dict] = []
         self.loop: asyncio.AbstractEventLoop | None = None
 
@@ -65,38 +69,53 @@ class Station:
     # --- WebSocket ----------------------------------------------------------------
 
     async def handler(self, ws) -> None:
+        # Replay, then subscribe, without awaiting: `broadcast` queues the frames synchronously, so no
+        # live message can land between the replay and the subscription, or be sent twice.
+        replay = [{"type": "hello", "station": "haunted-command-station", "mode": self.mode}]
+        replay += [{"type": "log", **item} for item in self.logs[-40:]]
+        if self.building:  # mid-stream: the panels so far; the rest arrive live
+            replay += self.building
+        elif self.latest:
+            replay.append({"type": "spec", **self.latest})
+        for msg in replay:
+            broadcast([ws], json.dumps(msg))
         self.clients.add(ws)
         try:
-            await ws.send(json.dumps({"type": "hello", "station": "haunted-command-station", "mode": self.mode}))
-            for item in self.logs[-40:]:
-                await ws.send(json.dumps({"type": "log", **item}))
-            if self.latest:
-                await ws.send(json.dumps({"type": "spec", **self.latest}))
             async for _ in ws:  # the page does not send anything we act on; keep the socket open
                 pass
         finally:
             self.clients.discard(ws)
 
-    def _emit(self, msg: dict) -> None:
+    def _emit(self, msg: dict, latest: dict | None = None) -> None:
+        """Runs on the event loop: update the replay state, then broadcast."""
+        kind = msg.get("type")
+        if kind == "log":
+            self.logs = (self.logs + [{k: v for k, v in msg.items() if k != "type"}])[-200:]
+        elif kind == "spec_begin":
+            self.building = [msg]
+        elif kind == "panel" and self.building is not None:
+            self.building.append(msg)
+        elif kind == "spec_end":
+            self.latest, self.building = latest, None
         broadcast(self.clients, json.dumps(msg))
 
     # --- called from the pipeline thread --------------------------------------------
 
-    def publish(self, msg: dict) -> None:
-        if msg.get("type") == "log":
-            self.logs = (self.logs + [{k: v for k, v in msg.items() if k != "type"}])[-200:]
+    def publish(self, msg: dict, latest: dict | None = None) -> None:
         if self.loop:
-            self.loop.call_soon_threadsafe(self._emit, msg)
+            self.loop.call_soon_threadsafe(self._emit, msg, latest)
+        else:
+            self._emit(msg, latest)
 
     def publish_spec(self, spec: dict, built_by: str, notes: list[str]) -> None:
         at = dt.datetime.now().strftime("%H:%M:%S")
-        self.latest = {"spec": spec, "built_by": built_by, "notes": notes, "at": at}
+        latest = {"spec": spec, "built_by": built_by, "notes": notes, "at": at}
         self.publish({"type": "spec_begin", "title": spec["title"], "subtitle": spec.get("subtitle", ""),
                       "threat_level": spec["threat_level"], "panels": len(spec["panels"])})
         for i, panel in enumerate(spec["panels"]):
             time.sleep(PANEL_DELAY)
             self.publish({"type": "panel", "index": i, "panel": panel})
-        self.publish({"type": "spec_end", "built_by": built_by, "notes": notes, "at": at})
+        self.publish({"type": "spec_end", "built_by": built_by, "notes": notes, "at": at}, latest=latest)
 
     # --- run ---------------------------------------------------------------------
 

@@ -22,9 +22,19 @@ import sys
 
 import llm
 from one_cli import (OneError, die, execute, forget, load_env, now_iso, preflight, recall,
-                     remember, resolve, say, short_hash)
+                     remember, resolve, resolve_all, say, short_hash)
 
 TEMPLATE = "market-watch"
+TASK = "research a watchlist, write a brief to a page, and post a digest to a channel"
+# Every action a run uses, found in one `actions find` call; the `resolve` calls below hit the cache.
+ACTIONS = [
+    ("you", "finance research", "POST", "/v1/finance_research"),
+    ("notion", "create a page", "POST", "/pages"),
+    ("slack", "post message to channel", "POST", "/chat.postMessage"),
+    ("notion", "retrieve block children", "GET", "/blocks/{blockId}/children"),
+    ("notion", "delete a block", "DELETE", "/blocks/{blockId}"),
+    ("notion", "append block children", "PATCH", "/blocks/{blockId}/children"),
+]
 PLATFORMS = ["you", "notion", "slack"]
 MEMORY_TYPES = ["brief", "preference"]
 
@@ -51,7 +61,8 @@ def do_history() -> int:
 
 
 def do_run(args) -> int:
-    keys = preflight(TEMPLATE, PLATFORMS)
+    keys = preflight(TEMPLATE, PLATFORMS, task=TASK)
+    resolve_all(ACTIONS)
 
     finance_id = resolve("you", "finance research", "POST", "/v1/finance_research")
     create_page_id = resolve("notion", "create a page", "POST", "/pages")
@@ -201,21 +212,21 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.check:
-        preflight(TEMPLATE, PLATFORMS)
+        preflight(TEMPLATE, PLATFORMS, task=TASK)
         say("preflight ok")
         return 0
     if args.forget:
-        preflight(TEMPLATE, PLATFORMS)
+        preflight(TEMPLATE, PLATFORMS, task=TASK)
         say(f"Forgot: archived {forget(TEMPLATE, MEMORY_TYPES)} memory records")
         return 0
     if args.command == "feedback":
-        preflight(TEMPLATE, PLATFORMS, need_memory=True)
+        preflight(TEMPLATE, PLATFORMS, need_memory=True, task=TASK)
         text = " ".join(args.text).strip()
         if not text:
             die('feedback needs text, e.g. python market_watch.py feedback "shorter, skip crypto"')
         return do_feedback(text)
     if args.command == "history":
-        preflight(TEMPLATE, PLATFORMS, need_memory=True)
+        preflight(TEMPLATE, PLATFORMS, need_memory=True, task=TASK)
         return do_history()
     return do_run(args)
 

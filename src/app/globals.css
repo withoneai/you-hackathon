@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* ------------------------------------------------------------------
-   Two Clockwork themes, scoped by class so each event page can pick its own
-   design system. Source: core-ui styles/globals.css and the backoffice's
-   app/globals.css (by hex).
-   - theme-paper: the light theme (Paper ground, Ink text, white cards, Inter
-     only). The default: the events hub and newer event pages use it.
-   - theme-carbon: the dark theme the NYC edition shipped with (Lora display).
+   One Clockwork design system for every page, in light and dark. Source:
+   core-ui styles/globals.css and the backoffice's app/globals.css (by hex).
+   Type, radii and spacing are the backoffice's (Inter only); dark mode swaps
+   only the colors, taken from the carbon palette the NYC edition shipped with.
+   The mode is `data-theme` on <html>: set before paint by the script in
+   layout.tsx (saved choice, else the system setting) and by the header toggle.
    Lime is FILL ONLY in both: never text, never a border, at most one lime
    control per viewport. Pumpkin and hex (purple) are the Halloween edition's
    seasonal accents; they never replace lime on a CTA.
 ------------------------------------------------------------------- */
-:root,
-.theme-paper {
+:root {
   color-scheme: light;
 
   --bg-0: #f6f8f6; /* Paper */
@@ -69,7 +70,7 @@
   --code-keyword: #0d6e52;
 }
 
-.theme-carbon {
+:root[data-theme="dark"] {
   color-scheme: dark;
 
   --bg-0: #0a0c0b;
@@ -98,14 +99,6 @@
   --hex: #a98bff;
   --hex-tint: #1b1530;
 
-  --display-font: var(--font-lora), "Lora", Georgia, serif;
-  --display-weight: 500;
-  --display-tracking: -0.01em;
-  --label-tracking: 0.16em;
-  --r-control: 10px;
-  --r-panel: 12px;
-  --r-card: 20px;
-  --r-surface: 28px;
   --sh-lift: 0 24px 60px -36px rgba(0, 0, 0, 0.55);
   --sh-lift-lg: 0 40px 90px -45px rgba(0, 0, 0, 0.65);
   --mono-mark-filter: none;
@@ -116,13 +109,6 @@
   --code-jsx: #9a8afb;
   --code-string: #ce9178;
   --code-keyword: #c792ea;
-}
-
-/* An event page fills the viewport in its own ground and ink. */
-.theme-paper,
-.theme-carbon {
-  background: var(--bg-0);
-  color: var(--ink);
 }
 
 @theme inline {
@@ -278,13 +264,13 @@ h3 {
   letter-spacing: var(--tracking-display);
 }
 
-/* Display headings take the theme's display face (Lora on carbon, Inter on paper). */
+/* Display headings: Inter at the display weight and tracking. */
 .font-serif {
   font-weight: var(--display-weight);
   letter-spacing: var(--display-tracking);
 }
 
-/* White monochrome marks (agent clients, CrewAI) flip to ink on paper. */
+/* White monochrome marks (agent clients, CrewAI) flip to ink in light mode. */
 .mono-mark {
   filter: var(--mono-mark-filter);
 }

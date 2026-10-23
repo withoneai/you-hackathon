@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowUpRight, DiscordLogo } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { HackathonEvent } from "@/events";
 import { LINKS } from "@/lib/site";
 
@@ -12,9 +13,16 @@ const nav = [
   { label: "Help", href: "#help" },
 ];
 
-/** The One logo for the theme the header sits on. */
-export function logoFor(theme: HackathonEvent["theme"] | undefined) {
-  return theme === "carbon" ? "/logo/logo-full-dark.svg" : "/logo/logo-full-light.svg";
+/** The One logo in both modes; CSS shows the one that matches `data-theme`. */
+export function OneLogo({ className }: { className?: string }) {
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo/logo-full-light.svg" alt="One" width={86} height={27} className={`${className} dark:hidden`} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo/logo-full-dark.svg" alt="One" width={86} height={27} className={`${className} hidden dark:block`} />
+    </>
+  );
 }
 
 /**
@@ -27,8 +35,7 @@ export function Header({ event, sectionBase = "" }: { event?: HackathonEvent; se
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1180px] items-center gap-6 px-5 sm:px-8">
         <Link href={event ? `/${event.slug}` : "/"} className="flex items-center gap-3" aria-label={event ? `${event.name} home` : "All hackathons"}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logoFor(event?.theme)} alt="One" width={86} height={27} className="h-[26px] w-auto" />
+          <OneLogo className="h-[26px] w-auto" />
           <span className="hidden font-mono text-10 uppercase tracking-label text-muted sm:inline">
             {event ? event.headerLabel : "Hackathons"}
           </span>
@@ -73,6 +80,7 @@ export function Header({ event, sectionBase = "" }: { event?: HackathonEvent; se
           >
             Dashboard <ArrowUpRight size={13} />
           </a>
+          <ThemeToggle />
           {event ? (
             <>
               <a

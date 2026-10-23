@@ -10,16 +10,12 @@ const STATUS: Record<EventStatus, { label: string; className: string }> = {
   past: { label: "Past", className: "border-border bg-surface-2 text-secondary" },
 };
 
-/**
- * The card's cover is drawn in the event's own theme, so the hub previews each
- * event's design system: Lora on carbon for NYC, Paper with the moon for Halloween.
- */
+/** The card's cover: the moon for Halloween, the signal line for the rest. */
 function Cover({ event }: { event: HackathonEvent }) {
   const halloween = event.heroArt === "halloween";
   return (
     <div
       className={cn(
-        `theme-${event.theme}`,
         "relative h-40 overflow-hidden border-b border-border",
         halloween && "bg-[linear-gradient(120deg,var(--pumpkin-tint),var(--hex-tint))]",
       )}

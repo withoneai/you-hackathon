@@ -30,7 +30,7 @@ Memory is One's `one mem`: `remember` stores a rule keyed on the error, `recall`
 
 ## Setup
 
-You need Node 18+, Python 3.10 to 3.13, a One account, and connections for You.com, Daytona and Gmail.
+You need Node 22.23.4+, 24.22.1+ or 26.12.1+ (the One CLI and MCP server refuse older releases; setup checks), One CLI 2.9+, Python 3.10 to 3.13, a One account, and connections for You.com, Daytona and Gmail.
 
 ```bash
 one add you        # key from https://api.you.com

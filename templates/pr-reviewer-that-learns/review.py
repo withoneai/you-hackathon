@@ -30,9 +30,10 @@ import time
 
 import llm
 from one_cli import (OneError, die, execute, forget, load_env, now_iso, preflight, recall, remember,
-                     resolve, say, short_hash)
+                     resolve_all, say, short_hash)
 
 TEMPLATE = "pr-reviewer-that-learns"
+TASK = "review pull requests and learn from reviewer feedback"
 PLATFORMS = ["github"]
 MEMORY_TYPES = ["rule", "reviewed"]
 # The whole comment must be that one line, and nothing else. No re.S and no newline allowed in
@@ -42,14 +43,16 @@ FEEDBACK_RE = re.compile(r"\A[ \t]*one-learn:[ \t]*([^\r\n]*[^\s])[ \t]*\Z", re.
 
 
 def gh_ids() -> dict[str, str]:
-    return {
-        "files": resolve("github", "list pull request files", "GET", "/repos/{owner}/{repo}/pulls/{pullNumber}/files"),
-        "get_pr": resolve("github", "get a pull request", "GET", "/repos/{owner}/{repo}/pulls/{pullNumber}", title="Get a Repository Pull Request"),
-        "list_prs": resolve("github", "list pull requests", "GET", "/repos/{owner}/{repo}/pulls", title="List a Repository’s Pull Requests"),
-        "review": resolve("github", "create a review for a pull request", "POST", "/repos/{owner}/{repo}/pulls/{pullNumber}/reviews"),
-        "comments": resolve("github", "list a repository issue comments", "GET", "/repos/{owner}/{repo}/issues/{issueNumber}/comments", title="List a Repository Issue's Comments"),
-        "me": resolve("github", "get the authenticated user", "GET", "/user"),
+    """Every GitHub action this template uses, found in one `actions find` call."""
+    wanted = {
+        "files": ("github", "list pull request files", "GET", "/repos/{owner}/{repo}/pulls/{pullNumber}/files"),
+        "get_pr": ("github", "get a pull request", "GET", "/repos/{owner}/{repo}/pulls/{pullNumber}", "Get a Repository Pull Request"),
+        "list_prs": ("github", "list pull requests", "GET", "/repos/{owner}/{repo}/pulls", "List a Repository’s Pull Requests"),
+        "review": ("github", "create a review for a pull request", "POST", "/repos/{owner}/{repo}/pulls/{pullNumber}/reviews"),
+        "comments": ("github", "list a repository issue comments", "GET", "/repos/{owner}/{repo}/issues/{issueNumber}/comments", "List a Repository Issue's Comments"),
+        "me": ("github", "get the authenticated user", "GET", "/user"),
     }
+    return dict(zip(wanted, resolve_all(list(wanted.values()))))
 
 
 def repo() -> tuple[str, str]:
@@ -164,7 +167,7 @@ def main() -> int:
     ap.add_argument("--forget", action="store_true")
     args = ap.parse_args()
 
-    keys = preflight(TEMPLATE, PLATFORMS)
+    keys = preflight(TEMPLATE, PLATFORMS, task=TASK)
     if args.check:
         say("preflight ok")
         return 0

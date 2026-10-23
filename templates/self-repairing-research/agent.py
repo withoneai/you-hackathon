@@ -23,7 +23,7 @@ from email.message import EmailMessage
 
 import llm
 from one_cli import (OneError, b64_write_command, die, execute, forget, load_env, preflight, recall,
-                     remember, resolve, say, short_hash)
+                     remember, resolve_all, say, short_hash)
 
 TEMPLATE = "self-repairing-research"
 PLATFORMS = ["you", "daytona", "gmail"]
@@ -128,7 +128,7 @@ def main() -> int:
     ap.add_argument("--forget", action="store_true")
     args = ap.parse_args()
 
-    keys = preflight(TEMPLATE, PLATFORMS)
+    keys = preflight(TEMPLATE, PLATFORMS, task="research a topic, chart it in a sandbox, and email the chart")
     if args.check:
         say("preflight ok")
         return 0
@@ -137,12 +137,14 @@ def main() -> int:
     if not args.to:
         die("EMAIL_TO is not set (.env) and --to was not given")
 
-    # 1. Resolve the actions this run needs, by method and path, never by a pasted id.
-    research_id = resolve("you", "research", "POST", "/v1/research")
-    create_id = resolve("daytona", "create sandbox", "POST", "/api/sandbox")
-    exec_id = resolve("daytona", "execute command in sandbox", "POST", "/toolbox/{sandboxId}/process/execute")
-    delete_id = resolve("daytona", "delete sandbox", "DELETE", "/api/sandbox/{sandboxIdOrName}")
-    send_id = resolve("gmail", "send email", "POST", "/gmail/v1/users/{userId}/messages/send")
+    # 1. Resolve the actions this run needs, by method and path, never by a pasted id. One `actions find` call.
+    research_id, create_id, exec_id, delete_id, send_id = resolve_all([
+        ("you", "research", "POST", "/v1/research"),
+        ("daytona", "create sandbox", "POST", "/api/sandbox"),
+        ("daytona", "execute command in sandbox", "POST", "/toolbox/{sandboxId}/process/execute"),
+        ("daytona", "delete sandbox", "DELETE", "/api/sandbox/{sandboxIdOrName}"),
+        ("gmail", "send email", "POST", "/gmail/v1/users/{userId}/messages/send"),
+    ])
 
     # 2. Recall what earlier runs learned about writing the chart script.
     lessons = recall(TEMPLATE, "lesson", query="chart citations sandbox", limit=5)

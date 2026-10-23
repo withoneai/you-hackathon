@@ -31,13 +31,13 @@ Each report goes through the crew end to end before the next one starts.
 
 ## What it uses from One
 
-Path C in the hackathon skill for the crew (local MCP server through `MCPServerAdapter`) and path B (the CLI) for everything deterministic. The MCP server starts with `ONE_CONNECTION_KEYS` set to the Daytona connection only and `ONE_ACTION_IDS` set to the execute action only, both resolved in code before the crew starts. The Reproducer gets `get_one_action_knowledge` and the hardened `execute_one_action` from the skill; the Filer gets only `file_linear_issue`.
+Path C in the hackathon skill for the crew (local MCP server through `MCPServerAdapter`) and path B (the CLI) for everything deterministic. The MCP server starts with `ONE_CONNECTION_KEYS` set to the Daytona connection only and `ONE_ACTION_IDS` set to the execute action only, both resolved in code before the crew starts. Of the MCP server's three tools, the Reproducer gets `find_one_actions` (to read the action's documentation) and the hardened `execute_one_action` from the skill; the Filer gets only `file_linear_issue`.
 
 The MCP server is launched through `mcp_wrapper.py`, which copies its stderr to `mcp-stderr.log` with every secret and connection key replaced first, because the server prints the whole failed request on a 4xx.
 
 ## Setup
 
-Node 18+, Python 3.10 to 3.13, a One account, connections for Gmail, Daytona, Linear and Slack.
+Node 22.23.4+, 24.22.1+ or 26.12.1+ (the One CLI and MCP server refuse older releases; setup checks), One CLI 2.9+, Python 3.10 to 3.13, a One account, connections for Gmail, Daytona, Linear and Slack.
 
 ```bash
 one add gmail

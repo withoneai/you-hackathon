@@ -25,7 +25,7 @@ Memory is One's `one mem`: preferences are keyed on their text so repeating one 
 
 ## Setup
 
-Node 18+, Python 3.10 to 3.13, a One account, connections for You.com, Notion and Slack.
+Node 22.23.4+, 24.22.1+ or 26.12.1+ (the One CLI and MCP server refuse older releases; setup checks), One CLI 2.9+, Python 3.10 to 3.13, a One account, connections for You.com, Notion and Slack.
 
 ```bash
 one add you       # key from https://api.you.com

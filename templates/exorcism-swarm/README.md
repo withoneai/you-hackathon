@@ -23,7 +23,7 @@ The code carries out each order against the feed, files it as a Linear issue and
 
 ## Setup
 
-Node 18+, Python 3.10 to 3.13 (setup picks 3.13 or 3.12 if you have them), a One account, a Parasail key, and three connections:
+Node 22.23.4+, 24.22.1+ or 26.12.1+ (the One CLI and MCP server refuse older releases; setup checks), One CLI 2.9+, Python 3.10 to 3.13 (setup picks 3.13 or 3.12 if you have them), a One account, a Parasail key, and three connections:
 
 ```bash
 one add you      # key from https://api.you.com
@@ -116,10 +116,10 @@ Every run appends one line to `out/runs.jsonl`: mode, model, feed, outbreaks, co
 ## How it is built
 
 - `main.py` runs the loop: observe a tick, run the crew, check its JSON orders, carry them out, advance. It ends with the scoreboard.
-- `tools.py` holds the skill's `one_mcp_params`, `dropping_nulls` and `harden_execute`, a `capped` wrapper (two web searches per tick), the per-agent feed tools, and the `Outbox` that sends or prints every write.
+- `tools.py` holds the skill's `one_mcp_params`, `dropping_nulls` and `harden_execute`, a `capped` wrapper (two web searches per tick), the per-agent feed tools, and the `Outbox` that sends or prints every write. Of the MCP server's three tools the Analyst gets two: `find_one_actions` to read the search action's documentation and `execute_one_action` to run it.
 - `facility_sim.py` is the mock facility: six zones, sensors, witness reports, civilians, two real outbreaks and two false alarms per seed. An outbreak left running costs civilians every tick. `python facility_sim.py --serve 8077` serves it over HTTP.
 - `feed.py` picks the source: the in-process mock, or `FEED_URL` over HTTP.
-- `parasail.py` is the model helper (shared with the Track 2 template). `one_cli.py` and `mcp_wrapper.py` are the helpers every template vendors.
+- `parasail.py` is the model helper (shared with the Track 2 template). `one_cli.py` (it finds every action id in one `one actions find` call) and `mcp_wrapper.py` are the helpers every template vendors.
 
 Design choices worth keeping:
 

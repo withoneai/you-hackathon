@@ -21,7 +21,7 @@ Every refresh (two minutes by default):
 
 ## Setup
 
-Node 18+, Python 3.10 to 3.13 (setup picks 3.13 or 3.12 if you have them), a One account, a Parasail key, and three connections:
+Node 22.23.4+, 24.22.1+ or 26.12.1+ (the One CLI and MCP server refuse older releases; setup checks), One CLI 2.9+, Python 3.10 to 3.13 (setup picks 3.13 or 3.12 if you have them), a One account, a Parasail key, and three connections:
 
 ```bash
 one add you      # key from https://api.you.com
@@ -101,9 +101,9 @@ A live run sends that Slack message to your channel and files the Linear issue, 
 - `server.py` serves the page, `/spec.json` and the `/ws` stream on one port, with the `websockets` library.
 - `static/index.html` renders the spec with vanilla JS and inline SVG. No build step. Every string from the model is set as text, never as HTML, and only `http(s)` links are rendered.
 - `one_actions.py` holds the One calls: You.com search, the Slack post, the Linear issue. A write that times out is reported and never retried blindly (see `WriteUncertain` in `one_cli.py`).
-- `parasail.py` is the model helper (shared with the Track 1 template). `one_cli.py` is the helper every template vendors.
+- `parasail.py` is the model helper (shared with the Track 1 template). `one_cli.py` is the One CLI helper every template vendors; it finds every action id in one `one actions find` call.
 
-The WebSocket protocol is documented at the top of `server.py`: `log`, `status`, `spec_begin`, `panel`, `spec_end`, plus a full `spec` for a client that connects late.
+The WebSocket protocol is documented at the top of `server.py`: `log`, `status`, `spec_begin`, `panel`, `spec_end`, plus a full `spec` for a client that connects late (or, mid-stream, the panels sent so far, so nothing shows twice).
 
 ## How to extend
 

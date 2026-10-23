@@ -27,7 +27,7 @@ import time
 from pathlib import Path
 
 from incident_logs import LogStream, fetch_remote, logs_url
-from one_cli import OneError, load_env, preflight, redact, say
+from one_cli import OneError, load_env, preflight, redact, resolve_all, say
 from parasail import ParasailError, check_model
 from server import Station
 import spec as specs
@@ -59,7 +59,15 @@ class Pipeline:
         if not a.dry_run and not has_one:
             raise OneError("ONE_SECRET is empty in .env. A live run uses You.com, Slack and Linear through One")
         if has_one:
-            self.keys = preflight("haunted-command-station", ["you"] + ([] if a.dry_run else ["slack", "linear"]), need_memory=False)
+            self.keys = preflight("haunted-command-station", ["you"] + ([] if a.dry_run else ["slack", "linear"]), need_memory=False,
+                                  task="turn incident logs and web reports into a live dashboard and alert the team")
+            # Every action this run uses, found in one `actions find` call; later lookups hit the cache.
+            wanted = [("you", "search web and news", "GET", "/v1/search")]
+            if not a.dry_run:
+                wanted += [("slack", "post message to channel", "POST", "/chat.postMessage"),
+                           ("linear", "create issue", "POST", "/graphql", "Create an Issue"),
+                           ("linear", "list accessible teams", "POST", "/graphql", "List Accessible Teams")]
+            resolve_all(wanted)
         else:
             say("ONE_SECRET is empty: no You.com search this run. Fill it in to pull live web reports.")
         if a.dry_run:
@@ -79,7 +87,11 @@ class Pipeline:
     def gather(self) -> tuple[list[dict], list[dict]]:
         url = logs_url()
         if url:
-            fresh = fetch_remote(url)
+            try:
+                fresh = fetch_remote(url)
+            except (OSError, ValueError) as exc:  # URLError, HTTPError, timeouts, a bad URL or body: try again next refresh
+                self.status("Logs", f"could not read {url}, keeping the current window: {redact(exc)[:200]}")
+                fresh = []
             seen = {x["line"] for x in self.window}
             fresh = [x for x in fresh if x["line"] not in seen]
         else:
@@ -129,8 +141,8 @@ class Pipeline:
         while True:
             try:
                 await asyncio.to_thread(self.refresh)
-            except (OneError, ParasailError) as exc:
-                say(f"  refresh failed: {exc}")
+            except Exception as exc:  # noqa: BLE001 - one failed refresh must not stop the server; the next one retries
+                say(f"  refresh failed: {redact(exc)}")
                 self.station.publish({"type": "error", "detail": redact(exc)[:300]})
             if self.args.once:
                 say("Built once (--once). Still serving; Ctrl-C to stop.")

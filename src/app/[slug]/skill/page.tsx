@@ -34,7 +34,7 @@ export default async function SkillPage({ params }: PageProps<"/[slug]/skill">) 
   const firstLine = skill.description.split("\n")[0]?.trim();
 
   return (
-    <div className={`theme-${event.theme} flex min-h-full flex-1 flex-col`}>
+    <div className="flex min-h-full flex-1 flex-col">
       <Header event={event} sectionBase={urls.pagePath} />
       <main className="flex-1">
         <div className="mx-auto max-w-[1180px] px-5 py-12 sm:px-8 md:py-16">

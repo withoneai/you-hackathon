@@ -4,16 +4,13 @@
  * its skill at content/events/<slug>/skill.md.
  */
 
-/** The design system an event page renders in. Tokens for each live in globals.css. */
-export type EventTheme = "carbon" | "paper";
-
 export type Partner = {
   slug: string;
   name: string;
   logo: string;
   /** "round" shows the mark as a 40px circle; "tile" puts a smaller mark on a bordered tile. */
   logoStyle: "round" | "tile";
-  /** A white mark that needs inverting on a light theme. */
+  /** A white mark that needs inverting in light mode. */
   mono?: boolean;
   tagline: string;
   onOne: string;
@@ -71,7 +68,6 @@ export type HackathonEvent = {
   dateShort: string;
   time: string;
   venue: string;
-  theme: EventTheme;
   /** The tools every team builds with, shown on the hub card. */
   stack: string[];
 

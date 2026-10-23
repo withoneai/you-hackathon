@@ -4,9 +4,9 @@ Vendored into every template folder so a folder runs on its own. Keep the
 copies identical; templates/check.sh compares them.
 
 Everything goes through `one --agent ...`, which prints JSON and never prompts.
-Action ids are resolved at run time by searching and picking by method and
-path (and title when several actions share a path), never pasted from a
-previous session.
+Action ids are resolved at run time with `one actions find` and picked by
+method and path (and title when several actions share a path), never pasted
+from a previous session. Needs One CLI 2.9+ on Node 22.23.4+, 24.22.1+ or 26.12.1+.
 """
 from __future__ import annotations
 
@@ -176,28 +176,63 @@ def _norm(path: str) -> str:
     return re.sub(r"\{\{?\w+\}?\}", "{}", path).rstrip("/")
 
 
-def resolve(platform: str, query: str, method: str, path: str, title: str | None = None,
-            agent_type: str = "execute") -> str:
-    """Find an action id at run time. Pick by method and path; use `title` when a path is shared."""
-    cache_key = (platform, method, _norm(path), title)
-    if cache_key in _ACTIONS:
-        return _ACTIONS[cache_key]
-    acts = one("actions", "search", platform, query, "-t", agent_type).get("actions", [])
+# What `actions find` is told the run is for, in general terms only: no names, ids or message text.
+# Each template sets its own through `preflight(task=...)`; ONE_FIND_TASK overrides it.
+TASK = "automate a workflow across connected apps"
+
+
+def _cache_key(platform: str, method: str, path: str, title: str | None) -> tuple:
+    return (platform, method.upper(), _norm(path), title)
+
+
+def _pick(platform: str, query: str, method: str, path: str, title: str | None, acts: list[dict]) -> dict | None:
     hits = [a for a in acts if a["method"].upper() == method.upper() and _norm(a["path"]) == _norm(path)]
+    hits = list({a["actionId"]: a for a in hits}.values())
     if title and len(hits) > 1:
         hits = [a for a in hits if a["title"].strip().lower() == title.strip().lower()]
-    if not hits and agent_type == "execute":
-        return resolve(platform, query, method, path, title, agent_type="knowledge")
-    if not hits:
-        seen = "; ".join(f"{a['method']} {a['path']} ({a['title']})" for a in acts) or "none"
-        raise OneError(f"no {platform} action matched {method} {path} for query '{query}'. Search returned: {seen}")
     if len(hits) > 1:
         seen = "; ".join(a["title"] for a in hits)
         raise OneError(f"{len(hits)} {platform} actions match {method} {path}; pass title=. Candidates: {seen}")
-    _ACTIONS[cache_key] = hits[0]["actionId"]
-    _PATHS[hits[0]["actionId"]] = hits[0]["path"]
-    _METHODS[hits[0]["actionId"]] = hits[0]["method"].upper()
-    return hits[0]["actionId"]
+    return hits[0] if hits else None
+
+
+def resolve_all(wanted: list[tuple], task: str | None = None, agent_type: str = "execute") -> list[str]:
+    """Find several action ids in one `actions find` call.
+
+    Each item is (platform, query, method, path) or (platform, query, method, path, title). The
+    answers come back one per pair, in order; every candidate (selected, alsoSelected, alternatives)
+    is matched by method and path. Docs are left out here (`--no-knowledge`); `knowledge` loads them.
+    """
+    task = task or TASK
+    items = [(w + (None,))[:5] for w in wanted]
+    todo = [w for w in items if _cache_key(w[0], w[2], w[3], w[4]) not in _ACTIONS]
+    todo = list(dict.fromkeys(todo))
+    for start in range(0, len(todo), 10):  # `actions find` takes up to 10 pairs
+        batch = todo[start:start + 10]
+        pairs = [x for w in batch for x in (w[0], w[1])]
+        answers = one("actions", "find", *pairs, "--task", task, "--no-knowledge", "-t", agent_type,
+                      retries=2).get("answers", [])
+        missing = []
+        for (platform, query, method, path, title), ans in zip(batch, answers + [{}] * len(batch)):
+            acts = [*ans.get("selected", []), *ans.get("alsoSelected", []), *ans.get("alternatives", [])]
+            hit = _pick(platform, query, method, path, title, acts)
+            if not hit:
+                if agent_type == "execute":
+                    missing.append((platform, query, method, path, title))
+                    continue
+                seen = "; ".join(f"{a['method']} {a['path']} ({a['title']})" for a in acts) or "none"
+                raise OneError(f"no {platform} action matched {method} {path} for query '{query}'. Find returned: {seen}")
+            _ACTIONS[_cache_key(platform, method, path, title)] = hit["actionId"]
+            _PATHS[hit["actionId"]] = hit["path"]
+            _METHODS[hit["actionId"]] = hit["method"].upper()
+        if missing:
+            resolve_all(missing, task, agent_type="knowledge")
+    return [_ACTIONS[_cache_key(w[0], w[2], w[3], w[4])] for w in items]
+
+
+def resolve(platform: str, query: str, method: str, path: str, title: str | None = None, task: str | None = None) -> str:
+    """Find one action id at run time. Pick by method and path; use `title` when a path is shared."""
+    return resolve_all([(platform, query, method, path, title)], task)[0]
 
 
 def _canon(name: str) -> str:
@@ -232,7 +267,8 @@ def _remap_path_vars(action_id: str, path_vars: dict) -> dict:
 def knowledge(platform: str, action_id: str) -> str:
     """The action's docs. Read before the first execute of every action."""
     if action_id not in _KNOWLEDGE:
-        _KNOWLEDGE[action_id] = one("actions", "knowledge", platform, action_id).get("knowledge", "")
+        loaded = one("actions", "load", action_id, retries=2).get("loaded") or [{}]
+        _KNOWLEDGE[action_id] = loaded[0].get("knowledge", "")
     return _KNOWLEDGE[action_id]
 
 
@@ -284,8 +320,8 @@ def b64_write_command(path: str, content: str) -> str:
 
 # --- .onerc allowlist for the CLI --------------------------------------------
 
-def ensure_onerc(keys: list[str]) -> None:
-    """Set ONE_CONNECTION_KEYS in ./.onerc to exactly `keys`, keep other lines, write atomically, verify."""
+def _write_onerc(keys: list[str] | None) -> list[str]:
+    """Rewrite ./.onerc with ONE_CONNECTION_KEYS set to `keys` (None drops the line). Returns the old keys."""
     lines: list[str] = []
     previous: list[str] = []
     if ONERC.exists():
@@ -294,12 +330,28 @@ def ensure_onerc(keys: list[str]) -> None:
                 previous = [k.strip() for k in line.split("=", 1)[1].split(",") if k.strip()]
             else:
                 lines.append(line)
-    wanted = sorted(set(keys))
-    lines.append("ONE_CONNECTION_KEYS=" + ",".join(wanted))
+    if keys is not None:
+        lines.append("ONE_CONNECTION_KEYS=" + ",".join(keys))
     fd, tmp = tempfile.mkstemp(dir=".", prefix=".onerc.")
     with os.fdopen(fd, "w") as fh:
-        fh.write("\n".join(lines) + "\n")
+        fh.write("\n".join(lines) + "\n" if lines else "")
     os.replace(tmp, ONERC)
+    return previous
+
+
+def clear_onerc() -> None:
+    """Drop the allowlist a previous run wrote, so connection lookups see the whole account again.
+
+    Without this, a dry run that narrowed .onerc to You.com leaves a live run unable to find Slack.
+    """
+    if ONERC.exists():
+        _write_onerc(None)
+
+
+def ensure_onerc(keys: list[str]) -> None:
+    """Set ONE_CONNECTION_KEYS in ./.onerc to exactly `keys`, keep other lines, write atomically, verify."""
+    wanted = sorted(set(keys))
+    previous = _write_onerc(wanted)
     if previous and sorted(set(previous)) != wanted:
         say(f"narrowed .onerc from {len(previous)} to {len(wanted)} connection keys")
     effective = one("list", "--limit", "100")
@@ -423,13 +475,19 @@ def forget(template: str, rtypes: list[str]) -> int:
 
 # --- preflight -------------------------------------------------------------
 
-def preflight(template: str, platforms: list[str], need_memory: bool = True) -> dict[str, str]:
-    """Check the toolchain, the account and the connections; write the allowlist; return platform -> key."""
-    for binary, fix in (("node", "install Node 18+"), ("one", "npm i -g @withone/cli")):
+def preflight(template: str, platforms: list[str], need_memory: bool = True, task: str | None = None) -> dict[str, str]:
+    """Check the toolchain, the account and the connections; write the allowlist; return platform -> key.
+
+    `task` is the run's one-line purpose, sent with every `actions find`.
+    """
+    global TASK
+    TASK = os.environ.get("ONE_FIND_TASK") or task or TASK
+    for binary, fix in (("node", "install Node 22.23.4+, 24.22.1+ or 26.12.1+"), ("one", "npm i -g @withone/cli")):
         if not shutil.which(binary):
             raise OneError(f"`{binary}` is not on PATH: {fix}")
     who = one("whoami")
     say(f"One account: {who.get('user', {}).get('email')} ({who.get('env')}, {who.get('apiBase')})")
+    clear_onerc()
     keys: dict[str, str] = {}
     for platform in platforms:
         keys[platform] = connection(platform)

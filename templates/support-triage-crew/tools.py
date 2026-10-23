@@ -1,7 +1,7 @@
 """Tools for the support triage crew.
 
 Two kinds. `one_mcp_params`, `dropping_nulls` and `harden_execute` are the
-wrappers from the hackathon skill, so the crew can use One's MCP tools inside
+wrappers from the hackathon skill (with nested nulls dropped too), so the crew can use One's MCP tools inside
 CrewAI. The `@tool` functions below are deterministic: anything that must be
 exact (a GraphQL mutation, a Slack message) is code, not a model guess.
 
@@ -55,10 +55,22 @@ def one_mcp_params(connection_keys: list[str], action_ids: list[str]) -> StdioSe
     return StdioServerParameters(command=sys.executable, args=["mcp_wrapper.py"], env=env)
 
 
+def _strip_nulls(value):
+    # CrewAI fills every optional field with None, nested ones too (find_one_actions' `load` items),
+    # and the MCP server rejects a null where it expects a string or a boolean.
+    if isinstance(value, dict):
+        return {k: _strip_nulls(v) for k, v in value.items() if v is not None}
+    if isinstance(value, list):
+        return [_strip_nulls(v) for v in value]
+    if hasattr(value, "model_dump"):
+        return _strip_nulls(value.model_dump())
+    return value
+
+
 def dropping_nulls(tools):
     for t in tools:
         inner = t._run
-        object.__setattr__(t, "_run", (lambda f: lambda **kw: f(**{k: v for k, v in kw.items() if v is not None}))(inner))
+        object.__setattr__(t, "_run", (lambda f: lambda **kw: f(**_strip_nulls(kw)))(inner))
     return tools
 
 

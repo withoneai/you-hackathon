@@ -31,7 +31,7 @@ import time
 from pathlib import Path
 
 from feed import FeedError, open_feed
-from one_cli import OneError, load_env, preflight, redact, resolve, say
+from one_cli import OneError, load_env, preflight, redact, resolve, resolve_all, say
 from parasail import ParasailError, check_model, model_id
 
 OUT = Path("out")
@@ -39,7 +39,7 @@ ZONE_ACTIONS = ("exorcise", "evacuate")
 MAX_ORDERS_PER_TICK = 3
 
 RULES = (
-    "Before executing any One action, call get_one_action_knowledge and read it. "
+    "Before executing any One action, load its documentation with find_one_actions and read it. "
     "Omit optional tool parameters entirely; never pass null. "
     "Never call execute_one_action with an empty dataJson when the action needs a body. "
     "If a call fails twice with the same error, change the request based on the error instead of repeating it. "
@@ -65,7 +65,8 @@ def build_crew(llm, rnd, outbox, web_tools, search: dict, verbose: bool):
     if web_tools:
         web_note = (
             f" To check a sighting against the outside world, use One: the You.com search action is '{search['action_id']}' "
-            f"on platform 'you' with connectionKey '{search['key']}'. Read its knowledge once, then call execute_one_action with "
+            f"on platform 'you' with connectionKey '{search['key']}'. Read its documentation once by calling find_one_actions with "
+            f"load set to exactly [{{\"action_id\": \"{search['action_id']}\"}}], then call execute_one_action with "
             "queryParamsJson set to exactly {\"query\": \"<terms>\", \"count\": 3}. At most two searches per tick.")
     analyst = Agent(
         role="Analyst",
@@ -246,9 +247,19 @@ def run(args) -> int:
     platforms = ["you"] + ([] if args.dry_run else ["slack", "linear"])
     keys: dict = {}
     if has_one:
-        keys = preflight("exorcism-swarm", platforms, need_memory=False)
+        keys = preflight("exorcism-swarm", platforms, need_memory=False,
+                         task="watch facility sensors, check sightings on the web, and alert the team")
     else:
         say("ONE_SECRET is empty: dry run without You.com search. Fill it in to give the Analyst the web.")
+
+    if keys:
+        # Every action this run uses, found in one `actions find` call; later lookups hit the cache.
+        wanted = [("you", "search web and news", "GET", "/v1/search")]
+        if not args.dry_run:
+            wanted += [("slack", "post message to channel", "POST", "/chat.postMessage"),
+                       ("linear", "create issue", "POST", "/graphql", "Create an Issue"),
+                       ("linear", "list accessible teams", "POST", "/graphql", "List Accessible Teams")]
+        resolve_all(wanted)
 
     if args.dry_run:
         outbox = Outbox(dry_run=True, channel=os.environ.get("SLACK_CHANNEL", ""))
@@ -275,18 +286,20 @@ def run(args) -> int:
     rnd = Round()
     timings: list = []
     observed_at: dict = {}
+    # Wrapped once, reset every tick: wrapping again each tick would stack the caps on the same tools.
+    budget = {"n": 0}
     with adapter as mcp_tools:
         web_tools = []
         if mcp_tools:
-            web_tools = [t for t in harden_execute(dropping_nulls(list(mcp_tools)))
-                         if t.name in ("get_one_action_knowledge", "execute_one_action")]
+            web_tools = capped([t for t in harden_execute(dropping_nulls(list(mcp_tools)))
+                                if t.name in ("find_one_actions", "execute_one_action")], 2, budget)
         while not feed.done:
             obs = feed.observe()
             rnd.update(obs)
             observed_at[obs["tick"]] = time.time()
             say(f"\ntick {obs['tick']}/{obs.get('ticks_total')}: the swarm is looking")
-            budget = {"n": 0}
-            crew = build_crew(llm, rnd, outbox, capped(web_tools, 2, budget), search, args.verbose)
+            budget["n"] = 0
+            crew = build_crew(llm, rnd, outbox, web_tools, search, args.verbose)
             try:
                 out = crew.kickoff()
                 orders, held = parse_orders(getattr(out, "raw", str(out)), obs.get("zones", []))
