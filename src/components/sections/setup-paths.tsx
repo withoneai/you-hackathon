@@ -160,7 +160,7 @@ const res = await fetch(
     headers: {
       "x-one-secret": process.env.ONE_SECRET!,
       "x-one-connection-key": process.env.ONE_YOU_CONNECTION_KEY!,
-      "x-one-action-id": process.env.ONE_YOU_SEARCH_ACTION_ID!, // from \`one actions search\`
+      "x-one-action-id": process.env.ONE_YOU_SEARCH_ACTION_ID!, // from \`one actions find\`
     },
   },
 );
@@ -264,11 +264,11 @@ function CliPanel({ event }: { event: HackathonEvent }) {
       <div className="min-w-0">
         <h3 className="text-[19px] font-medium text-foreground">The CLI</h3>
         <p className="mt-2 text-15 text-secondary">
-          Four commands, JSON output with <code className="font-mono text-foreground">--agent</code>.
+          Three commands, JSON output with <code className="font-mono text-foreground">--agent</code>.
           Also how you connect platforms.
         </p>
         <TerminalFrame className="mt-5" title="setup · zsh">
-          <Step n={1} title="Install the CLI" help="Node 18+.">
+          <Step n={1} title="Install the CLI" help="Node 22.23.4+, 24.22.1+ or 26.12.1+.">
             <CommandRow action={<CopyButton text="npm i -g @withone/cli" size="sm" />}>
               npm i -g @withone/cli
             </CommandRow>
@@ -331,11 +331,11 @@ function ApiPanel() {
           </li>
           <li>
             <code className="font-mono text-foreground">x-one-action-id</code> from{" "}
-            <code className="font-mono">one --agent actions search</code>. The proxy answers 400 without it.
+            <code className="font-mono">one --agent actions find</code>. The proxy answers 400 without it.
           </li>
           <li>
             The path after <code className="font-mono">/v1/passthrough/</code> is the action&apos;s own
-            path from its knowledge. Read it first.
+            path from its docs, which come back with it. Read them first.
           </li>
         </ul>
         <a
@@ -398,7 +398,7 @@ export function SetupPaths({ event }: { event: HackathonEvent }) {
           <SectionIntro
             eyebrow="Get started"
             title="Three ways to use One."
-            lede="Same account, same four tools. Choose by where your agent lives."
+            lede="Same account, same three tools. Choose by where your agent lives."
           />
         </Reveal>
 

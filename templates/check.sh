@@ -13,13 +13,11 @@ for f in one_cli.py llm.py setup.sh; do
     if ! cmp -s "$ref" "$d/$f"; then bad "$d/$f differs from $ref"; fi
   done
 done
-# The Halloween templates (SF) share one_cli.py with the NYC four, mcp_wrapper.py with the support
-# triage crew, and parasail.py and setup.sh with each other. They have no llm.py: Parasail is the model.
-for d in exorcism-swarm haunted-command-station; do
-  cmp -s self-repairing-research/one_cli.py "$d/one_cli.py" || bad "$d/one_cli.py differs from self-repairing-research/one_cli.py"
-done
+# The Halloween templates (SF) share mcp_wrapper.py with the support triage crew, and one_cli.py,
+# parasail.py and setup.sh with each other. Their one_cli.py moved to `one actions find` (One CLI 2.9),
+# so it no longer matches the NYC four. They have no llm.py: Parasail is the model.
 cmp -s support-triage-crew/mcp_wrapper.py exorcism-swarm/mcp_wrapper.py || bad "exorcism-swarm/mcp_wrapper.py differs from support-triage-crew/mcp_wrapper.py"
-for f in parasail.py setup.sh; do
+for f in one_cli.py parasail.py setup.sh; do
   cmp -s "exorcism-swarm/$f" "haunted-command-station/$f" || bad "haunted-command-station/$f differs from exorcism-swarm/$f"
 done
 

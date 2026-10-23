@@ -1,7 +1,7 @@
 ---
 name: one-hackathon
 description: |
-  Build with One at You.com's "Hack With YOU: Halloween Edition" (San Francisco, October 28, 2026). Every team builds with You.com, One, CrewAI and Parasail. One connects an AI agent to 1,000+ apps (Gmail, Slack, Notion, GitHub, Linear, You.com and more) through four tools with managed auth, access control and an audit log. Use this skill to set One up (remote MCP server, CLI, local MCP server, passthrough API or SDK), to take any action in a third-party app through the list → search → knowledge → execute loop, to use You.com through One, to run a CrewAI crew on One's tools with a Parasail model, to build for The Exorcism Protocol or The Haunted Dashboard tracks, or to find the One dashboard, docs, logs, coupon or Discord.
+  Build with One at You.com's "Hack With YOU: Halloween Edition" (San Francisco, October 28, 2026). Every team builds with You.com, One, CrewAI and Parasail. One connects an AI agent to 1,000+ apps (Gmail, Slack, Notion, GitHub, Linear, You.com and more) through three tools with managed auth, access control and an audit log. Use this skill to set One up (remote MCP server, CLI, local MCP server, passthrough API or SDK), to take any action in a third-party app through the list → find → execute loop, to use You.com through One, to run a CrewAI crew on One's tools with a Parasail model, to build for The Exorcism Protocol or The Haunted Dashboard tracks, or to find the One dashboard, docs, logs, coupon or Discord.
 ---
 
 # Build with One (hackathon edition)
@@ -21,15 +21,18 @@ Use it when the user wants to:
 
 Do not use it for calling the You.com API directly with its own SDK and key with no One involved, or for CrewAI or Parasail questions that have nothing to do with tools, integrations or this hackathon.
 
-One connects an AI agent to every app a builder needs through **four tools**. No matter how many platforms you connect, it stays four tools, so *search* is how the agent finds things, not a giant tool list. One holds the OAuth tokens and API keys server-side, proxies every call, enforces the access you granted, and logs each request so you can see exactly what your agent did.
+One connects an AI agent to every app a builder needs through **three tools**. No matter how many platforms you connect, it stays three tools, so *find* is how the agent finds things, not a giant tool list. One holds the OAuth tokens and API keys server-side, proxies every call, enforces the access you granted, and logs each request so you can see exactly what your agent did.
 
 ```text
-list_one_integrations  →  search_one_platform_actions  →  get_one_action_knowledge  →  execute_one_action
-      what am I               what can I do here?             how do I do it?              do it.
-      connected to?
+list_one_integrations  →  find_one_actions             →  execute_one_action
+      what am I               which action does each         do it.
+      connected to?           step need, and how is it
+                              called?
 ```
 
-The CLI (`one list`, `one actions search`, `one actions knowledge`, `one actions execute`) is the same loop from a terminal. Everything below applies to both.
+The CLI (`one list`, `one actions find`, `one actions execute`, plus `one actions load` for more of an action's docs) is the same loop from a terminal. Everything below applies to both.
+
+> Older guides and agents mention `search_one_platform_actions`, `get_one_action_knowledge`, `one actions search` and `one actions knowledge`. Those were replaced by `find_one_actions` / `one actions find` (and `one actions load`) on every server and the CLI; the old names now fail with "unknown tool" or "unknown command".
 
 ## Links you will need
 
@@ -63,7 +66,7 @@ Platform slugs are lowercase kebab-case: `gmail`, `slack`, `google-calendar`, `h
 | A terminal, a shell script, a cron job, or you need to connect platforms | **B. The CLI** | `one add <platform>` lives here; `--agent` gives JSON for anything that can run a command |
 | A Python or Node framework such as CrewAI, LangChain, Mastra, the Vercel AI SDK | **C. Local MCP server** (`npx -y @withone/mcp` + `ONE_SECRET`) | Frameworks cannot complete a browser OAuth flow; the local server takes a key from the environment |
 | Application code you are shipping | **D. Passthrough API or `@withone/sdk`** | Three headers, no per-platform tokens or refresh logic in your code |
-| A product whose **users** should connect **their own** apps to it | **E. One Connect** (`@withone/connect` + two backend routes) | Each user grants your app a scoped, revocable token to their own One connections; One enforces the grant on every call. See [Embed One in your product](#embed-one-in-your-product-one-connect) |
+| A product whose **users** should connect **their own** apps to it | **E. One Connect** (`@withone/connect` + two backend routes) | Each user grants your app scoped, revocable access to their own One connections; One enforces the grant on every call. See [Embed One in your product](#embed-one-in-your-product-one-connect) |
 
 You can mix them. They share the same account, the same connections and the same access rules.
 
@@ -101,11 +104,11 @@ Some clients omit `type` and take the URL alone; UI-based clients (custom connec
 
 To change what a client may access later: clear its One authentication in the client (Claude Code: `/mcp` → One → Clear authentication) and sign in again.
 
-If the four tools do not appear, or every call returns 401, the fix is always the same: re-authenticate the One server in that client.
+If the three tools do not appear, or every call returns 401, the fix is always the same: re-authenticate the One server in that client.
 
 ### B. The CLI
 
-Node 18+. The CLI auto-updates silently after most commands.
+Node **22.23.4+, 24.22.1+ or 26.12.1+** (Node 18, 20, 23 and 25 are refused, and so are 22, 24 and 26 below those patch releases: they still trust compromised certificates). Check with `node --version`; `brew upgrade node` or `nvm install 24` fixes it. The CLI auto-updates silently after most commands.
 
 ```bash
 npm i -g @withone/cli
@@ -118,9 +121,11 @@ one whoami                         # user, organization, project, config scope, 
 Always put `--agent` right after `one` for JSON output with no colours, spinners or prompts. Every error comes back as `{"error": "..."}`.
 
 ```bash
-one --agent list                                            # connections, keys, and your access on each
-one --agent actions search <platform> "<query>" -t execute  # find an action (-t knowledge when writing code)
-one --agent actions knowledge <platform> <actionId>         # read its docs (REQUIRED before execute)
+one --agent list                                    # connections, keys, and your access on each
+one --agent actions find <platform> "<intent>" [<platform> "<intent>" ...] \
+    --task "<the whole task, in general terms>" --ai-model <your-model>
+                                                    # the action for each step, with its docs (-t knowledge when writing code)
+one --agent actions load <actionId> [--section <name> | --full | --toc]   # more of a doc the digest left out
 one --agent actions execute <platform> <actionId> <connectionKey> [flags]
 ```
 
@@ -132,11 +137,11 @@ Helpful extras: `one guide [overview|actions|flows|relay|cache|sync|memory|all]`
 
 ### C. Local MCP server (frameworks)
 
-Same four tools, run as a child process, authenticated with a key from the environment instead of a browser.
+Same three tools, run as a child process, authenticated with a key from the environment instead of a browser. Same Node requirement as the CLI.
 
 ```bash
 export ONE_SECRET=sk_live_...      # same key the CLI uses (app.withone.ai/settings/api-keys)
-npx -y @withone/mcp --help         # downloads it once so the first real start is fast
+npx -y @withone/mcp </dev/null >/dev/null 2>&1   # downloads it once, then exits, so the first real start is fast
 ```
 
 Client config (Claude Desktop, Cursor, or any stdio client):
@@ -163,9 +168,9 @@ Every action is also a plain HTTP call through One's proxy. Base URL `https://ap
 |---|---|---|
 | `x-one-secret` | your key | https://app.withone.ai/settings/api-keys (`sk_live_…` / `sk_test_…`) |
 | `x-one-connection-key` | the connection to act on | `one --agent list` (`live::you::default::…`) |
-| `x-one-action-id` | the action's id | `one --agent actions search <platform> "<query>"` |
+| `x-one-action-id` | the action's id | `one --agent actions find <platform> "<intent>"` |
 
-Without `x-one-action-id` the proxy answers 400. The path after `/v1/passthrough/` is the action's own path, which you get from its knowledge.
+Without `x-one-action-id` the proxy answers 400. The path after `/v1/passthrough/` is the action's own path, which comes back with it from `actions find`.
 
 ```ts
 const res = await fetch(
@@ -192,11 +197,11 @@ const res = await one
   .run(gmail.createUsersDraft({ path: { userId: "me" }, body: { message: { raw: base64Email } } }));
 ```
 
-Typed modules exist for 34 platforms in 0.4.0 (gmail, slack, github, linear, notion, hubspot, stripe, googleCalendar, googleSheets, discord, openai, anthropic and more). **There is no typed `you` module yet.** Reach it with `runRaw`, the escape hatch that still handles auth, the base URL, retries and parsing. `systemId` is the same id `one actions search` returns as `actionId` (`conn_mod_def::…`); `method` and `path` come from the same result:
+Typed modules exist for 34 platforms in 0.6.0 (gmail, slack, github, linear, notion, hubspot, stripe, googleCalendar, googleSheets, discord, openai, anthropic and more). **There is no typed `you` module yet.** Reach it with `runRaw`, the escape hatch that still handles auth, the base URL, retries and parsing. `systemId` is the same id `one actions find` returns as `actionId` (`conn_mod_def::…`); `method` and `path` come from the same result:
 
 ```ts
 const search = await one.connection(process.env.ONE_YOU_CONNECTION_KEY!).runRaw({
-  systemId: "<actionId from one actions search, e.g. conn_mod_def::…>",
+  systemId: "<actionId from one actions find, e.g. conn_mod_def::…>",
   method: "GET",
   path: "/v1/search",
   query: { query: "haunted house sightings", count: 5 },
@@ -226,21 +231,20 @@ one --agent list --search you
 
 Remove a connection with `one --agent connection delete <connectionKey>`.
 
-## The four-tool loop
+## The three-tool loop
 
 | Tool | CLI | What it does |
 |---|---|---|
 | `list_one_integrations` | `one list` | Active connections, each with its `platform`, `key` and the `access` it allows |
-| `search_one_platform_actions` | `one actions search` | Up to 5 candidate actions on one platform for a plain-language query: `actionId`, `title`, `method`, `path` |
-| `get_one_action_knowledge` | `one actions knowledge` | The real docs for one action: required and optional parameters, exact names and casing, enums, where each value goes (path / query / body / header), the response shape, gotchas |
+| `find_one_actions` | `one actions find` (and `one actions load`) | One call for every step of the task, across platforms (1 to 10 `requests`, each a `platform` and a short `intent`). For each it returns the chosen action (`actionId`, `title`, `method`, `path`), a few alternatives, and the action's documentation: required and optional parameters, exact names and casing, enums, where each value goes (path / query / body / header), the response shape, gotchas. Large docs come back as a digest; call again with `load` (CLI: `one actions load <actionId> --section <name>` / `--full`) for what it left out or for an alternative's docs |
 | `execute_one_action` | `one actions execute` | Runs the action against the live account |
 
 Follow it in order. Skipping a step is where calls fail.
 
 1. **List first.** Confirm the platform is connected and grab its key. Only use keys returned here; never invent one. If the platform is missing, say so and point the user at `one add <platform>` or https://app.withone.ai. Do not fall back to a raw HTTP request, a scraped page, or a different platform that happens to be connected.
-2. **Search by outcome.** `query` describes what you want to happen ("send an email", "create an issue", "search web and news"), not an endpoint name. Pass `agent_type: "execute"` when the user wants something done, `"knowledge"` when they want code or documentation. If nothing fits, broaden the query. When several actions share a title, pick by `method` and `path`.
-3. **Read the knowledge. Always.** It is the schema. A field name that looks obvious and is not in the knowledge is invented, and produces a 400, or worse, a 200 that wrote the wrong thing. Never hardcode an action ID across sessions; resolve it at build time.
-4. **Execute with values where the knowledge says they go.** Path variables in the path-variables argument, query params in query params, body fields in the body. Do not hand-build URLs or stuff path values into the body.
+2. **Find every step at once.** Send one `requests` entry per operation the task needs, on any platforms, with an `intent` that describes the operation alone ("send an email", "create an issue", "search web and news"), never its data (no names, ids or message text). Send `task` (the whole task in one general line) and `ai_model` (your model name) with every find; they help tell similar actions apart. When several actions share a title, pick by `method` and `path`, and if the chosen one is wrong, `load` an alternative's docs.
+3. **Read the documentation it returned. Always.** It is the schema. A field name that looks obvious and is not in the docs is invented, and produces a 400, or worse, a 200 that wrote the wrong thing. If the digest says a section was left out and you need it, `load` it. Never hardcode an action ID across sessions; resolve it at build time.
+4. **Execute with values where the docs say they go.** Path variables in the path-variables argument, query params in query params, body fields in the body. Do not hand-build URLs or stuff path values into the body.
 
 ### Parameter names differ by server
 
@@ -248,8 +252,9 @@ The remote server (and the Claude Code plugin) uses **snake_case**; the local `@
 
 | Concept | Remote `https://mcp.withone.ai/mcp` | Local `npx @withone/mcp` | CLI |
 |---|---|---|---|
-| Platform slug | `platform` (search, knowledge) | `platform` (search, knowledge, **and execute**) | positional |
-| Search intent | `agent_type`: `"execute"` / `"knowledge"` | `agentType` | `-t execute` / `-t knowledge` |
+| Find | `requests: [{platform, intent}]`, `task`, `ai_model` | same | `<platform> "<intent>"` pairs, `--task`, `--ai-model` |
+| More docs | `load: [{action_id, section?, full?, toc?}]` | same | `one actions load <actionId> --section/--full/--toc` |
+| Platform slug on execute | none | `platform` (required) | positional |
 | Action id | `action_id` | `actionId` | positional |
 | Connection key | `connection_key` | `connectionKey` | positional |
 | Request body | `data` | `data` | `-d` |
@@ -258,8 +263,9 @@ The remote server (and the Claude Code plugin) uses **snake_case**; the local `@
 | Extra headers | `headers` | `headers` | `--headers` |
 | Form-encoded body | `is_form_url_encoded: true` | `isFormUrlEncoded: true` | `--form-url-encoded` |
 | Multipart body | not supported yet | `isFormData: true` | `--form-data` |
+| Your model name | `ai_model` | not on execute | none |
 
-The remote `execute_one_action` has no `platform` parameter; the connection key identifies it. The local server requires `platform`, `actionId` and `connectionKey` on execute (verified against `@withone/mcp` 1.2.4). The knowledge text ends with a "How to execute this action" block written in camelCase; that describes the concepts, the tool schema is what you send.
+`find_one_actions` takes the same snake_case names on both servers. The remote `execute_one_action` has no `platform` parameter; the connection key identifies it. The local server requires `platform`, `actionId` and `connectionKey` on execute (verified against `@withone/mcp` 2.3.2). The documentation ends with a "How to execute this action" block written in camelCase; that describes the concepts, the tool schema is what you send.
 
 ### Read the access field before you plan
 
@@ -267,18 +273,18 @@ The remote `execute_one_action` has no `platform` parameter; the connection key 
 
 - `{"policy": "full"}`: every action on the connection.
 - `{"policy": "methods", "methods": ["GET"]}`: only those HTTP methods. `["GET"]` is read-only; plan a read-only answer and say so.
-- `{"policy": "actions", "actions": [{"actionId", "title", "method"}, …]}`: exactly those actions. Use one directly and skip search.
+- `{"policy": "actions", "actions": [{"actionId", "title", "method"}, …]}`: exactly those actions. Use one directly; `find_one_actions` is only needed for its docs.
 
-Two more fields appear only when relevant: `"knowledgeOnly": true` (execute is disabled; read knowledge and write code instead) and `"unresolvedActionIds": [...]` (allowlisted ids that could not be looked up; treat as unavailable). If `execute_one_action` is not in your tool list at all, the user chose knowledge-only mode on the consent screen.
+Two more fields appear only when relevant: `"knowledgeOnly": true` (execute is disabled; read the docs and write code instead) and `"unresolvedActionIds": [...]` (allowlisted ids that could not be looked up; treat as unavailable). If `execute_one_action` is not in your tool list at all, the user chose knowledge-only mode on the consent screen.
 
 ### Rules that keep calls reliable
 
-- Always use the exact `actionId` from search results or `access.actions`. Never guess or construct one.
+- Always use the exact `actionId` from a find answer or `access.actions`. Never guess or construct one.
 - Platform names are lowercase kebab-case.
 - Omit optional parameters you do not need. Never send `null` for them.
 - Before the first **write** in a task (send, create, update, delete, pay), state the platform, the action and the target in one line and let the user stop you. Reads need no confirmation. Never write to a platform the user did not ask you to touch.
 - Do not retry a write blindly. A timeout or a gateway error can hide a write that went through. Read first (fetch the record, list the last few messages) and send the write again only when it is missing. For reads, if a call fails twice with the same error, change the request based on the error instead of repeating it.
-- List actions are paginated. Fetch a bounded page (`limit`, `cursor`, `page`, `pageToken`, whichever the knowledge names), summarize it, and say it was a page.
+- List actions are paginated. Fetch a bounded page (`limit`, `cursor`, `page`, `pageToken`, whichever the docs name), summarize it, and say it was a page.
 - Chain reads before writes across platforms: pull from every source, reconcile, then write once per target.
 - Report the created record's id or link, the count read, or the platform's response, so the user can verify.
 
@@ -288,7 +294,7 @@ Most errors are the platform's own response passed through unchanged, so read th
 
 | Status | Meaning | Do |
 |---|---|---|
-| 400 / 422 | Parameters do not match the schema | Re-read the knowledge, fix the field or its location, retry once |
+| 400 / 422 | Parameters do not match the schema | Re-read the action's docs, fix the field or its location, retry once |
 | 401 / 403 | Connection lacks permission, scope, or needs re-auth; or `access` forbids it | Tell the user which platform; `one add <platform>` again or re-authenticate; do not retry |
 | 404 | The id does not exist on that account | Verify with a read before assuming the action is wrong |
 | 429 | Rate limited | Back off; batch instead of looping |
@@ -319,18 +325,14 @@ The two runtimes read their scoping from different places. Getting this wrong is
 | `ONE_ACTION_IDS` (only these actions are visible and executable) | environment | `.onerc` or `one config` only |
 | `ONE_KNOWLEDGE_AGENT=true` (removes `execute_one_action`; code-generation mode) | environment | `.onerc` or `one config` only |
 | `ONE_BASE_URL` | environment (only here; never set it to an empty string) | ignored; the CLI uses `apiBase` from its config |
-| `ONE_CACHE_TTL` (knowledge/search cache, default 1 hour; execution is never cached) | ignored | environment |
+| `ONE_CACHE_TTL` (action documentation cache, default 1 hour; execution is never cached) | ignored | environment |
 | `.onerc` file (KEY=VALUE, working directory only) | ignored | read |
 
 So for a crew or a script that starts `npx -y @withone/mcp`, export the variables. For the CLI, write a `.onerc` next to your project (add it to `.gitignore`) or run `one config`, which writes the same scoping into every installed agent config at once; `one config path` shows which config is active. The remote server takes the same choices from the consent screen and enforces them server-side.
 
-> **Known issues in `@withone/mcp` 1.2.4 (verified 2026-09-09; re-check for a newer release).**
-> 1. `execute_one_action` builds the outgoing request as `{ ...serverHeaders, "x-one-connection-key": connectionKey, "x-one-action-id": id, ...headers }`, so the caller's `headers` argument is applied **after** the `ONE_CONNECTION_KEYS`, `ONE_ACTION_IDS` and `ONE_PERMISSIONS` checks and can override `x-one-connection-key`, `x-one-action-id` or `x-one-secret`. An agent that puts a non-allowlisted connection key in `headers` reaches it. Treat the allowlist as a guardrail against an agent's mistakes, not as a security boundary, keep the crew's task descriptions away from the `headers` parameter, and use the CrewAI wrapper below, which strips any `x-one-*` header. The remote server enforces the consent grant server-side and is not affected by this.
-> 2. When a passthrough call fails (4xx/5xx), the local server logs the whole error object, including the plaintext `x-one-secret`, to **stderr**. The tool result is redacted; the log line is not. Do not ship the server's stderr to shared logs.
-
 ## You.com via One
 
-One exposes You.com as the platform `you`. Connect it once and your agent searches the web, runs deep research, and reads pages through the same four tools it uses for every other app. Get a key at https://api.you.com, then `one add you` and `one --agent list --search you`.
+One exposes You.com as the platform `you`. Connect it once and your agent searches the web, runs deep research, and reads pages through the same three tools it uses for every other app. Get a key at https://api.you.com, then `one add you` and `one --agent list --search you`.
 
 | Family | What it gives you | Fields go in |
 |---|---|---|
@@ -340,21 +342,21 @@ One exposes You.com as the platform `you`. Connect it once and your agent search
 | Finance Research | Same as Research, tuned for public companies, stocks, markets | body |
 | Account | Your remaining You.com balance | none |
 
-Never hardcode an action ID. Find it at build time and read its knowledge:
+Never hardcode an action ID. Find it at build time; the answer carries its documentation:
 
 ```bash
-one --agent actions search you "search web and news" -t execute
-one --agent actions knowledge you <actionId>
+one --agent actions find you "search web and news" --task "research a topic on the web" --ai-model <your-model>
 ```
 
-The GET and POST `/v1/search` actions share the title "Search Unified Web and News Results", so **pick by method, not by name**. GET takes its fields in `queryParams`; POST takes the same fields in `data`. Resolve ids by method so the pair cannot bite you:
+The GET and POST `/v1/search` actions share the title "Search Unified Web and News Results", so **pick by method, not by name**. GET takes its fields in `queryParams`; POST takes the same fields in `data`. Each find answer lists its candidates under `selected`, `alsoSelected` and `alternatives`; resolve ids by method and path so the pair cannot bite you (`--no-knowledge` skips the docs when you only want ids):
 
 ```bash
-SEARCH=$(one --agent actions search you "search web and news" -t execute | jq -r '.actions[] | select(.method=="GET") | .actionId')
-RESEARCH=$(one --agent actions search you "research" -t execute | jq -r '.actions[] | select(.path=="/v1/research") | .actionId')
+FOUND=$(one --agent actions find you "search web and news" you "research" --task "research a topic on the web" --no-knowledge)
+SEARCH=$(echo "$FOUND" | jq -r '[.answers[0] | .selected[], .alsoSelected[], .alternatives[] | select(.method=="GET" and .path=="/v1/search")][0].actionId')
+RESEARCH=$(echo "$FOUND" | jq -r '[.answers[1] | .selected[], .alsoSelected[], .alternatives[] | select(.path=="/v1/research")][0].actionId')
 ```
 
-**Example 1: research a company, then email the summary.** The agent searches `you` for the web search action, reads its knowledge, then executes (remote parameter names shown; local uses `actionId` / `connectionKey` / `queryParams`):
+**Example 1: research a company, then email the summary.** The agent finds the `you` web search action, reads the docs that come back with it, then executes (remote parameter names shown; local uses `actionId` / `connectionKey` / `queryParams`):
 
 ```json
 {
@@ -364,7 +366,7 @@ RESEARCH=$(one --agent actions search you "research" -t execute | jq -r '.action
 }
 ```
 
-The reply has `results.web[]` and `results.news[]`. The agent picks a hit, writes two sentences citing it, then searches the `gmail` platform for the send action and calls it the same way. Keep `queryParams` to exactly `query` and `count`; when an LLM adds filters on its own, You.com returns 422.
+The reply has `results.web[]` and `results.news[]`. The agent picks a hit, writes two sentences citing it, then finds the `gmail` send action and calls it the same way. (Better: find both steps in the one `find_one_actions` call at the start.) Keep `queryParams` to exactly `query` and `count`; when an LLM adds filters on its own, You.com returns 422.
 
 **Example 2: answer a question with sources, then post it to Slack.** For "compare CrewAI and LangGraph for a multi-agent pipeline" a single search is not enough. Research runs several searches, reads the pages, and returns one written answer plus the sources it used:
 
@@ -375,7 +377,7 @@ one --agent actions execute you <researchActionId> <connectionKey> \
 
 The reply is `output.content` (the answer) and `output.sources[]` (`url`, `title`, `snippets[]`). Post both to Slack with the same `actions execute` on the `slack` platform. Research takes longer than search; give it a minute. `research_effort` runs from `lite` to `exhaustive`; `standard` is the right default.
 
-**Example 3: found a page, now read the whole thing.** Search returns snippets. When the agent needs the full article behind one hit, it searches `you` for the Get Web Page Contents action and reads its knowledge. The body takes **two** required fields, not one: `urls` (an array, even for a single page) and `formats` (an array of `html`, `markdown`, `metadata`). Sending only the URL is rejected.
+**Example 3: found a page, now read the whole thing.** Search returns snippets. When the agent needs the full article behind one hit, it finds the `you` Get Web Page Contents action and reads its docs. The body takes **two** required fields, not one: `urls` (an array, even for a single page) and `formats` (an array of `html`, `markdown`, `metadata`). Sending only the URL is rejected.
 
 ```json
 { "urls": ["https://example.com/the-article"], "formats": ["markdown"] }
@@ -391,7 +393,7 @@ Gotchas:
 
 ## Parasail with One
 
-Parasail is not a platform on One. It is where the model runs. Parasail serves open models behind an OpenAI-compatible API, so your agents think on Parasail and act through One's four tools. Nothing to connect with `one add`.
+Parasail is not a platform on One. It is where the model runs. Parasail serves open models behind an OpenAI-compatible API, so your agents think on Parasail and act through One's three tools. Nothing to connect with `one add`.
 
 **Setup.** Get a key at https://www.saas.parasail.io/keys and add it to `.env`:
 
@@ -402,6 +404,15 @@ PARASAIL_API_KEY=<parasailKey>
 - Base URL: `https://api.parasail.io/v1`
 - Auth: `Authorization: Bearer $PARASAIL_API_KEY`
 - Any OpenAI SDK works: set `base_url` to the Parasail URL and `api_key` to your key.
+
+**Billing comes first.** A new key can list models, but every inference call returns `403 "Inference not allowed. Please add a valid payment method"` until the Parasail account has a payment method or credits. Add one (or redeem the event credits, if you were given some) at https://www.saas.parasail.io before you wire a crew, then prove it with one call:
+
+```bash
+curl -s https://api.parasail.io/v1/chat/completions -H "Authorization: Bearer $PARASAIL_API_KEY" \
+  -H "Content-Type: application/json" -d '{"model": "<parasail-model-id>", "messages": [{"role": "user", "content": "ping"}]}'
+```
+
+A 403 here means billing, not your code: every agent in a crew will fail on its first model call until it is fixed.
 
 **Pick a model that calls tools.** Agents on One need a model that supports tool (function) calling. Model ids change, so list them at build time instead of hardcoding one:
 
@@ -445,17 +456,18 @@ print(response.choices[0].message.content)
 
 Gotchas:
 
+- A 403 "Inference not allowed" on every call is billing: add a payment method or credits (see Setup).
 - If an agent never calls a tool, the model probably does not support tool calling. Pick another from the models list.
 - On the Responses API (`/v1/responses`), set `store: false` on every request. Parasail does not keep server-side state.
 - Keep model output that must be exact (a Gmail `raw` value, a date format) in a plain Python `@tool`, the same rule as the CrewAI example.
 
 ## CrewAI with One
 
-CrewAI is not a platform on One; it is the program that runs your agents in order and passes each one's output to the next. `@withone/mcp` is the small Node program that exposes One's four tools; CrewAI runs it as a local child process through `MCPServerAdapter` and hands those tools to your agents, which can then act on any app you have connected. Two small fixes make those tool calls reliable inside CrewAI.
+CrewAI is not a platform on One; it is the program that runs your agents in order and passes each one's output to the next. `@withone/mcp` is the small Node program that exposes One's three tools; CrewAI runs it as a local child process through `MCPServerAdapter` and hands those tools to your agents, which can then act on any app you have connected. Two small fixes make those tool calls reliable inside CrewAI.
 
-**Setup.** Python 3.10 to 3.13 (3.14 does not work yet), Node 18+, the `one` CLI signed in, and the platforms you need connected with `one add <platform>`. 3.12 or 3.13 is the smoothest; on 3.10 or 3.11 pip installs a slightly older `mcpadapt` (0.1.19), which works but is one version behind. Check your setup before writing any code: `one --agent list --search <platform>` for each platform the crew will use, and confirm an `operational` row whose `platform` field is exactly the one you want (`--search` matches substrings, so `you` also returns `youtube-data`) with a `live::<platform>::default::<32hex>` key.
+**Setup.** Python 3.10 to 3.13 (3.14 does not work yet), Node 22.23.4+, 24.22.1+ or 26.12.1+ (see The CLI), the `one` CLI signed in, and the platforms you need connected with `one add <platform>`. 3.12 or 3.13 is the smoothest; on 3.10 or 3.11 pip installs a slightly older `mcpadapt` (0.1.19), which works but is one version behind. Check your setup before writing any code: `one --agent list --search <platform>` for each platform the crew will use, and confirm an `operational` row whose `platform` field is exactly the one you want (`--search` matches substrings, so `you` also returns `youtube-data`) with a `live::<platform>::default::<32hex>` key.
 
-`requirements.txt`. These are exact pins, not floors: `crewai>=0.140.0` resolves to 1.15.20 today, which is not the version this was tested on, and `dropping_nulls` below reaches into a pydantic internal that can shift between releases. `crewai` and `crewai-tools` move in lockstep, so keep them equal. `mcp~=1.26.0` is what crewai 1.15.2 itself requires (mcp 2.x breaks the adapter).
+`requirements.txt`. These are exact pins, not floors: `crewai>=0.140.0` resolves to 1.15.28 today, which is not the version this was tested on, and `dropping_nulls` below reaches into a pydantic internal that can shift between releases. `crewai` and `crewai-tools` move in lockstep, so keep them equal. `mcp~=1.26.0` is what crewai 1.15.2 itself requires (mcp 2.x breaks the adapter).
 
 ```text
 crewai==1.15.2
@@ -465,7 +477,7 @@ mcpadapt>=0.1.9,<0.2
 python-dotenv
 ```
 
-`.env`. `ONE_SECRET` is the same key the `one` CLI uses. `ONE_CONNECTION_KEYS` is an allowlist: the crew only sees the connections you name here (see the known-issue note under Scoping for its limits). The local MCP server reads both from the environment, which `load_dotenv()` fills.
+`.env`. `ONE_SECRET` is the same key the `one` CLI uses. `ONE_CONNECTION_KEYS` is an allowlist: the crew only sees the connections you name here. The local MCP server reads both from the environment, which `load_dotenv()` fills.
 
 ```text
 PARASAIL_API_KEY=<parasailKey>
@@ -475,10 +487,10 @@ ONE_CONNECTION_KEYS=live::you::default::<32hex>,live::gmail::default::<32hex>
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-npx -y @withone/mcp --help   # downloads the MCP server once so the first crew run is not slow
+npx -y @withone/mcp </dev/null >/dev/null 2>&1   # downloads the MCP server once so the first crew run is not slow
 ```
 
-**Wiring.** Three functions. `one_mcp_params` starts the MCP server. `dropping_nulls` fixes one problem: CrewAI sends unset optional fields as `null`, and One's server rejects `null`. `harden_execute` fixes another: JSON-object arguments sometimes arrive as `{}` through CrewAI, so it takes them as JSON strings and parses them right before the call. It passes every execute parameter through (`headers`, `isFormData`, `isFormUrlEncoded` included) and strips any `x-one-*` header, which closes the header-override hole described under Scoping. Apply both before building agents.
+**Wiring.** Three functions. `one_mcp_params` starts the MCP server. `dropping_nulls` fixes one problem: CrewAI sends unset optional fields as `null`, nested ones included (the `section`, `full` and `toc` of a `find_one_actions` `load` item), and One's server rejects `null`. `harden_execute` fixes another: JSON-object arguments sometimes arrive as `{}` through CrewAI, so it takes them as JSON strings and parses them right before the call. It passes every execute parameter through (`headers`, `isFormData`, `isFormUrlEncoded` included) and strips any `x-one-*` header so the model can never change which connection or action a call uses. Apply both before building agents.
 
 ```python
 import base64, json, os
@@ -494,10 +506,20 @@ load_dotenv()
 def one_mcp_params() -> StdioServerParameters:
     return StdioServerParameters(command="npx", args=["-y", "@withone/mcp"], env={**os.environ})
 
+def strip_nulls(value):
+    # CrewAI fills every optional field with None, nested ones too (find_one_actions' `load` items)
+    if isinstance(value, dict):
+        return {k: strip_nulls(v) for k, v in value.items() if v is not None}
+    if isinstance(value, list):
+        return [strip_nulls(v) for v in value]
+    if hasattr(value, "model_dump"):
+        return strip_nulls(value.model_dump())
+    return value
+
 def dropping_nulls(tools):
     for t in tools:
         inner = t._run
-        object.__setattr__(t, "_run", (lambda f: lambda **kw: f(**{k: v for k, v in kw.items() if v is not None}))(inner))
+        object.__setattr__(t, "_run", (lambda f: lambda **kw: f(**strip_nulls(kw)))(inner))
     return tools
 
 def harden_execute(tools):
@@ -522,7 +544,7 @@ def harden_execute(tools):
 
 After `harden_execute`, the agent-facing `execute_one_action` takes `dataJson`, `pathVariablesJson`, `queryParamsJson`, `headersJson`, `isFormData` and `isFormUrlEncoded`. Write task descriptions against those names.
 
-**Example: research a topic, then email the summary.** Two agents. The Researcher searches the web through One's `you` platform. The Sender emails the result through One's `gmail` platform. Both get the same four tools; the task descriptions tell each which platform to use. Anything that must be exact down to the last character (Gmail's base64 `raw` field, a date format) belongs in a plain `@tool` function, not in the LLM. `build_gmail_raw` is that function here.
+**Example: research a topic, then email the summary.** Two agents. The Researcher searches the web through One's `you` platform. The Sender emails the result through One's `gmail` platform. Both get the same three tools; the task descriptions tell each which platform to use. Anything that must be exact down to the last character (Gmail's base64 `raw` field, a date format) belongs in a plain `@tool` function, not in the LLM. `build_gmail_raw` is that function here.
 
 ```python
 @tool("build_gmail_raw")
@@ -534,7 +556,7 @@ def build_gmail_raw(to: str, subject: str, body: str) -> str:
     return base64.urlsafe_b64encode(message.as_bytes()).decode()
 
 RULES = (
-    "Before executing any One action, call get_one_action_knowledge and read it. "
+    "Before executing any One action, find it with find_one_actions and read the documentation it returns. "
     "Omit optional tool parameters entirely; never pass null. "
     "Never call execute_one_action with an empty dataJson when the action needs a body. "
     "If a call fails twice with the same error, change the request based on the error instead of repeating it."
@@ -552,11 +574,11 @@ def build_crew(one_tools) -> Crew:
                    tools=[*one_tools, build_gmail_raw], llm=llm, max_iter=25, verbose=True)
 
     research = Task(agent=researcher, expected_output="Three facts about {topic}, each with a source URL.", description=(
-        "Research {topic}. On the 'you' platform, find the 'Search Unified Web and News Results' action that is GET /v1/search, "
-        "read its knowledge, then execute it. queryParamsJson must be exactly {\"query\": \"<terms>\", \"count\": 5}."))
+        "Research {topic}. With find_one_actions, find the 'you' platform's 'Search Unified Web and News Results' action that is "
+        "GET /v1/search, read its documentation, then execute it. queryParamsJson must be exactly {\"query\": \"<terms>\", \"count\": 5}."))
     send = Task(agent=sender, context=[research], expected_output="The Gmail message id, or what failed.", description=(
-        "Email the research summary to {to} via Gmail through One. Search the 'gmail' platform for the send action, read its "
-        "knowledge, call build_gmail_raw for the encoded message, then execute the send action with dataJson "
+        "Email the research summary to {to} via Gmail through One. Find the 'gmail' send action with find_one_actions, read its "
+        "documentation, call build_gmail_raw for the encoded message, then execute the send action with dataJson "
         "{\"raw\": \"<output of build_gmail_raw>\"} and pathVariablesJson {\"userId\": \"me\"}."))
 
     return Crew(agents=[researcher, sender], tasks=[research, send], process=Process.sequential, verbose=True)
@@ -567,7 +589,7 @@ if __name__ == "__main__":
         print(build_crew(one_tools).kickoff(inputs={"topic": "Anthropic", "to": "<yourEmail>"}))
 ```
 
-Run `python main.py` and watch the log: the Researcher finds the search action, reads its knowledge, calls it; the Sender finds Gmail's send action, builds the raw message, calls it; an email lands in your inbox. Expect a couple of minutes, not seconds.
+Run `python main.py` and watch the log: the Researcher finds the search action, reads its docs, calls it; the Sender finds Gmail's send action, builds the raw message, calls it; an email lands in your inbox. Expect a couple of minutes, not seconds.
 
 Two habits from this example worth keeping. One task, one outcome: a single "create the contact and send the email" task ran out of steps in practice, and splitting it fixed that. And the `RULES` string in every backstory is what stops agents from guessing parameters or retrying the same failing call.
 
@@ -580,44 +602,45 @@ Two habits from this example worth keeping. One task, one outcome: a single "cre
 
 ## Embed One in your product (One Connect)
 
-Everything above is about **your** agent acting on **your** connections. When the thing you are building is a product whose **users** should connect **their own** Gmail, Slack, Notion or Stripe to it, use **One Connect**: a drop-in OAuth 2.1 flow (authorization code + PKCE) in which your user grants your app scoped, revocable access to their own One-connected tools. The user owns the connections in their One account. You hold a bearer token scoped to exactly what they granted, they can narrow or revoke it at any time, and One enforces the grant on every call.
+Everything above is about **your** agent acting on **your** connections. When the thing you are building is a product whose **users** should connect **their own** Gmail, Slack, Notion or Stripe to it, use **One Connect** (`@withone/connect`, 0.18.0 at the time of writing): your user signs in on One's hosted page, picks their tools and the access for each, and your app gets a grant that One checks on every call. The connections stay in the user's One account; they can narrow or revoke the grant at any time.
 
 Connect is not Auth. `@withone/auth` (AuthKit in the dashboard) puts connections in **your** One project, so you own them. Connect puts them in the **user's** One account and hands you a grant. For a hackathon product where each user brings their own accounts, Connect is the shape you want.
 
-What you build is one button and two backend routes. Everything sensitive (state, the PKCE verifier, your client secret, the tokens) lives on your server; the SDK only navigates the tab to One's hosted connect page and watches for `?one_connect=success` on the way back, so there is no completion page to build.
+What you build is a button, two backend routes, and the calls you make with the grant. The SDK writes both routes for you.
 
-1. **Create the OAuth app** at https://app.withone.ai → Settings → OAuth Apps → New OAuth app (client type Confidential). You get a Client ID and a Client Secret (shown once, server-only), register an `https` redirect URI that must match your callback route exactly, pick the access-token lifetime (7 days, 30 days, 90 days or 1 year), and optionally a permission set that pre-fills the consent screen (users can only narrow it). Env: `ONE_CLIENT_ID`, `ONE_CLIENT_SECRET`, `ONE_REDIRECT_URI`, optional `ONE_PERMISSION_SET`.
-2. **The button.** `npm i @withone/connect`, then `<ConnectButton authorizeUrl="/api/one/authorize" platforms={[{ name: "Stripe" }]} onSuccess={…} />` from `@withone/connect/react` (Vue, Svelte and a plain `<one-connect-button>` custom element exist too), or the headless `useOneConnect({ authorize: { url }, onSuccess })` hook on your own element. Platform logos derive from `https://assets.withone.ai/connectors/<slug>.svg`.
-3. **`GET /api/one/authorize`** mints `state` and a PKCE verifier, stores the verifier in an httpOnly cookie named per flow (`one_tx_<state>`, `path: "/"`, 10-minute expiry), and 302s to `https://api.withone.ai/oauth/authorize` with `client_id`, `redirect_uri`, `response_type=code`, all six tenancy scopes (`user:` / `org:` / `project:` `connections:read` and `:write`), `state`, `code_challenge`, `code_challenge_method=S256`, optional `permission_set` and `login_hint`.
-4. **`GET /api/one/callback`** verifies that the returned `state` has its cookie (no cookie means forged or stale, so never exchange the code), then POSTs `grant_type=authorization_code` to `https://api.withone.ai/oauth/token` with **HTTP Basic** client auth (`client_secret_post` is not supported), stores `access_token`, `refresh_token` and `expiresAt` encrypted and keyed by your own user id, and redirects to any same-origin URL with `?one_connect=success` (or `?one_connect=error&one_connect_message=…`).
-5. **Check before every call; refresh near expiry, and on a schedule.** Before each call compare `expiresAt` against now and refresh only when it is close, rather than refreshing every time. Access tokens live for the lifetime you chose; refresh tokens live 30 days from their last use and **rotate on every use**, so always store both new tokens. With a 90-day or 1-year access token the refresh token can expire long before the access token does, and the user then has to reconnect, so also refresh on a schedule (a fortnightly cron job is enough) rather than only when the access token is near expiry. Reusing an old refresh token revokes the whole family. Serialize refreshes per user.
-6. **Use the grant** with `Authorization: Bearer <token>` on One's normal API: `GET /v1/connections/reachable` lists only what the user granted, each row with its `key` and `access` policy; `GET /v1/knowledge?connectionPlatform=<platform>&limit=100&page=N` lists actions; `{method} /v1/passthrough{path}` with `x-one-connection-key` and `x-one-action-id` executes. The same bearer authenticates the remote MCP server at `https://mcp.withone.ai/mcp` with the same four tools and the same grant. The One CLI does **not** accept grant tokens; use HTTP or MCP for a user's grant.
+1. **Create the app** at https://app.withone.ai → **Developers → Connect → New app**. Register your callback URL exactly (for example `https://yourapp.com/api/one/callback`). Optionally create a **permission set** (the tools and access the app asks for; users can only narrow it) and copy its id. Then, for **key mode** (the default and the one to use at a hackathon), open the app's **Credentials → Connect keys** and create a key on Production; it is shown once. Env: `ONE_CLIENT_ID`, `ONE_CLIENT_SECRET`, `ONE_CONNECT_KEY`, `ONE_REDIRECT_URI`, optional `ONE_PERMISSION_SET`. All server-only.
+2. **The server client.** `createOneConnect({ clientId, clientSecret, redirectUri, permissionSet, connectKey, userStore })` from `@withone/connect/server`. `userStore` is `saveUser` / `loadUser` / `clearUser` for one short string per user (their One id and the space they granted from). It is an identifier, not a secret, and nothing expires or needs refreshing in key mode.
+3. **The two routes.** In Next.js, `app/api/one/[action]/route.ts`: `export const { GET } = createOneConnectRoutes(oneConnect, { identifyUser: async (req) => (await getSession(req))?.userId ?? null })` from `@withone/connect/next`. That serves `/api/one/authorize` and `/api/one/callback`, with state and PKCE handled for you. For Express, Fastify, Koa or plain Node use `createOneConnectHandlers` from `@withone/connect/node`. Serve both routes from the same directory on the origin of `ONE_REDIRECT_URI`: the state cookie is scoped to that path and an attempt expires after **30 minutes**, so a mismatch shows up as every attempt ending in `expired`.
+4. **The button.** `npm i @withone/connect`, then `<ConnectButton authorizeUrl="/api/one/authorize" logos={["gmail", "stripe"]} connected={hasGrant} onSuccess={…} onError={…} />` from `@withone/connect/react` (`logos` is decoration only; the permission set decides what One asks for). Vue, Svelte and a plain `<one-connect-button>` element take the same props. For your own element, the headless hook is `useOneConnect({ authorizeUrl: "/api/one/authorize", onSuccess })`, returning `{ open, status, error }`. Without the SDK in the browser, read the outcome off the URL: `?one_connect=success`, or `?one_connect=error&one_connect_error=declined|expired|failed`.
+5. **Use the grant** on the server, the same find-then-run shape as the CLI: `oneConnect.listConnections(userId)` (each with its `key` and `access`), `searchActions(userId, platform, intent)`, `getActionKnowledge(userId, actionId)`, then `runAction(userId, { connectionKey, actionId, pathParams?, query?, body? })`, which returns `{ status, ok, blockedByGrant, refusal, data }`. `oneConnect.fetch(userId, path)` reaches any other `/v1` endpoint with the headers handled.
 
-Two status codes carry the whole security model: **401** means the token is expired, revoked or invalid, so clear the stored tokens and show "Reconnect"; **403** means the call is outside what the user granted, so do not retry. The user chose that.
+Errors that carry the security model: a `403` with `blockedByGrant: true` means the call is outside what the user granted, so do not retry; a `402` with `refusal: "plan_limit"` is a plan limit, not the grant; `reconnect_required` means the user revoked access (or the app is deactivated), so show "Reconnect".
 
-The full playbook (button variants, both routes verbatim, refresh with rotation handling, and a five-point done checklist) is the `one-connect` skill in the Connect repo. Install it next to this one:
+**Token mode** (pass a `tokenStore` instead of `connectKey` / `userStore`) is for apps that need the bearer token itself. You then store an encrypted access and refresh token per user, refresh tokens rotate on every use and live 30 days, and you run a daily `refreshIfExpiring` job. If you call One's HTTP API with that bearer yourself rather than through the SDK, send the tenancy headers the grant needs, `X-One-Organization-Id` and `X-One-Project-Id`, taken from the access token's claims (the SDK's `tenancyHeaders(accessToken)` builds them). The One CLI does **not** accept grant tokens.
+
+The full playbook is the `one-connect` skill that ships with the package. Install it next to this one:
 
 ```bash
 npx skills add withoneai/connect
 ```
 
-Or read it at https://github.com/withoneai/connect/blob/main/skills/one-connect/SKILL.md; the repo README (https://github.com/withoneai/connect) has the same routes with a sequence diagram.
+Or read https://github.com/withoneai/connect (the README has every prop, both modes and a troubleshooting table).
 
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| The four tools do not appear, or every call is 401 (remote) | The client is not authenticated with One | Re-authenticate the One server in the client (Claude Code: `/mcp` → One → Authenticate) |
+| The three tools do not appear, or every call is 401 (remote) | The client is not authenticated with One | Re-authenticate the One server in the client (Claude Code: `/mcp` → One → Authenticate) |
 | `execute_one_action` is missing | Knowledge-only mode was chosen on the consent screen | Clear authentication and sign in again with execution enabled, or write code instead |
 | A platform is not listed | Not connected, or not selected on the consent screen, or wrong environment | `one add <platform>`; re-authenticate to widen the scope; check `live` vs `test` |
 | `list_one_integrations` returns `[]` from a script or crew | `ONE_SECRET` and your connections are from different One environments | Use a key from the same environment. `ONE_BASE_URL` is read by `@withone/mcp` only; the CLI ignores it |
 | `expected boolean, received null` (CrewAI) | `dropping_nulls` not applied | Apply both helpers before building agents |
 | Empty `data` reaching One from CrewAI | JSON-object args arrive as `{}` | Apply `harden_execute` and write tasks against `dataJson` / `pathVariablesJson` / `queryParamsJson` |
-| MCP connect timeout on first run | `npx` is still downloading `@withone/mcp` | Run `npx -y @withone/mcp --help` once, or raise `connect_timeout` |
+| MCP connect timeout on first run | `npx` is still downloading `@withone/mcp` | Run `npx -y @withone/mcp </dev/null >/dev/null 2>&1` once, or raise `connect_timeout` |
 | "You are missing the 'mcp' package" | mcp 2.x installed | `pip install "mcp~=1.26.0"` |
 | 422 from You.com search | Extra filters, or `include_domains` combined with `exclude_domains` / `boost_domains` | Send only `query` and `count`; drop the conflicting domain lists |
-| 400 / 422 from any platform | Request does not match the schema | Re-read the knowledge; move values to the right place; retry once |
-| Slow `one` commands | Cold cache | Knowledge and search are cached for an hour under `~/.one/cache/`; `one cache list`, `one cache clear` |
+| 400 / 422 from any platform | Request does not match the schema | Re-read the action's docs; move values to the right place; retry once |
+| Slow `one` commands | Cold cache | Action docs are cached for an hour under `~/.one/cache/`; `one cache list`, `one cache clear` |
 
 ## Track playbooks
 
@@ -643,4 +666,4 @@ Take real-time, unstructured "Spooky Incident Logs" and build a working Spooky T
 - **One** handles every action the dashboard triggers: alerts to Slack, tickets to Linear, a daily brief by Gmail.
 - Starting point: https://github.com/withoneai/you-hackathon/tree/main/templates/haunted-command-station.
 
-Keep `ONE_CONNECTION_KEYS` tight, confirm before writes, and read the knowledge every time. Ask in the Discord when stuck: https://discord.gg/pn8QmHQ4p. The One engineers are there all day.
+Keep `ONE_CONNECTION_KEYS` tight, confirm before writes, and read the action's docs every time. Ask in the Discord when stuck: https://discord.gg/pn8QmHQ4p. The One engineers are there all day.

@@ -33,7 +33,7 @@ export const sfHalloween2026: HackathonEvent = {
   headerLabel: "× Hack With YOU",
   headline: "Build with One at Hack With YOU: Halloween Edition.",
   subhead:
-    "Managed auth and 1,000+ apps behind four tools. Install the skill, connect your apps, and spend the day on the agent, not the plumbing.",
+    "Managed auth and 1,000+ apps behind three tools. Install the skill, connect your apps, and spend the day on the agent, not the plumbing.",
   facts: [
     { label: "Date", value: "Wednesday, October 28, 2026" },
     { label: "Time", value: "9:00 AM to 8:30 PM PDT" },
@@ -72,13 +72,13 @@ export const sfHalloween2026: HackathonEvent = {
   skill: {
     teaches: [
       "Setup for the remote MCP server, the CLI, the local MCP server and the API",
-      "The four-tool loop: list, search, read the knowledge, execute",
+      "The three-tool loop: list, find the action and its docs, execute",
       "Playbooks for You.com, CrewAI and Parasail with One",
       "Starter patterns for both tracks: The Exorcism Protocol and The Haunted Dashboard",
       "Scoping, error codes and one troubleshooting table",
     ],
     pageDescription:
-      "The primary skill for building with One at Hack With YOU: Halloween Edition: setup, the four-tool loop, playbooks for You.com, CrewAI and Parasail, and both track playbooks.",
+      "The primary skill for building with One at Hack With YOU: Halloween Edition: setup, the three-tool loop, playbooks for You.com, CrewAI and Parasail, and both track playbooks.",
   },
   setup: {
     connectHelp: "Paste the key from api.you.com. Slack opens the browser.",
@@ -95,7 +95,7 @@ export const sfHalloween2026: HackathonEvent = {
         logoStyle: "round",
         tagline: "Live web search, research, and page reading.",
         onOne:
-          "The `you` platform: Search, Research, Finance Research and Get Web Page Contents through the same four tools.",
+          "The `you` platform: Search, Research, Finance Research and Get Web Page Contents through the same three tools.",
         command: "one add you",
         keyLabel: "Get a You.com API key",
         keyUrl: "https://api.you.com",
@@ -109,8 +109,8 @@ export const sfHalloween2026: HackathonEvent = {
         mono: true,
         tagline: "Orchestrate a crew of agents that act on real apps.",
         onOne:
-          "Hand a crew One's four tools through MCPServerAdapter and `npx -y @withone/mcp`. Two small helpers make the calls reliable.",
-        command: "npx -y @withone/mcp --help",
+          "Hand a crew One's three tools through MCPServerAdapter and `npx -y @withone/mcp`. Two small helpers make the calls reliable.",
+        command: 'pip install "crewai-tools[mcp]==1.15.2"',
         keyLabel: "CrewAI docs",
         keyUrl: "https://docs.crewai.com",
         playbookAnchor: "crewai-with-one",
@@ -122,7 +122,7 @@ export const sfHalloween2026: HackathonEvent = {
         logoStyle: "tile",
         tagline: "Fast, low-cost inference on open models.",
         onOne:
-          "Parasail runs the model, One gives it the apps. Point your crew's LLM at Parasail's OpenAI-compatible API and keep One's four tools for every action.",
+          "Parasail runs the model, One gives it the apps. Point your crew's LLM at Parasail's OpenAI-compatible API and keep One's three tools for every action. Add a payment method or credits first: without one, every inference call returns 403.",
         command: "export PARASAIL_API_KEY=...",
         keyLabel: "Get a Parasail API key",
         keyUrl: "https://www.saas.parasail.io/keys",

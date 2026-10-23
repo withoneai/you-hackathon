@@ -33,16 +33,9 @@ function script(secondConnection: string, query: string): Frame[] {
     ],
   },
   {
-    cmd: 'one --agent actions search you "search web and news" -t execute',
+    cmd: 'one --agent actions find you "search web and news" --task "research a topic on the web"',
     out: [
       "GET   /v1/search    Search Unified Web and News Results",
-      "POST  /v1/search    Search Unified Web and News Results",
-      "POST  /v1/research  Research",
-    ],
-  },
-  {
-    cmd: "one --agent actions knowledge you <actionId>",
-    out: [
       "queryParams · query (required), count, freshness, country",
       "gotcha · never combine include_domains with exclude_domains",
     ],
@@ -54,7 +47,7 @@ function script(secondConnection: string, query: string): Frame[] {
   ];
 }
 
-/** The four-tool loop typed out. The second connection and the search query are the event's. */
+/** The three-tool loop typed out. The second connection and the search query are the event's. */
 export function LoopDemo({ secondConnection, query }: { secondConnection: string; query: string }) {
   const reduced = useReducedMotion();
   const SCRIPT = useMemo(() => script(secondConnection, query), [secondConnection, query]);
