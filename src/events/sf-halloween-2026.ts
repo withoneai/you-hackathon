@@ -22,7 +22,6 @@ export const sfHalloween2026: HackathonEvent = {
   dateShort: "Oct 28, 2026",
   time: "9:00 AM to 8:30 PM PDT",
   venue: "AWS Builder Loft, 525 Market St, San Francisco",
-  theme: "paper",
   stack: ["You.com", "One", "CrewAI", "Parasail"],
 
   lumaUrl: "https://luma.com/you-halloween",

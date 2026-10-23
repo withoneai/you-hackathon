@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { eventUrls, type HackathonEvent } from "@/events";
 import { LINKS } from "@/lib/site";
-import { logoFor } from "./header";
+import { OneLogo } from "./header";
 
 type Column = { title: string; links: { label: string; href: string; internal?: boolean }[] };
 
@@ -63,8 +63,7 @@ export function Footer({ event }: { event?: HackathonEvent }) {
       <div className="mx-auto max-w-[1180px] px-5 py-14 sm:px-8">
         <div className="grid gap-10 md:grid-cols-[1.2fr_repeat(4,1fr)]">
           <div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logoFor(event?.theme)} alt="One" className="h-7 w-auto" />
+            <OneLogo className="h-7 w-auto" />
             <p className="mt-4 max-w-[30ch] text-13 text-secondary">
               The trust layer for AI agents.
             </p>

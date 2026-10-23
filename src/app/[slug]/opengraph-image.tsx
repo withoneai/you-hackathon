@@ -12,15 +12,11 @@ export function generateStaticParams() {
   return EVENTS.map((e) => ({ slug: e.slug }));
 }
 
-/** Per-event card, in that event's theme: carbon (dark) or paper (light). */
-const PALETTES = {
-  carbon: { bg: "#0A0C0B", ink: "#E9EFEC", secondary: "#9CACA6", muted: "#7C8C86", logo: "logo-full-dark.svg" },
-  paper: { bg: "#F6F8F6", ink: "#0C1A16", secondary: "#4E5F59", muted: "#5F6E68", logo: "logo-full-light.svg" },
-} as const;
+/** Per-event card, in the site's light palette. */
+const p = { bg: "#F6F8F6", ink: "#0C1A16", secondary: "#4E5F59", muted: "#5F6E68", logo: "logo-full-light.svg" } as const;
 
 export default async function OpenGraphImage({ params }: { params: Promise<{ slug: string }> }) {
   const event = getEvent((await params).slug) ?? EVENTS[0];
-  const p = PALETTES[event.theme];
   const svg = fs.readFileSync(path.join(process.cwd(), "public", "logo", p.logo), "utf8");
   const logo = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
   const bars = event.heroArt === "halloween" ? ["#FF8A2A", "#A98BFF"] : ["#CCFF00"];

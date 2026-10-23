@@ -101,7 +101,7 @@ export type AgentClient = {
   id: string;
   name: string;
   logo: string;
-  /** Monochrome marks are white; the paper theme inverts them. Colored marks render as-is. */
+  /** Monochrome marks are white; light mode inverts them. Colored marks render as-is. */
   mono?: boolean;
 };
 

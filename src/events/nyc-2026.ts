@@ -2,7 +2,7 @@ import type { HackathonEvent } from "./types";
 
 /**
  * You.com's "Build with YOU: The Live Web Agent Hackathon", New York, September 11, 2026.
- * Archived as it ran: Clockwork dark, Daytona as a sponsor, the four "agents that repair
+ * Archived as it ran: Daytona as a sponsor, the four "agents that repair
  * and learn" templates. The Discord invite expired on 2026-10-10.
  */
 export const nyc2026: HackathonEvent = {
@@ -20,7 +20,6 @@ export const nyc2026: HackathonEvent = {
   dateShort: "Sep 11, 2026",
   time: "9:30 AM to 6:00 PM EDT",
   venue: "124 E 14th St, New York",
-  theme: "carbon",
   stack: ["You.com", "One", "Daytona", "CrewAI"],
 
   lumaUrl: "https://luma.com/agentic-hackathon-ny",

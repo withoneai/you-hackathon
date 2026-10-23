@@ -7,7 +7,7 @@ type Props = {
   className?: string;
   /** Round tile with a hairline border, like the dashboard connector grid. */
   tile?: boolean;
-  /** A white mark: the paper theme inverts it to ink. */
+  /** A white mark: light mode inverts it to ink. */
   mono?: boolean;
 };
 

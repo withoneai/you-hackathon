@@ -36,7 +36,7 @@ export default async function EventPage({ params }: PageProps<"/[slug]">) {
   const event = getEvent((await params).slug);
   if (!event) notFound();
   return (
-    <div className={`theme-${event.theme} flex min-h-full flex-1 flex-col`}>
+    <div className="flex min-h-full flex-1 flex-col">
       <Header event={event} />
       <main className="flex-1">
         <Hero event={event} />
