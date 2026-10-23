@@ -119,7 +119,7 @@ Every run appends one line to `out/runs.jsonl`: mode, model, feed, outbreaks, co
 - `tools.py` holds the skill's `one_mcp_params`, `dropping_nulls` and `harden_execute`, a `capped` wrapper (two web searches per tick), the per-agent feed tools, and the `Outbox` that sends or prints every write. Of the MCP server's three tools the Analyst gets two: `find_one_actions` to read the search action's documentation and `execute_one_action` to run it.
 - `facility_sim.py` is the mock facility: six zones, sensors, witness reports, civilians, two real outbreaks and two false alarms per seed. An outbreak left running costs civilians every tick. `python facility_sim.py --serve 8077` serves it over HTTP.
 - `feed.py` picks the source: the in-process mock, or `FEED_URL` over HTTP.
-- `parasail.py` is the model helper (shared with the Track 2 template). `one_cli.py` (shared with the Track 2 template; it finds every action id in one `one actions find` call) and `mcp_wrapper.py` are vendored helpers.
+- `parasail.py` is the model helper (shared with the Track 2 template). `one_cli.py` (it finds every action id in one `one actions find` call) and `mcp_wrapper.py` are the helpers every template vendors.
 
 Design choices worth keeping:
 

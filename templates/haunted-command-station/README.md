@@ -101,7 +101,7 @@ A live run sends that Slack message to your channel and files the Linear issue, 
 - `server.py` serves the page, `/spec.json` and the `/ws` stream on one port, with the `websockets` library.
 - `static/index.html` renders the spec with vanilla JS and inline SVG. No build step. Every string from the model is set as text, never as HTML, and only `http(s)` links are rendered.
 - `one_actions.py` holds the One calls: You.com search, the Slack post, the Linear issue. A write that times out is reported and never retried blindly (see `WriteUncertain` in `one_cli.py`).
-- `parasail.py` is the model helper (shared with the Track 1 template). `one_cli.py` is the One CLI helper (shared with the Track 1 template; it finds every action id in one `one actions find` call).
+- `parasail.py` is the model helper (shared with the Track 1 template). `one_cli.py` is the One CLI helper every template vendors; it finds every action id in one `one actions find` call.
 
 The WebSocket protocol is documented at the top of `server.py`: `log`, `status`, `spec_begin`, `panel`, `spec_end`, plus a full `spec` for a client that connects late (or, mid-stream, the panels sent so far, so nothing shows twice).
 

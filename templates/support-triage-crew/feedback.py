@@ -18,7 +18,7 @@ TEMPLATE = "support-triage-crew"
 def main() -> int:
     load_env()
     # Same four platforms as crew.py so the .onerc allowlist stays stable between the scripts.
-    keys = preflight(TEMPLATE, ["gmail", "daytona", "linear", "slack"])
+    keys = preflight(TEMPLATE, ["gmail", "daytona", "linear", "slack"], task="sync issue status back into memory")
     query_id = resolve("linear", "list accessible teams", "POST", "/graphql", title="List Accessible Teams")
     bugs = recall(TEMPLATE, "bug", limit=50)
     say(f"Recalled: {len(bugs)} filed bug(s)")

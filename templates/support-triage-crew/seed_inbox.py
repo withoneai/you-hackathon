@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 
-from one_cli import OneError, die, execute, load_env, preflight, resolve, say
+from one_cli import OneError, die, execute, load_env, preflight, resolve_all, say
 
 TEMPLATE = "support-triage-crew"
 
@@ -40,9 +40,10 @@ EMAILS = [
 def main() -> int:
     load_env()
     # Same four platforms as crew.py so the .onerc allowlist stays stable between the two scripts.
-    keys = preflight(TEMPLATE, ["gmail", "daytona", "linear", "slack"], need_memory=False)
-    profile_id = resolve("gmail", "get profile", "GET", "/gmail/v1/users/{userId}/profile")
-    send_id = resolve("gmail", "send email", "POST", "/v1/gmail/send-email")
+    keys = preflight(TEMPLATE, ["gmail", "daytona", "linear", "slack"], need_memory=False,
+                     task="send sample emails to the connected mailbox")
+    profile_id, send_id = resolve_all([("gmail", "get profile", "GET", "/gmail/v1/users/{userId}/profile"),
+                                       ("gmail", "send email", "POST", "/v1/gmail/send-email")])
     me = execute("gmail", profile_id, keys["gmail"], path_vars={"userId": "me"}).get("emailAddress")
     if not me:
         die("could not read the connected mailbox address")

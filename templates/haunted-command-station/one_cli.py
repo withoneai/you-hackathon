@@ -1,7 +1,7 @@
 """Small wrapper around the One CLI plus One memory helpers.
 
-Vendored into both Halloween template folders so a folder runs on its own.
-Keep the two copies identical; templates/check.sh compares them.
+Vendored into every template folder so a folder runs on its own. Keep the
+copies identical; templates/check.sh compares them.
 
 Everything goes through `one --agent ...`, which prints JSON and never prompts.
 Action ids are resolved at run time with `one actions find` and picked by
@@ -176,8 +176,9 @@ def _norm(path: str) -> str:
     return re.sub(r"\{\{?\w+\}?\}", "{}", path).rstrip("/")
 
 
-# What `actions find` is told the run is for. General terms only: no names, ids or message text.
-TASK = os.environ.get("ONE_FIND_TASK") or "watch for incidents, research them on the web, and alert the team"
+# What `actions find` is told the run is for, in general terms only: no names, ids or message text.
+# Each template sets its own through `preflight(task=...)`; ONE_FIND_TASK overrides it.
+TASK = "automate a workflow across connected apps"
 
 
 def _cache_key(platform: str, method: str, path: str, title: str | None) -> tuple:
@@ -195,13 +196,14 @@ def _pick(platform: str, query: str, method: str, path: str, title: str | None, 
     return hits[0] if hits else None
 
 
-def resolve_all(wanted: list[tuple], task: str = TASK, agent_type: str = "execute") -> list[str]:
+def resolve_all(wanted: list[tuple], task: str | None = None, agent_type: str = "execute") -> list[str]:
     """Find several action ids in one `actions find` call.
 
     Each item is (platform, query, method, path) or (platform, query, method, path, title). The
     answers come back one per pair, in order; every candidate (selected, alsoSelected, alternatives)
     is matched by method and path. Docs are left out here (`--no-knowledge`); `knowledge` loads them.
     """
+    task = task or TASK
     items = [(w + (None,))[:5] for w in wanted]
     todo = [w for w in items if _cache_key(w[0], w[2], w[3], w[4]) not in _ACTIONS]
     todo = list(dict.fromkeys(todo))
@@ -228,7 +230,7 @@ def resolve_all(wanted: list[tuple], task: str = TASK, agent_type: str = "execut
     return [_ACTIONS[_cache_key(w[0], w[2], w[3], w[4])] for w in items]
 
 
-def resolve(platform: str, query: str, method: str, path: str, title: str | None = None, task: str = TASK) -> str:
+def resolve(platform: str, query: str, method: str, path: str, title: str | None = None, task: str | None = None) -> str:
     """Find one action id at run time. Pick by method and path; use `title` when a path is shared."""
     return resolve_all([(platform, query, method, path, title)], task)[0]
 
@@ -473,8 +475,13 @@ def forget(template: str, rtypes: list[str]) -> int:
 
 # --- preflight -------------------------------------------------------------
 
-def preflight(template: str, platforms: list[str], need_memory: bool = True) -> dict[str, str]:
-    """Check the toolchain, the account and the connections; write the allowlist; return platform -> key."""
+def preflight(template: str, platforms: list[str], need_memory: bool = True, task: str | None = None) -> dict[str, str]:
+    """Check the toolchain, the account and the connections; write the allowlist; return platform -> key.
+
+    `task` is the run's one-line purpose, sent with every `actions find`.
+    """
+    global TASK
+    TASK = os.environ.get("ONE_FIND_TASK") or task or TASK
     for binary, fix in (("node", "install Node 22.23.4+, 24.22.1+ or 26.12.1+"), ("one", "npm i -g @withone/cli")):
         if not shutil.which(binary):
             raise OneError(f"`{binary}` is not on PATH: {fix}")

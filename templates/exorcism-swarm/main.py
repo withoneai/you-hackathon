@@ -247,7 +247,8 @@ def run(args) -> int:
     platforms = ["you"] + ([] if args.dry_run else ["slack", "linear"])
     keys: dict = {}
     if has_one:
-        keys = preflight("exorcism-swarm", platforms, need_memory=False)
+        keys = preflight("exorcism-swarm", platforms, need_memory=False,
+                         task="watch facility sensors, check sightings on the web, and alert the team")
     else:
         say("ONE_SECRET is empty: dry run without You.com search. Fill it in to give the Analyst the web.")
 

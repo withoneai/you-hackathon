@@ -59,7 +59,8 @@ class Pipeline:
         if not a.dry_run and not has_one:
             raise OneError("ONE_SECRET is empty in .env. A live run uses You.com, Slack and Linear through One")
         if has_one:
-            self.keys = preflight("haunted-command-station", ["you"] + ([] if a.dry_run else ["slack", "linear"]), need_memory=False)
+            self.keys = preflight("haunted-command-station", ["you"] + ([] if a.dry_run else ["slack", "linear"]), need_memory=False,
+                                  task="turn incident logs and web reports into a live dashboard and alert the team")
             # Every action this run uses, found in one `actions find` call; later lookups hit the cache.
             wanted = [("you", "search web and news", "GET", "/v1/search")]
             if not a.dry_run:
