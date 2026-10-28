@@ -1,7 +1,7 @@
 ---
 name: one-hackathon
 description: |
-  Build with One at You.com's "Hack With YOU: Halloween Edition" (San Francisco, October 28, 2026). Every team builds with You.com, One, CrewAI and Parasail. One connects an AI agent to 1,000+ apps (Gmail, Slack, Notion, GitHub, Linear, You.com and more) through three tools with managed auth, access control and an audit log. Use this skill to set One up (remote MCP server, CLI, local MCP server, passthrough API or SDK), to take any action in a third-party app through the list → find → execute loop, to use You.com through One, to run a CrewAI crew on One's tools with a Parasail model, to build for The Exorcism Protocol or The Haunted Dashboard tracks, or to find the One dashboard, docs, logs, coupon or Discord.
+  Build with One at You.com's "Hack With YOU: Halloween Edition" (San Francisco, October 28, 2026). Every team builds with You.com, One, CrewAI and Parasail. One connects an AI agent to 1,000+ apps (Gmail, Slack, Notion, GitHub, Linear, You.com and more) through three tools with managed auth, access control and an audit log. Use this skill to add One Connect to a product so its users connect their own apps, to set One up (remote MCP server, CLI, local MCP server, passthrough API or SDK), to take any action in a third-party app through the list → find → execute loop, to use You.com through One, to run a CrewAI crew on One's tools with a Parasail model, to build for The Exorcism Protocol or The Haunted Dashboard tracks, or to find the One dashboard, docs, logs, coupon or Discord.
 ---
 
 # Build with One (hackathon edition)
@@ -10,13 +10,13 @@ description: |
 
 Use it when the user wants to:
 
+- Let the users of a product connect their own apps to it and act for them with their grant (One Connect)
 - Set up One, install the One CLI, or connect an agent (Claude Code, Cursor, Codex, ChatGPT, Claude, OpenClaw, Hermes, Kiro, Gemini CLI, CrewAI) to One's MCP server
 - Take ANY action in a third-party app: send an email, post to Slack, create a Linear issue, read a calendar, look up a customer
 - Search the web, research a topic, or read a page with You.com through One
 - Build a CrewAI crew whose agents act on real apps through One, or fix "expected boolean, received null" and empty-data errors from One tools inside CrewAI
 - Run a crew's agents, or a generated UI, on a Parasail model
 - Build a swarm for The Exorcism Protocol track or a generative UI pipeline for The Haunted Dashboard track
-- Let the users of a product connect their own apps to it (One Connect)
 - Redeem the hackathon coupon, or find the One dashboard, docs, logs or Discord
 
 Do not use it for calling the You.com API directly with its own SDK and key with no One involved, or for CrewAI or Parasail questions that have nothing to do with tools, integrations or this hackathon.
@@ -51,12 +51,44 @@ The CLI (`one list`, `one actions find`, `one actions execute`, plus `one action
 | CrewAI docs | https://docs.crewai.com |
 | Starter repo (CrewAI starter and the facility simulation) | Not public yet. Ask in the Discord |
 | Track templates | https://github.com/withoneai/you-hackathon/tree/main/templates |
-| One Connect (let your users connect their own apps) | https://github.com/withoneai/connect · skill: `npx skills add withoneai/connect` |
+| One Connect (let your users connect their own apps) | Docs https://www.withone.ai/docs/connect · dashboard https://app.withone.ai/developers/connect · https://github.com/withoneai/connect · skill: `npx skills add withoneai/connect` or `one skills add connect` |
 | This skill (latest version) | https://hackathon.withone.ai/sf-halloween-2026/skill.md · rendered at https://hackathon.withone.ai/sf-halloween-2026/skill |
 | Hackathon page and Discord | https://hackathon.withone.ai/sf-halloween-2026 · https://discord.gg/pn8QmHQ4p |
 | Event page | https://luma.com/you-halloween |
 
 Platform slugs are lowercase kebab-case: `gmail`, `slack`, `google-calendar`, `hubspot`, `you`, `linear`. Run `one platforms` or browse the knowledge base to find one.
+
+## One Connect: let your users connect their own apps
+
+Start here if the **users** of your app should connect **their own** Gmail, Slack, Notion, Stripe or any of 1,000+ apps, so **your agent can act in them on each user's behalf**. Your user clicks a Connect button, signs in on One's hosted page and picks their tools and the access for each. Your app gets a grant, your agent works in those tools for that user, and One checks every call against the grant. (Everything after this section is about your agent acting on **your own** connections.) The connections stay in the user's One account; they can narrow or revoke the grant at any time. Package: `@withone/connect` (0.18.0 at the time of writing).
+
+Give your coding agent the full Connect playbook first. Either command installs the `one-connect` skill next to this one:
+
+```bash
+npx skills add withoneai/connect
+# or, with the One CLI
+one skills add connect
+```
+
+**What your users see** (One's hosted page, nothing for you to build): 1. confirm their email (your `loginHintFor` pre-fills it), 2. enter a six-digit code (users without a One account get one in this step; members of an organization also choose a space), 3. connect each tool you ask for and set its access (Read only, Read & write, Full access, or Custom), then **Authorize**. A connect request is valid for 10 minutes. Screenshots: https://www.withone.ai/docs/connect#what-your-users-see
+
+Docs: overview https://www.withone.ai/docs/connect · setup https://www.withone.ai/docs/connect/setup · using the grant https://www.withone.ai/docs/connect/management · dashboard https://app.withone.ai/developers/connect · source and README https://github.com/withoneai/connect
+
+Connect is not Auth. `@withone/auth` (AuthKit in the dashboard) puts connections in **your** One project, so you own them. Connect puts them in the **user's** One account and hands you a grant. For a hackathon product where each user brings their own accounts, Connect is the shape you want.
+
+What you build is a button, two backend routes, and the calls you make with the grant. The SDK writes both routes for you.
+
+1. **Create the app** at https://app.withone.ai → **Developers → Connect → New app**. Register your callback URL exactly (for example `https://yourapp.com/api/one/callback`). Optionally create a **permission set** (the tools and access the app asks for; users can only narrow it) and copy its id. Then, for **key mode** (the default and the one to use at a hackathon), open the app's **Credentials → Connect keys** and create a key on Production; it is shown once. Env: `ONE_CLIENT_ID`, `ONE_CLIENT_SECRET`, `ONE_CONNECT_KEY`, `ONE_REDIRECT_URI`, optional `ONE_PERMISSION_SET`. All server-only.
+2. **The server client.** `createOneConnect({ clientId, clientSecret, redirectUri, permissionSet, connectKey, userStore })` from `@withone/connect/server`. `userStore` is `saveUser` / `loadUser` / `clearUser` for one short string per user (their One id and the space they granted from). It is an identifier, not a secret, and nothing expires or needs refreshing in key mode.
+3. **The two routes.** In Next.js, `app/api/one/[action]/route.ts`: `export const { GET } = createOneConnectRoutes(oneConnect, { identifyUser: async (req) => (await getSession(req))?.userId ?? null })` from `@withone/connect/next`. That serves `/api/one/authorize` and `/api/one/callback`, with state and PKCE handled for you. For Express, Fastify, Koa or plain Node use `createOneConnectHandlers` from `@withone/connect/node`. Serve both routes from the same directory on the origin of `ONE_REDIRECT_URI`: the state cookie is scoped to that path and an attempt expires after **30 minutes**, so a mismatch shows up as every attempt ending in `expired`.
+4. **The button.** `npm i @withone/connect`, then `<ConnectButton authorizeUrl="/api/one/authorize" logos={["gmail", "stripe"]} connected={hasGrant} onSuccess={…} onError={…} />` from `@withone/connect/react` (`logos` is decoration only; the permission set decides what One asks for). Vue, Svelte and a plain `<one-connect-button>` element take the same props. For your own element, the headless hook is `useOneConnect({ authorizeUrl: "/api/one/authorize", onSuccess })`, returning `{ open, status, error }`. Without the SDK in the browser, read the outcome off the URL: `?one_connect=success`, or `?one_connect=error&one_connect_error=declined|expired|failed`.
+5. **Use the grant** on the server, the same find-then-run shape as the CLI: `oneConnect.listConnections(userId)` (each with its `key` and `access`), `searchActions(userId, platform, intent)`, `getActionKnowledge(userId, actionId)`, then `runAction(userId, { connectionKey, actionId, pathParams?, query?, body? })`, which returns `{ status, ok, blockedByGrant, refusal, data }`. `oneConnect.fetch(userId, path)` reaches any other `/v1` endpoint with the headers handled.
+
+Errors that carry the security model: a `403` with `blockedByGrant: true` means the call is outside what the user granted, so do not retry; a `402` with `refusal: "plan_limit"` is a plan limit, not the grant; `reconnect_required` means the user revoked access (or the app is deactivated), so show "Reconnect".
+
+**Token mode** (pass a `tokenStore` instead of `connectKey` / `userStore`) is for apps that need the bearer token itself. You then store an encrypted access and refresh token per user, refresh tokens rotate on every use and live 30 days, and you run a daily `refreshIfExpiring` job. If you call One's HTTP API with that bearer yourself rather than through the SDK, send the tenancy headers the grant needs, `X-One-Organization-Id` and `X-One-Project-Id`, taken from the access token's claims (the SDK's `tenancyHeaders(accessToken)` builds them). The One CLI does **not** accept grant tokens.
+
+The `one-connect` skill above has every step in full; the README at https://github.com/withoneai/connect has every prop, both modes and a troubleshooting table.
 
 ## Pick your path
 
@@ -66,7 +98,7 @@ Platform slugs are lowercase kebab-case: `gmail`, `slack`, `google-calendar`, `h
 | A terminal, a shell script, a cron job, or you need to connect platforms | **B. The CLI** | `one add <platform>` lives here; `--agent` gives JSON for anything that can run a command |
 | A Python or Node framework such as CrewAI, LangChain, Mastra, the Vercel AI SDK | **C. Local MCP server** (`npx -y @withone/mcp` + `ONE_SECRET`) | Frameworks cannot complete a browser OAuth flow; the local server takes a key from the environment |
 | Application code you are shipping | **D. Passthrough API or `@withone/sdk`** | Three headers, no per-platform tokens or refresh logic in your code |
-| A product whose **users** should connect **their own** apps to it | **E. One Connect** (`@withone/connect` + two backend routes) | Each user grants your app scoped, revocable access to their own One connections; One enforces the grant on every call. See [Embed One in your product](#embed-one-in-your-product-one-connect) |
+| A product whose **users** should connect **their own** apps to it | **E. One Connect** (`@withone/connect` + two backend routes) | Each user grants your app scoped, revocable access to their own One connections; One enforces the grant on every call. See [One Connect](#one-connect-let-your-users-connect-their-own-apps) |
 
 You can mix them. They share the same account, the same connections and the same access rules.
 
@@ -599,32 +631,6 @@ Two habits from this example worth keeping. One task, one outcome: a single "cre
 - One shared channel. Pick a Slack channel or a Notion database as the swarm's memory. Every agent posts what it saw and reads the channel before acting.
 - One decider. Use `Process.hierarchical` with a manager agent (the Dispatcher) so actions get coordinated, not duplicated.
 - Score yourself the way the judges do: time to containment, false alarms, civilians saved. Log all three every run.
-
-## Embed One in your product (One Connect)
-
-Everything above is about **your** agent acting on **your** connections. When the thing you are building is a product whose **users** should connect **their own** Gmail, Slack, Notion or Stripe to it, use **One Connect** (`@withone/connect`, 0.18.0 at the time of writing): your user signs in on One's hosted page, picks their tools and the access for each, and your app gets a grant that One checks on every call. The connections stay in the user's One account; they can narrow or revoke the grant at any time.
-
-Connect is not Auth. `@withone/auth` (AuthKit in the dashboard) puts connections in **your** One project, so you own them. Connect puts them in the **user's** One account and hands you a grant. For a hackathon product where each user brings their own accounts, Connect is the shape you want.
-
-What you build is a button, two backend routes, and the calls you make with the grant. The SDK writes both routes for you.
-
-1. **Create the app** at https://app.withone.ai → **Developers → Connect → New app**. Register your callback URL exactly (for example `https://yourapp.com/api/one/callback`). Optionally create a **permission set** (the tools and access the app asks for; users can only narrow it) and copy its id. Then, for **key mode** (the default and the one to use at a hackathon), open the app's **Credentials → Connect keys** and create a key on Production; it is shown once. Env: `ONE_CLIENT_ID`, `ONE_CLIENT_SECRET`, `ONE_CONNECT_KEY`, `ONE_REDIRECT_URI`, optional `ONE_PERMISSION_SET`. All server-only.
-2. **The server client.** `createOneConnect({ clientId, clientSecret, redirectUri, permissionSet, connectKey, userStore })` from `@withone/connect/server`. `userStore` is `saveUser` / `loadUser` / `clearUser` for one short string per user (their One id and the space they granted from). It is an identifier, not a secret, and nothing expires or needs refreshing in key mode.
-3. **The two routes.** In Next.js, `app/api/one/[action]/route.ts`: `export const { GET } = createOneConnectRoutes(oneConnect, { identifyUser: async (req) => (await getSession(req))?.userId ?? null })` from `@withone/connect/next`. That serves `/api/one/authorize` and `/api/one/callback`, with state and PKCE handled for you. For Express, Fastify, Koa or plain Node use `createOneConnectHandlers` from `@withone/connect/node`. Serve both routes from the same directory on the origin of `ONE_REDIRECT_URI`: the state cookie is scoped to that path and an attempt expires after **30 minutes**, so a mismatch shows up as every attempt ending in `expired`.
-4. **The button.** `npm i @withone/connect`, then `<ConnectButton authorizeUrl="/api/one/authorize" logos={["gmail", "stripe"]} connected={hasGrant} onSuccess={…} onError={…} />` from `@withone/connect/react` (`logos` is decoration only; the permission set decides what One asks for). Vue, Svelte and a plain `<one-connect-button>` element take the same props. For your own element, the headless hook is `useOneConnect({ authorizeUrl: "/api/one/authorize", onSuccess })`, returning `{ open, status, error }`. Without the SDK in the browser, read the outcome off the URL: `?one_connect=success`, or `?one_connect=error&one_connect_error=declined|expired|failed`.
-5. **Use the grant** on the server, the same find-then-run shape as the CLI: `oneConnect.listConnections(userId)` (each with its `key` and `access`), `searchActions(userId, platform, intent)`, `getActionKnowledge(userId, actionId)`, then `runAction(userId, { connectionKey, actionId, pathParams?, query?, body? })`, which returns `{ status, ok, blockedByGrant, refusal, data }`. `oneConnect.fetch(userId, path)` reaches any other `/v1` endpoint with the headers handled.
-
-Errors that carry the security model: a `403` with `blockedByGrant: true` means the call is outside what the user granted, so do not retry; a `402` with `refusal: "plan_limit"` is a plan limit, not the grant; `reconnect_required` means the user revoked access (or the app is deactivated), so show "Reconnect".
-
-**Token mode** (pass a `tokenStore` instead of `connectKey` / `userStore`) is for apps that need the bearer token itself. You then store an encrypted access and refresh token per user, refresh tokens rotate on every use and live 30 days, and you run a daily `refreshIfExpiring` job. If you call One's HTTP API with that bearer yourself rather than through the SDK, send the tenancy headers the grant needs, `X-One-Organization-Id` and `X-One-Project-Id`, taken from the access token's claims (the SDK's `tenancyHeaders(accessToken)` builds them). The One CLI does **not** accept grant tokens.
-
-The full playbook is the `one-connect` skill that ships with the package. Install it next to this one:
-
-```bash
-npx skills add withoneai/connect
-```
-
-Or read https://github.com/withoneai/connect (the README has every prop, both modes and a troubleshooting table).
 
 ## Troubleshooting
 

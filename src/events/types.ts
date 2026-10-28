@@ -88,6 +88,8 @@ export type HackathonEvent = {
   /** The hero eyebrow's dot. */
   accentDot: "lime" | "pumpkin";
 
+  /** Show the One Connect section right after the perk, as the page's main build path. */
+  connectSection?: boolean;
   perk: { prizeLine: string; prizeRest: string };
   skill: { teaches: string[]; pageDescription: string };
   setup: { connectHelp: string; connectCommands: string[] };

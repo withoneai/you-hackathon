@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ConnectSection } from "@/components/sections/connect-section";
 import { Footer } from "@/components/sections/footer";
 import { Header } from "@/components/sections/header";
 import { HelpSection } from "@/components/sections/help-section";
@@ -41,6 +42,7 @@ export default async function EventPage({ params }: PageProps<"/[slug]">) {
       <main className="flex-1">
         <Hero event={event} />
         <PerkCard event={event} />
+        {event.connectSection && <ConnectSection />}
         <SkillCallout event={event} />
         <SetupPaths event={event} />
         <PartnerCards event={event} />

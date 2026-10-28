@@ -308,7 +308,7 @@ function CliPanel({ event }: { event: HackathonEvent }) {
   );
 }
 
-function ApiPanel() {
+function ApiPanel({ event }: { event: HackathonEvent }) {
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_1.35fr] lg:gap-10">
       <div className="min-w-0">
@@ -360,10 +360,10 @@ function ApiPanel() {
           </CommandRow>
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
             <Link
-              href="/skill#embed-one-in-your-product-one-connect"
+              href={event.connectSection ? "#connect" : "/skill#embed-one-in-your-product-one-connect"}
               className="inline-flex items-center gap-1 text-13 font-medium text-foreground transition-colors hover:text-spring"
             >
-              How it fits, in the skill <ArrowRight size={13} />
+              {event.connectSection ? "How it works" : "How it fits, in the skill"} <ArrowRight size={13} />
             </Link>
             <a
               href={LINKS.connectRepo}
@@ -433,7 +433,7 @@ export function SetupPaths({ event }: { event: HackathonEvent }) {
             items={[
               { id: "mcp", label: "Remote MCP", content: <div className="rounded-card border border-border bg-surface/60 p-6 sm:p-8"><McpPanel /></div> },
               { id: "cli", label: "CLI", content: <div className="rounded-card border border-border bg-surface/60 p-6 sm:p-8"><CliPanel event={event} /></div> },
-              { id: "api", label: "API / SDK", content: <div className="rounded-card border border-border bg-surface/60 p-6 sm:p-8"><ApiPanel /></div> },
+              { id: "api", label: "API / SDK", content: <div className="rounded-card border border-border bg-surface/60 p-6 sm:p-8"><ApiPanel event={event} /></div> },
             ]}
           />
         </Reveal>
