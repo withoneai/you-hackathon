@@ -316,8 +316,9 @@ h3 {
 }
 
 /* sugar-high token colours (dark set from the landing repo). */
+/* Inline: sugar-high already separates lines with "\n", so block lines double-space. */
 .sh__line {
-  display: block;
+  display: inline;
 }
 .sh__token--class {
   color: var(--code-class);

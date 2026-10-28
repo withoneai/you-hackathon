@@ -51,7 +51,7 @@ export function Header({ event, sectionBase = "" }: { event?: HackathonEvent; se
 
         {event && (
           <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Sections">
-            {nav.map((item) => (
+            {(event.connectSection ? [{ label: "Connect", href: "#connect" }, ...nav] : nav).map((item) => (
               <a
                 key={item.href}
                 href={`${sectionBase}${item.href}`}

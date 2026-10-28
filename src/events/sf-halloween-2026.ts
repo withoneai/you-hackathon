@@ -67,9 +67,11 @@ export const sfHalloween2026: HackathonEvent = {
   },
   accentDot: "pumpkin",
 
+  connectSection: true,
   perk: { prizeLine: "Win, and it's a free year.", prizeRest: "Second place gets six months, third gets three." },
   skill: {
     teaches: [
+      "One Connect: let your app's users connect their own tools, and act with their grant",
       "Setup for the remote MCP server, the CLI, the local MCP server and the API",
       "The three-tool loop: list, find the action and its docs, execute",
       "Playbooks for You.com, CrewAI and Parasail with One",
